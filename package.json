@@ -1,52 +1,57 @@
 {
-  "name": "vscode-move-ide",
-  "version": "0.0.1",
-  "description": "VSCode extension for Move language",
-  "main": "./extension.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "engines": {
-    "vscode": "^1.43.0"
-  },
-  "contributes": {
-    "languages": [
-      {
-        "id": "move",
-        "extensions": [
-          ".mvir",
-          ".move"
-        ]
-      }
-    ],
-    "grammars": [
-      {
-        "language": "move",
-        "scopeName": "source.move",
-        "path": "./syntaxes/move.tmLanguage.json"
-      }
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/damirka/vscode-move-ide.git"
-  },
-  "keywords": [
-    "libra",
-    "move",
-    "dfinance",
-    "ide",
-    "move-ide",
-    "libra-ide",
-    "dfinance-ide"
-  ],
-  "author": "Damir Shamanaev <damirka.ru@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/damirka/vscode-move-ide/issues"
-  },
-  "homepage": "https://github.com/damirka/vscode-move-ide#readme",
-  "devDependencies": {
-    "@types/vscode": "^1.43.0"
-  }
+	"name": "move-ide",
+	"version": "0.0.1",
+	"description": "VSCode extension for Move language",
+	"publisher": "damirka",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"engines": {
+		"vscode": "^1.43.0"
+	},
+	"contributes": {
+		"languages": [
+			{
+				"id": "move",
+				"extensions": [
+					".mvir",
+					".move"
+				]
+			}
+		],
+		"grammars": [
+			{
+				"language": "move",
+				"scopeName": "source.move",
+				"path": "./syntaxes/move.tmLanguage.json"
+			}
+		]
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/damirka/vscode-move-ide.git"
+	},
+	"keywords": [
+		"libra",
+		"move",
+		"dfinance",
+		"ide",
+		"move-ide",
+		"libra-ide",
+		"dfinance-ide"
+	],
+	"author": "Damir Shamanaev <damirka.ru@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/damirka/vscode-move-ide/issues"
+	},
+	"homepage": "https://github.com/damirka/vscode-move-ide#readme",
+	"devDependencies": {
+		"@types/vscode": "^1.43.0"
+	},
+	"__metadata": {
+		"id": "7a08f3ad-eba4-44de-bca1-e41d38b68a5c",
+		"publisherDisplayName": "Damir Shamanaev",
+		"publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6"
+	}
 }
