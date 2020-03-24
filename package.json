@@ -1,14 +1,16 @@
 {
 	"name": "move-ide",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "VSCode extension for Move language",
 	"publisher": "damirka",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
+	"scripts": {},
 	"engines": {
 		"vscode": "^1.43.0"
 	},
+	"activationEvents": [
+		"onLanguage:move"
+	],
+	"main": "./extension.js",
 	"contributes": {
 		"languages": [
 			{
@@ -25,7 +27,48 @@
 				"scopeName": "source.move",
 				"path": "./syntaxes/move.tmLanguage.json"
 			}
-		]
+		],
+		"commands": [
+			{
+				"command": "extension.compile",
+				"title": "Compile current file"
+			}
+		],
+		"configuration":{
+			"title": "Move IDE",
+			"properties": {
+				"move.configPath": {
+					"type": "string",
+					"default": "/.mvconfig.json",
+					"description": "When set and file is present, json configuration will be used instead of editor config"
+				},
+				"move.network": {
+					"type": "string",
+					"enum": [
+						"libra (unsupported)",
+						"dfinance"
+					],
+					"default": "dfinance",
+					"description": "Infrastructure (Move version) to use: Dfinance or Libra (unsupported)",
+					"scope": "resource"
+				},
+				"move.compilerDir": {
+					"type": "string",
+					"default": "./out",
+					"description": "Relative path inside working directory to put compiled files into"
+				},
+				"move.defaultAccount": {
+					"type": "string",
+					"default": "",
+					"description": "Default account to use when compiling. If not set prompt will be shown on compile command"
+				},
+				"move.compilerUrl": {
+					"type": "string",
+					"default": "http://127.0.0.1:50053",
+					"description": "Compiler URL. Soon will be testnet by default"
+				}
+			}
+		}
 	},
 	"repository": {
 		"type": "git",
@@ -53,5 +96,8 @@
 		"id": "7a08f3ad-eba4-44de-bca1-e41d38b68a5c",
 		"publisherDisplayName": "Damir Shamanaev",
 		"publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^6.1.3"
 	}
 }
