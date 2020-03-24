@@ -9,6 +9,11 @@
             "name": "variable.language.self.move",
             "match": "\\b(Self|self)\\b"
         },
+        "type": {
+            "comment": "Uppercase tokens -> modules",
+            "name": "entity.name.type.move",
+            "match": "\\b([A-Z][a-z]+)\\b"
+        },
         "custom_type": {
             "name": "entity.name.type.move",
             "match": "\\b[A-Z][A-Za-z0-9]*\\b"
@@ -32,12 +37,7 @@
         },
         "fn_visibility_attr": {
             "name": "storage.modifier",
-            "match": "\\b(native|public|resource)\\b"
-        },
-        "type": {
-            "comment": "A type",
-            "name": "entity.name.type.move",
-            "match": "\\b([A-Za-z][_A-Za-z0-9]*|_[_A-Za-z0-9]+)"
+            "match": "\\b(native|public)\\b"
         },
         "type_params": {
             "comment": "Type parameters",
@@ -102,15 +102,15 @@
         "operators": {
             "patterns": [
                 {
-                    "name": "keyword.operator.arithmetic.compound-assignment.rust",
+                    "name": "keyword.operator.arithmetic.compound-assignment.move",
                     "match": "[\\+\\-*\\/%]="
                 },
                 {
-                    "name": "keyword.operator.bitwise.compound-assignment.rust",
+                    "name": "keyword.operator.bitwise.compound-assignment.move",
                     "match": "(?:[&|^]|<<|>>)="
                 },
                 {
-                    "name": "keyword.operator.comparison.rust",
+                    "name": "keyword.operator.comparison.move",
                     "match": "(?:=|!|<|>)="
                 }
             ]
@@ -127,7 +127,7 @@
             "include": "#std_type"
         },
         {
-            "begin": "\\b(struct)\\s+([A-Za-z][A-Za-z0-9]*)\\s+{",
+            "begin": "\\b(struct|resource)\\s+([A-Za-z][A-Za-z0-9]*)\\s+{",
             "beginCaptures": {
                 "1": {
                     "name": "storage.type.move"
@@ -137,6 +137,9 @@
                 }
             },
             "patterns": [
+                {
+                    "include": "#type"
+                },
                 {
                     "include": "#std_type"
                 },
@@ -233,6 +236,9 @@
             },
             "patterns": [
                 {
+                    "include": "#type"
+                },
+                {
                     "include": "#block_doc_comment"
                 },
                 {
@@ -259,6 +265,9 @@
                 }
             },
             "patterns": [
+                {
+                    "include": "#type"
+                },
                 {
                     "include": "#type_params"
                 },
@@ -293,6 +302,9 @@
         },
         {
             "include": "#line_comment"
+        },
+        {
+            "include": "#type"
         }
     ]
 }
