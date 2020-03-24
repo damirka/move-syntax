@@ -1,4 +1,4 @@
-# Move ID for VSCode
+# Move IDE for VSCode
 
 This extension will help you develop applications in Move language for Dfinance of Libra blockchains.
 
