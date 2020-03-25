@@ -17,12 +17,6 @@ const workspace = vscode.workspace;
  */
 function activate(context) {
 
-	{
-		const config   = loadConfig();
-		const currPath = currentPath();
-		checkCreateOutDir(path.join(currPath.folder, config.compilerDir));
-	}
-
 	context.subscriptions.push(vscode.commands.registerCommand('extension.compile', async () => {
 
 		const config = loadConfig();
@@ -51,6 +45,8 @@ function activate(context) {
 		// let's compile then; dncli is required of course
 		{
 			const currPath = currentPath();
+			checkCreateOutDir(path.join(currPath.folder, config.compilerDir));
+
 			const args = [
 				currPath.file, account, '--to-file',
 				path.join(currPath.folder, config.compilerDir, path.basename(currPath.file) + '.json')
