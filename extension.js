@@ -47,62 +47,21 @@ function activate(context) {
 			const currPath = currentPath();
 			checkCreateOutDir(path.join(currPath.folder, config.compilerDir));
 
+			const outPath = path.join(currPath.folder, config.compilerDir, path.basename(currPath.file) + '.json');
+
 			const args = [
-				currPath.file, account, '--to-file',
-				path.join(currPath.folder, config.compilerDir, path.basename(currPath.file) + '.json')
+				currPath.file, account, // ...vm compile-module <file> <account>
+				'--to-file',   outPath,
+				'--compiler',  config.compiler
 			];
+
+			console.log(args);
 
 			await exec('dncli query vm compile-module ' + args.join(' '))
 				.then((stdout)  => vscode.window.showInformationMessage(stdout))
 				.catch((stderr) => vscode.window.showErrorMessage(stderr));
 		}
 	}));
-
-	// const workspace = vscode.workspace;
-
-	// function checkEvent(document, command) {
-	// 	console.log(command, document.fileName, document.languageId, document.lineCount);
-	// }
-
-	// workspace.onDidCloseTextDocument((d) => checkEvent(d, 'close'));
-	// workspace.onDidOpenTextDocument((d) => checkEvent(d, 'open'));
-
-	// workspace.onDidSaveTextDocument(function onSave(document) {
-	// 	// console.log(document.getText(), 'save');
-	// });
-
-	// // vscode.workspace.onDidChangeTextDocument(function (documentChangeEvt) {
-	// // 	console.log(documentChangeEvt.contentChanges, documentChangeEvt);
-	// // });
-
-
-
-	// 	console.log('root', vscode.workspace.rootPath);
-
-	// 	const file = currentFile();
-
-
-	// 	const command = 'dncli query vm compile-module ' + args.join(' ');
-	// 	const result  = await exec(command).catch((e) => console.log('error while compiling', e));
-
-	// 	console.log(result);
-
-	// 	// vscode.workspace.getConfiguration('myExtension')
-
-		// let inputBox = vscode.window.createInputBox();
-		// inputBox.title = 'Enter account from which you\'re going to deploy this script';
-		// inputBox.show();
-		// inputBox.onDidAccept(function () {
-		// 	console.log(inputBox.value);
-		// 	inputBox.hide();
-		// });
-
-	//
-	// }));
-
-	// context.subscriptions.push(vscode.commands.registerCommand('extension.compile-script', () => {
-
-	// }));
 }
 
 // this method is called when your extension is deactivated
