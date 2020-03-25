@@ -47,17 +47,19 @@ function activate(context) {
 			const currPath = currentPath();
 			checkCreateOutDir(path.join(currPath.folder, config.compilerDir));
 
-			const outPath = path.join(currPath.folder, config.compilerDir, path.basename(currPath.file) + '.json');
+			const outPath  = path.join(currPath.folder, config.compilerDir, path.basename(currPath.file) + '.json');
+			const text     = vscode.window.activeTextEditor.document.getText();
+			const isModule = /module\s+[A-Za-z0-9_]+[\s\n]+\{/mg.test(text); // same regexp is used in grammar
 
+			// finally prepare cmd for execution
+			const cmd  = isModule ? 'compile-module' : 'compile-script';
 			const args = [
-				currPath.file, account, // ...vm compile-module <file> <account>
+				cmd, currPath.file, account, // ...vm compile-module <file> <account>
 				'--to-file',   outPath,
 				'--compiler',  config.compiler
 			];
 
-			console.log(args);
-
-			await exec('dncli query vm compile-module ' + args.join(' '))
+			await exec('dncli query vm ' + args.join(' '))
 				.then((stdout)  => vscode.window.showInformationMessage(stdout))
 				.catch((stderr) => vscode.window.showErrorMessage(stderr));
 		}
