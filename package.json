@@ -15,10 +15,12 @@
 		"languages": [
 			{
 				"id": "move",
+				"aliases": ["Move", "LibraMove", "mvir", "Move IR"],
 				"extensions": [
 					".mvir",
 					".move"
-				]
+				],
+				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
