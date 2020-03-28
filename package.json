@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.0.2",
+	"version": "0.1.0",
 	"description": "VSCode extension for Move language",
 	"publisher": "damirka",
 	"scripts": {},
