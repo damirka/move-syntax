@@ -33,7 +33,7 @@
 		"commands": [
 			{
 				"command": "extension.compile",
-				"title": "Compile current file"
+				"title": "Move: Compile"
 			}
 		],
 		"configuration":{
