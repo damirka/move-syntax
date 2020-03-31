@@ -4,10 +4,27 @@ This extension will help you develop applications in Move language for Dfinance 
 
 What's inside:
 
-- Move syntax highlighting (always up to date)
+- **Move** and **Mvir** syntax highlighting (always up to date)
 - Move compiler command for Dfinance chain (Libra's on the go)
 
-## Setup
+## Syntax highlighting
+
+This extension features best syntax highlighting you can get for Move or Mvir. Each language has its own grammar file so you won't be mistaken and syntaxes won't overlap.
+
+I've personally put much effort into making this syntax helpful (aka some keywords - like `acquires` won't be highlighted when misplaced).
+
+### Samples:
+
+Move - brand new and super-shiny in your VSCode (the best with [Atom Light theme](https://marketplace.visualstudio.com/items?itemName=akamud.vscode-theme-onelight))
+
+![Move highlighting](https://github.com/damirka/vscode-move-ide/blob/master/img/move.highlight.jpg)
+
+Mvir - you should know it well by now.
+
+![Mvir highlighting](https://github.com/damirka/vscode-move-ide/blob/master/img/mvir.highlight.jpg)
+
+
+## IDE Setup
 
 ### Dfinance
 
@@ -52,8 +69,8 @@ Sample here (put inside your working dir):
 
 ## Future
 
+- [ ] implement compiler support for Libra
 - [ ] yeoman bootstrap for directory structure
 - [ ] add LSP (language server protocol) for Move
-- [ ] implement compiler support for Libra
 
 

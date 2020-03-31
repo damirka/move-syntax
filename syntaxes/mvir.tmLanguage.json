@@ -173,9 +173,6 @@
                 {
                     "comment": "Trait-like matching. It's called Kind in Move",
                     "begin": "\\b(\\w+)\\s*:\\s*",
-                    "beginCaptures": {
-                        "1": { "name": "entity.name.type.move" }
-                    },
                     "end": "(?=>)",
                     "patterns": [
                         { "include": "#comments" },
