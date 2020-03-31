@@ -1,40 +1,47 @@
 # Move IDE for VSCode
 
-This extension will help you develop applications in Move language for Dfinance of Libra blockchains.
+Built by developer for developers, this extension will simplify your Move development and will (I guarantee!) make your first experience with Move less painful.
 
-What's inside:
+[Jump to setup](#setup)
 
-- **Move** and **Mvir** syntax highlighting (always up to date)
-- Move compiler command for Dfinance chain (Libra's on the go)
+If you still aren't familiar with Move language you can follow [this link](https://developers.libra.org/docs/move-paper)
+
+**What's inside**:
+
+- Move and Mvir syntax highlighting (always up to date)
+- Move (and Mvir) compiler command for Dfinance chain (Libra's on the go)
+
+Already want to try? [To the marketplace!](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
 
 ## Syntax highlighting
 
-This extension features best syntax highlighting you can get for Move or Mvir. Each language has its own grammar file so you won't be mistaken and syntaxes won't overlap.
+Extension features best syntax highlighting you can get for Move or Mvir. Each language has its own grammar file so you won't be mistaken and syntaxes won't overlap.
 
 I've personally put much effort into making this syntax helpful (aka some keywords - like `acquires` won't be highlighted when misplaced).
 
 ### Samples:
 
-Move - brand new and super-shiny in your VSCode (the best with [Atom Light theme](https://marketplace.visualstudio.com/items?itemName=akamud.vscode-theme-onelight))
+**Move** - brand new language now shines bright in your VSCode (the best with [Atom Light theme](https://marketplace.visualstudio.com/items?itemName=akamud.vscode-theme-onelight))
 
-![Move highlighting](https://github.com/damirka/vscode-move-ide/blob/master/img/move.highlight.jpg)
+![Move highlighting](https://raw.githubusercontent.com/damirka/vscode-move-ide/master/img/move.highlight.jpg)
 
-Mvir - you should know it well by now.
+**Mvir** - you should know it well by now.
 
-![Mvir highlighting](https://github.com/damirka/vscode-move-ide/blob/master/img/mvir.highlight.jpg)
+![Mvir highlighting](https://raw.githubusercontent.com/damirka/vscode-move-ide/master/img/mvir.highlight.jpg)
 
+<a name="setup"></a>
 
 ## IDE Setup
+
+### Libra
+
+Currently unsupported
 
 ### Dfinance
 
 Requirements:
 
 - dncli - see [dfinance/dnode](https://github.com/dfinance/dnode) for releases and executables
-
-### Libra
-
-Currently unsupported
 
 ## Recomended directory structure
 
