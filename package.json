@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -14,6 +14,7 @@
 		"vscode": "^1.43.0"
 	},
 	"activationEvents": [
+		"onLanguage:mvir",
 		"onLanguage:move"
 	],
 	"main": "./extension.js",
@@ -21,11 +22,14 @@
 		"languages": [
 			{
 				"id": "move",
-				"aliases": ["Move", "LibraMove", "mvir", "Move IR"],
-				"extensions": [
-					".mvir",
-					".move"
-				],
+				"aliases": ["Move", "LibraMove"],
+				"extensions": [".move"],
+				"configuration": "./language-configuration.json"
+			},
+			{
+				"id": "mvir",
+				"aliases": ["MVIR", "mvir", "Move IR"],
+				"extensions": [".mvir"],
 				"configuration": "./language-configuration.json"
 			}
 		],
@@ -34,6 +38,11 @@
 				"language": "move",
 				"scopeName": "source.move",
 				"path": "./syntaxes/move.tmLanguage.json"
+			},
+			{
+				"language": "mvir",
+				"scopeName": "source.mvir",
+				"path": "./syntaxes/mvir.tmLanguage.json"
 			}
 		],
 		"commands": [

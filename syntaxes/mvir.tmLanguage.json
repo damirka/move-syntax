@@ -1,5 +1,5 @@
 {
-    "scopeName": "source.move",
+    "scopeName": "source.mvir",
     "repository": {
 
         "line-comments": {
@@ -80,26 +80,13 @@
         "flow": {
             "comment": "Control operators",
             "name": "keyword.control.move",
-            "match": "\\b(?:loop|as|while|break|continue|if|else|return|abort)\\b"
-        },
-
-        "vector": {
-            "comment": "Vector type eg vector<u8>",
-            "begin": "\\b(vector)(?=\\<)",
-            "beginCaptures": {
-                "1": { "name": "support.type.vector.move" }
-            },
-            "end": "(?=>)",
-            "patterns": [
-                { "include": "#types" },
-                { "include": "#vector" }
-            ]
+            "match": "\\b(?:loop|as|while|break|continue|if|else|return)\\b"
         },
 
         "types": {
             "comment": "Standard types",
-            "match": "\\b(u8|u64|u128|address|bool)\\b",
-            "name": "support.type.primitives.move"
+            "match": "\\b(bytearray|u8|u64|u128|address|bool)\\b",
+            "name": "storage.type.move"
         },
 
         "let-keyword": {
@@ -110,26 +97,20 @@
 
         "self": {
             "comment": "Self keyword",
-            "match": "\\b(Self)\\b"
+            "match": "\\b(Self)\\b",
+            "name": "variable.language.self.move"
         },
 
         "definitions-common": {
             "patterns": [
-                { "include": "#vector" },
                 { "include": "#types" },
                 { "include": "#self" }
             ]
         },
 
-        "predefined-methods": {
-            "comment": "Methods like move and copy",
-            "match": "\\b(move|copy)(?=\\()",
-            "name": "support.function.move"
-        },
-
         "typed-prededefined-methods": {
             "comment": "Language-specific typed keywords",
-            "begin": "\\b(borrow_global|emit_event|borrow_global_mut|exists|move_from|move_to_sender)(?=\\<)",
+            "begin": "\\b(vector|borrow_global|borrow_global_mut|exists|move_from|move_to_sender)(?=\\<)",
             "beginCaptures": {
                 "1": { "name": "support.function.typed.move" }
             },
@@ -137,6 +118,20 @@
             "patterns": [
                 { "include": "#type-parameters" }
             ]
+        },
+
+        "predefined-methods": {
+            "comment": "Language-specific keywords",
+            "begin": "\\b(move|copy|assert|freeze|get_txn_sender)(?=\\()",
+            "beginCaptures": {
+                "1": { "name": "support.function.move" }
+            },
+            "patterns": [
+                { "include": "#predefined-methods" },
+                { "include": "#literals" },
+                { "include": "#self" }
+            ],
+            "end": "\\s*\\)"
         },
 
         "type-parameters": {
@@ -151,14 +146,13 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#type-parameters" },
-                { "include": "#definitions-common" },
-                { "include": "#method-or-prop" }
+                { "include": "#definitions-common" }
             ]
         },
 
         "type-kind": {
             "comment": "Trait-like matching. It's called Kind in Move",
-            "match": "\\b(unknown|resource|copyable|affine|unrestricted)\\b",
+            "match": "\\b(unknown|resource|affine|unrestricted)\\b",
             "name": "entity.name.type.kind.move"
         },
 
@@ -179,6 +173,9 @@
                 {
                     "comment": "Trait-like matching. It's called Kind in Move",
                     "begin": "\\b(\\w+)\\s*:\\s*",
+                    "beginCaptures": {
+                        "1": { "name": "entity.name.type.move" }
+                    },
                     "end": "(?=>)",
                     "patterns": [
                         { "include": "#comments" },
@@ -190,10 +187,9 @@
 
         "resource": {
             "comment": "Resource definition",
-            "begin": "\\b(resource)\\s+(struct)",
+            "begin": "\\b(resource)\\s+",
             "beginCaptures": {
-                "1": { "name": "storage.type.move" },
-                "2": { "name": "storage.type.move" }
+                "1": { "name": "storage.type.move" }
             },
             "end": "(?=\\s*[{])",
             "patterns": [
@@ -241,10 +237,9 @@
             "patterns": [
                 {
                     "comment": "Module name",
-                    "match": "\\b(\\w+)\\b",
+                    "match": "\\b(\\w+)(?=\\s*{)",
                     "name": "entity.name.type.module.move"
-                },
-                { "include": "#comments" }
+                }
             ]
 
         },
@@ -255,30 +250,21 @@
             "name": "entity.name.type.move"
         },
 
-        "stdlib-address": {
-            "comment": "Stdlib address marker",
-            "match": "\\b(address)\\s+(0x0)\\s*:",
-            "captures": {
-                "1": { "name": "storage.modifier.stdlib.address.move" },
-                "2": { "name": "support.constant.stdlib.move" }
-            }
-        },
-
-        "use-import": {
-            "comment": "Import declaration with use keyword",
-            "begin": "\\b(use)\\s+",
+        "import": {
+            "comment": "Import declaration",
+            "begin": "\\b(import)\\s+",
             "beginCaptures": {
                 "1": { "name": "keyword.other.move" }
             },
             "end": "(;)",
             "patterns": [
                 {
-                    "comment": "0x import",
-                    "begin": "\\b(0x[0-9A-Fa-f]+)\\s*",
+                    "comment": "0x0 import",
+                    "begin": "\\b(0x0)\\s*",
                     "beginCaptures": {
                         "1": { "name": "support.constant.0x0.move" }
                     },
-                    "end": "(?=::)",
+                    "end": "(?=\\.)",
                     "patterns": [
                         { "include": "#comments" }
                     ]
@@ -289,15 +275,10 @@
                     "beginCaptures": {
                         "1": { "name": "support.constant.dfinance.move" }
                     },
-                    "end": "(?=::)",
+                    "end": "(?=\\.)",
                     "patterns": [
                         { "include": "#comments" }
                     ]
-                },
-                {
-                    "comment": "Highlight import",
-                    "match": "(?<=::)\\s*(\\w+)\\s*(?=;)",
-                    "name": "entity.name.class.import.move"
                 },
                 { "include": "#comments" }
             ]
@@ -309,79 +290,78 @@
             "name": "storage.modifier.acquires.move"
         },
 
-        "functions": {
+        "function-return": {
             "patterns": [
-                { "include": "#function-definition" },
-                { "include": "#method-or-prop" },
-                { "include": "#local-method-call" }
-            ]
-        },
-
-        "function-definition": {
-            "begin": "\\b(fun)\\s+(\\w+)",
-            "beginCaptures": {
-                "1": { "name": "keyword.control.move" },
-                "2": { "name": "entity.name.function.move" }
-            },
-            "end": "(?=\\s*[{;])",
-            "patterns": [
-                { "include": "#comments" },
-                { "include": "#mut-keyword" },
-                { "include": "#resource-type-parameters" },
-                { "include": "#definitions-common" },
-                { "include": "#method-or-prop" },
                 {
-                    "begin": "(?<=\\))",
-                    "end": "(?=\\s*[{;])",
+                    "comment": "With return value; // FIXME // BAD PATTERN",
+                    "begin": "(?=\\)):?",
+                    "end": "(?=[{;=])",
                     "patterns": [
+                        { "include": "#mut-keyword" },
                         { "include": "#acquires-keyword" },
-                        { "include": "#method-or-prop" },
-                        { "include": "#vector" },
-                        { "include": "#types" }
+                        { "include": "#definitions-common" }
                     ]
                 }
             ]
         },
 
-        "method-or-prop": {
-            "match": "\\b(\\w+)::(\\w+)\\b",
-            "captures": {
-                "1": { "name": "entity.name.class.move" },
-                "2": { "name": "entity.name.function.call.move" }
-            }
+        "functions": {
+            "patterns": [
+                { "include": "#function-call-or-definition" },
+                { "include": "#function-return" }
+            ]
         },
 
-        "local-method-call": {
-            "begin": "\\b(\\w+)(?=[<(])",
+        "function-call-or-definition": {
+            "comment": "Basic function definition",
+            "name": "meta.function.move",
+            "begin": "\\b(\\w+)\\s*(?=[\\(<])",
             "beginCaptures": {
-                "1": { "name": "entity.name.function.call.move" }
+                "1": { "name": "entity.name.function.move" }
             },
-            "end": "(?=\\))",
+            "end": "(?=\\s*[({;,])",
             "patterns": [
-                { "include": "#comments" },
-                { "include": "#type-parameters" },
-                { "include": "#predefined-methods" },
-                { "include": "#local-method-call" },
-                { "include": "#definitions-common" },
-                { "include": "#method-or-prop" },
-                { "include": "#literals" }
+                {
+                    "comment": "Typed function definition is allowed",
+                    "include": "#resource-type-parameters"
+                },
+                {
+                    "comment": "Function parameters",
+                    "begin": "\\(",
+                    "end": "(?=\\))",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#mut-keyword" },
+                        { "include": "#definitions-common" }
+                    ]
+                },
+                {
+                    "comment": "Return values / types",
+                    "begin": "(?<=\\))\\s*:?",
+                    "end": "(?=\\s*[{;,])",
+                    "patterns": [
+                        { "include": "#acquires-keyword" },
+                        { "include": "#definitions-common" },
+                        { "include": "#comments" }
+                    ]
+                },
+                { "include": "#comments" }
             ]
         }
     },
     "patterns": [
-        { "include": "#stdlib-address" },
+        { "include": "#import" },
         { "include": "#module" },
-        { "include": "#use-import" },
         { "include": "#resource" },
         { "include": "#structure" },
         { "include": "#flow" },
-        { "include": "#definitions-common" },
-        { "include": "#predefined-methods" },
         { "include": "#typed-prededefined-methods" },
+        { "include": "#predefined-methods" },
+        { "include": "#functions" },
         { "include": "#modifiers" },
         { "include": "#let-keyword" },
+        { "include": "#definitions-common" },
         { "include": "#literals" },
-        { "include": "#functions" },
         { "include": "#comments" }
     ]
 }
