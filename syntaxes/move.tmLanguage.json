@@ -165,7 +165,7 @@
 
         "type-kind": {
             "comment": "Trait-like matching. It's called Kind in Move",
-            "match": "\\b(unknown|resource|copyable|affine|unrestricted)\\b",
+            "match": "\\b(unknown|resource|copyable)\\b",
             "name": "entity.name.type.kind.move"
         },
 
