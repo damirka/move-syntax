@@ -5,17 +5,45 @@ const cp     = require('child_process');
 const path   = require('path');
 const fs     = require('fs');
 
+const lsp = require('vscode-languageclient');
+
 const CONFIG_PATH = 'move';
 const CONFIG_FILE = '.mvconfig.json'
 const DFI_ACC_LEN = 45;
 
 const workspace = vscode.workspace;
 
+let client;
+
 /**
  * Activate extension: register commands, attach handlers
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+
+	try {
+		const outputChannel = vscode.window.createOutputChannel('move-language-server');
+
+		console.log(process.platform === 'win32');
+
+		const lspExecutable = {
+			command: (process.platform === 'win32') ? 'bin/move-ls.exe' : 'bin/move-ls',
+			options: { env: { RUST_LOG: 'info' } },
+		};
+
+		const serverOptions = {
+			run: lspExecutable,
+			debug: lspExecutable,
+		};
+
+		const clientOptions = {
+			outputChannel: outputChannel,
+			documentSelector: [{ scheme: 'file', language: 'move' }],
+		};
+
+		client = new lsp.LanguageClient('move-language-server', 'Move Language Server', serverOptions, clientOptions);
+		client.start();
+	} catch (e) { console.log(e) }
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.compile', async () => {
 
@@ -67,7 +95,9 @@ function activate(context) {
 }
 
 // this method is called when your extension is deactivated
-function deactivate() {}
+function deactivate() {
+	client.stop();
+}
 
 /**
  * Get absolute path to current file and workspace folder
