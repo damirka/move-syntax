@@ -24,10 +24,9 @@ function activate(context) {
 	try {
 		const outputChannel = vscode.window.createOutputChannel('move-language-server');
 
-		console.log(process.platform === 'win32');
-
+		const executable    = (process.platform === 'win32') ? 'move-ls.exe' : 'move-ls';
 		const lspExecutable = {
-			command: (process.platform === 'win32') ? 'bin/move-ls.exe' : 'bin/move-ls',
+			command: path.join(context.extensionPath, 'bin', executable),
 			options: { env: { RUST_LOG: 'info' } },
 		};
 
