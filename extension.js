@@ -87,8 +87,8 @@ function activate(context) {
 			];
 
 			await exec('dncli query vm ' + args.join(' '))
-				.then((stdout)  => vscode.window.showInformationMessage(stdout))
-				.catch((stderr) => vscode.window.showErrorMessage(stderr));
+				.then((stdout)  => vscode.window.showInformationMessage(stdout, {modal: config.showModal || false}))
+				.catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
 		}
 	}));
 }
@@ -166,7 +166,7 @@ function checkCreateOutDir(outDir) {
 function exec(cmd) {
 	return new Promise((resolve, reject) => {
 		return cp.exec(cmd, function onExec(error, stdout, stderr) {
-			return (error !== null || stderr) ? reject(error || stderr) : resolve(stdout);
+			return (error !== null || stderr) ? reject(stderr) : resolve(stdout);
 		});
 	})
 }

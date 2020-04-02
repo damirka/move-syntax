@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -85,6 +85,11 @@
 					"type": "string",
 					"default": "http://127.0.0.1:50053",
 					"description": "Compiler URL. Soon will be testnet by default"
+				},
+				"move.showModal": {
+					"type": "boolean",
+					"description": "Show notifications in modal window",
+					"default": true
 				}
 			}
 		}
