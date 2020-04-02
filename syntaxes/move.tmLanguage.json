@@ -197,25 +197,14 @@
 
         "resource": {
             "comment": "Resource definition",
-            "begin": "\\b(resource)\\s+(struct)",
+            "begin": "\\b(resource)\\s+",
             "beginCaptures": {
-                "1": { "name": "storage.type.move" },
-                "2": { "name": "storage.type.move" }
+                "1": { "name": "storage.type.move" }
             },
-            "end": "(?=\\s*[{])",
+            "end": "(?=\\s*[}])",
             "patterns": [
                 { "include": "#comments" },
-                {
-                    "begin": "\\b(\\w+)(?=[\\s<{])",
-                    "beginCaptures": {
-                        "1": { "name": "entity.name.type.resource.move" }
-                    },
-                    "end": "(?=\\s*[{])",
-                    "patterns": [
-                        { "include": "#comments" },
-                        { "include": "#resource-type-parameters" }
-                    ]
-                }
+                { "include": "#structure" }
             ]
         },
 
@@ -225,15 +214,30 @@
             "beginCaptures": {
                 "1": { "name": "storage.type.structure.move" }
             },
-            "end": "(?=\\s*[{;])",
+            "end": "(?=\\s*[}])",
             "patterns": [
                 { "include": "#comments" },
                 {
                     "comment": "Structure name",
-                    "match": "\\b(\\w+)(?=[\\s{;])",
-                    "captures": {
+                    "begin": "\\b(\\w+)(?=[<\\s{;])",
+                    "end": "(?=[{])",
+                    "beginCaptures": {
                         "1": { "name": "entity.name.type.move" }
-                    }
+                    },
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#resource-type-parameters" }
+                    ]
+                },
+                {
+                    "comment": "Structure fields definition",
+                    "begin": "(?<={)",
+                    "end": "(?=})",
+                    "patterns": [
+                        { "include": "#method-or-prop" },
+                        { "include": "#comments" },
+                        { "include": "#types" }
+                    ]
                 }
             ]
         },
