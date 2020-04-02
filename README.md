@@ -41,7 +41,7 @@ Currently unsupported
 
 Requirements:
 
-- dncli - see [dfinance/dnode](https://github.com/dfinance/dnode) for releases and executables
+- dncli - see [dfinance/dnode releases](https://github.com/dfinance/dnode/releases) for binaries.
 
 ## Recomended directory structure
 
@@ -51,7 +51,7 @@ modules/       - here you'll put your modules (module.mvir)
 scripts/       - same here! scripts! (script.mvir)
 out/           - compiler output directory (module.mvir.json)
 
-.mvconfig.json - this file will help you keep setup within working directory
+.mvconfig.json - this file will help you keep setup within working directory (overrides vscode config)
 ```
 
 ## Config file: .mvconfig.json
@@ -63,10 +63,12 @@ Sample here (put inside your working dir):
 {
     "network": "dfinance",
     "defaultAccount": "wallet1...",
-    "compiler": "http://127.0.0.1:50053",
+    "compiler": "rpc.testnet.dfinance.co:50053",
     "compilerDir": "./out"
 }
 ```
+
+Compiler given here supports both Move and Mvir, though you'll need to know standard library you're accessing - [it's over here](https://github.com/dfinance/dvm/tree/master/lang/stdlib).
 
 **Comments:**
 - network: `dfinance` or `libra` (the latter is currently unsupported)
