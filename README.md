@@ -9,6 +9,7 @@ If you still aren't familiar with Move language you can follow [this link](https
 **What's inside**:
 
 - Move and Mvir syntax highlighting (always up to date)
+- [Move Language Server](https://github.com/dfinance/move-language-server) and syntax error check!
 - Move (and Mvir) compiler command for Dfinance chain (Libra's on the go)
 
 Already want to try? [To the marketplace!](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
