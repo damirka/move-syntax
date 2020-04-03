@@ -64,7 +64,7 @@
 				"move.network": {
 					"type": "string",
 					"enum": [
-						"libra (unsupported)",
+						"libra",
 						"dfinance"
 					],
 					"default": "dfinance",
