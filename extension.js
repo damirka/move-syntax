@@ -173,6 +173,9 @@ function checkCreateOutDir(outDir) {
  * @return  {Promise}      Promise with command result
  */
 function exec(cmd) {
+
+	console.log('Executing command:', cmd, 'config:', loadConfig());
+
 	return new Promise((resolve, reject) => {
 		return cp.exec(cmd, function onExec(error, stdout, stderr) {
 			return (error !== null || stderr) ? reject(stderr) : resolve(stdout);
