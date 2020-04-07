@@ -1,0 +1,3 @@
+module Oracle {
+    native public get_price(ticker: u64): u64;
+}

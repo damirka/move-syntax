@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.1.7",
+	"version": "0.2.0",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -10,7 +10,7 @@
 		"Other"
 	],
 	"scripts": {
-		"postinstall": "./move-ls-loader"
+		"postinstall": "./download-binaries"
 	},
 	"engines": {
 		"vscode": "^1.43.0"
@@ -50,7 +50,14 @@
 		"commands": [
 			{
 				"command": "extension.compile",
-				"title": "Move: Compile"
+				"when": "resourceLangId == move",
+				"title": "Move: Compile Files"
+			}
+		],
+		"commandPalette": [
+			{
+			  "command": "extension.compile",
+			  "when": "resourceLangId == move"
 			}
 		],
 		"configuration":{
@@ -67,7 +74,7 @@
 						"libra",
 						"dfinance"
 					],
-					"default": "dfinance",
+					"default": "libra",
 					"description": "Infrastructure (Move version) to use: Dfinance or Libra (unsupported)",
 					"scope": "resource"
 				},
@@ -125,7 +132,21 @@
 		"vscode-languageclient": "^6.1.3"
 	},
 	"move-ls": {
-		"version": "v0.1.0",
-		"repository": "dfinance/move-language-server"
+		"version": "v0.3.0",
+		"repository": "dfinance/move-language-server",
+		"binaries": {
+			"win32": "move-language-server-win32.exe",
+			"linux": "move-language-server-linux",
+			"darwin": "move-language-server-darwin"
+		}
+	},
+	"move-build": {
+		"version": "07.04.20",
+		"repository": "dfinance/libra",
+		"binaries": {
+			"win32": null,
+			"linux": "movec-07.04.20-linux",
+			"darwin": "movec-07.04.20-darwin"
+		}
 	}
 }

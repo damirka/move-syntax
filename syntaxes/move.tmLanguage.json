@@ -115,22 +115,16 @@
             ]
         },
 
-        "self": {
-            "comment": "Self keyword",
-            "match": "\\b(Self)\\b"
-        },
-
         "definitions-common": {
             "patterns": [
                 { "include": "#vector" },
-                { "include": "#types" },
-                { "include": "#self" }
+                { "include": "#types" }
             ]
         },
 
         "predefined-methods": {
             "comment": "Methods like move and copy",
-            "match": "\\b(move|copy|move_to_sender)(?=\\()",
+            "match": "\\b(move_to_sender)(?=\\()",
             "name": "support.function.move"
         },
 
@@ -182,7 +176,6 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#types" },
-                { "include": "#self" },
                 {
                     "comment": "Trait-like matching. It's called Kind in Move",
                     "begin": "\\b(\\w+)\\s*:\\s*",

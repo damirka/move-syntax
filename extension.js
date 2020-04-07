@@ -9,97 +9,151 @@ const lsp = require('vscode-languageclient');
 
 const CONFIG_PATH = 'move';
 const CONFIG_FILE = '.mvconfig.json'
-const DFI_ACC_LEN = 45;
+const DFI_ACC_LEN = 45; // TODO: use for future validation
 
 const workspace = vscode.workspace;
 
 let client;
+let extensionPath;
 
 /**
  * Activate extension: register commands, attach handlers
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+async function activate(context) {
 
-	try {
-		const outputChannel = vscode.window.createOutputChannel('move-language-server');
+	extensionPath = context.extensionPath;
 
-		const executable    = (process.platform === 'win32') ? 'move-ls.exe' : 'move-ls';
-		const lspExecutable = {
-			command: path.join(context.extensionPath, 'bin', executable),
-			options: { env: { RUST_LOG: 'info' } },
-		};
+	await startLanguageClient(context).catch((err) => console.error(err));
 
-		const serverOptions = {
-			run: lspExecutable,
-			debug: lspExecutable,
-		};
+	context.subscriptions.push(
+		vscode.commands.registerCommand('extension.compile', (...args) => compileCommand(...args).catch(console.error))
+	);
+}
 
-		const config 	    = loadConfig();
-		const clientOptions = {
-			outputChannel: outputChannel,
-			documentSelector: [{ scheme: 'file', language: 'move' }],
-			initializationOptions: {
-				dialect: config.network
-			}
-		};
+/**
+ * Initialize language client
+ *
+ * @param   {Object}  context
+ * @return  {Promise}
+ */
+async function startLanguageClient(context) {
 
-		client = new lsp.LanguageClient('move-language-server', 'Move Language Server', serverOptions, clientOptions);
-		client.start();
+	const outputChannel = vscode.window.createOutputChannel('move-language-server');
+	const executable    = (process.platform === 'win32') ? 'move-ls.exe' : 'move-ls';
+	const lspExecutable = {
+		command: path.join(context.extensionPath, 'bin', executable),
+		options: { env: { RUST_LOG: 'info' } },
+	};
 
-		vscode.workspace.onDidChangeConfiguration((_) => {
-			client.sendNotification('workspace/didChangeConfiguration', { settings: "" });
-		});
+	const serverOptions = {
+		run:   lspExecutable,
+		debug: lspExecutable,
+	};
 
-	} catch (e) { console.log(e) }
+	// load current workspace config
+	const config  = loadConfig();
+	const network = config.network;
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.compile', async () => {
-
-		const config = loadConfig();
-
-		if (config.network !== 'dfinance') {
-			return vscode.window.showErrorMessage('Currently only dfinance compiler supported');
+	const clientOptions = {
+		outputChannel: outputChannel,
+		documentSelector: [{ scheme: 'file', language: 'move' }],
+		initializationOptions: {
+			dialect: network,
+			sender_address:  config.defaultAccount,
+			modules_folders: [
+				config.stdlibPath,
+				// config.modulesPath // we'll get back to it later
+			]
 		}
+	};
 
-		let account = config.defaultAccount;
+	client = new lsp.LanguageClient('move-language-server', 'Move Language Server', serverOptions, clientOptions);
+	client.start();
 
-		// fixed length of dfinance accounts
-		if (!account || account.length !== DFI_ACC_LEN) {
+	// dummy code to fix inconvenience, for reasoning see:
+	// https://github.com/microsoft/language-server-protocol/issues/676
+	vscode.workspace.onDidChangeConfiguration((_) => {
+		client.sendNotification('workspace/didChangeConfiguration', { settings: "" });
+	});
 
-			const input = vscode.window.createInputBox();
-			input.title = 'Enter account from which you\'re going to deploy this script';
-			input.show();
-			input.onDidAccept(() => (account = inputBox.value) && inputBox.hide());
-			input.onDidHide(() => (account = ""));
-		}
+	return client.onReady();
+}
 
-		// validate account length
-		if (account.length !== DFI_ACC_LEN) {
-			return vscode.window.showErrorMessage('Account MUST be of kind wallet1....');
-		}
+/**
+ * Command: Move: Compile file
+ *
+ * @return {Promise}
+ */
+async function compileCommand() {
 
-		// let's compile then; dncli is required of course
-		{
-			const currPath = currentPath();
-			checkCreateOutDir(path.join(currPath.folder, config.compilerDir));
+	if (!['mvir', 'move'].includes(vscode.window.activeTextEditor.document.languageId)) {
+		return vscode.window.showErrorMessage('Only .move and .mvir files are supported');
+	}
 
-			const outPath  = path.join(currPath.folder, config.compilerDir, path.basename(currPath.file) + '.json');
-			const text     = vscode.window.activeTextEditor.document.getText();
-			const isModule = /module\s+[A-Za-z0-9_]+[\s\n]+\{/mg.test(text); // same regexp is used in grammar
+	const config = loadConfig();
+	let account  = config.defaultAccount || null;
 
-			// finally prepare cmd for execution
-			const cmd  = isModule ? 'compile-module' : 'compile-script';
-			const args = [
-				cmd, currPath.file, account, // ...vm compile-module <file> <account>
-				'--to-file',   outPath,
-				'--compiler',  config.compiler
-			];
+	// check if account has been preset
+	if (account === null) {
+		const input = vscode.window.createInputBox();
+		input.title = 'Enter account from which you\'re going to deploy this script (or set it in config)';
+		input.show();
+		input.onDidAccept(() => (account = input.value) && input.hide());
+	}
 
-			await exec('dncli query vm ' + args.join(' '))
-				.then((stdout)  => vscode.window.showInformationMessage(stdout, {modal: config.showModal || false}))
-				.catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
-		}
-	}));
+	const currPath  = currentPath();
+	const outFolder = path.join(currPath.folder, config.compilerDir);
+	const text      = vscode.window.activeTextEditor.document.getText();
+
+	checkCreateOutDir(outFolder);
+
+	switch (config.network) {
+		case 'dfinance': return compileDfinance(account, text, currPath, config);
+		case 'libra': 	 return compileLibra(account, text, currPath, config);
+		default: vscode.window.showErrorMessage('Unknown Move network in config: only libra and dfinance supported');
+	}
+}
+
+function compileLibra(account, text, {file, folder}, config) {
+
+	if (vscode.window.activeTextEditor.document.languageId !== 'move') {
+		return vscode.window.showErrorMessage('Only Move is supported for Libra compiler');
+	}
+
+	const bin  = path.join(extensionPath, 'bin', 'move-build');
+	const args = [
+		,
+		'--out-dir', path.join(folder, config.compilerDir),
+		'--source-files', file,
+		'--dependencies', config.stdlibPath + '/*',
+		'--sender', account
+	];
+
+	const successMsg = 'File successfully compiled and saved in directory: ' + config.compilerDir;
+
+	return exec(bin + args.join(' '))
+		.then((stdout)  => vscode.window.showInformationMessage(successMsg, {modal: true}))
+		.catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
+}
+
+function compileDfinance(account, text, {file, folder}, config) {
+
+	const targetName = path.basename(file).split('.').slice(0, -1).join('.') + '.mv.json';
+	const targetPath = path.join(folder, config.compilerDir, targetName);
+	const isModule   = /module\s+[A-Za-z0-9_]+[\s\n]+\{/mg.test(text); // same regexp is used in grammar
+
+	// finally prepare cmd for execution
+	const cmd  = isModule ? 'compile-module' : 'compile-script';
+	const args = [
+		cmd, file, account,
+		'--to-file', targetPath,
+		'--compiler', config.compiler
+	];
+
+	return exec('dncli query vm ' + args.join(' '))
+		.then((stdout)  => vscode.window.showInformationMessage(stdout, {modal: config.showModal || false}))
+		.catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
 }
 
 // this method is called when your extension is deactivated
@@ -143,6 +197,14 @@ function loadConfig() {
 		} catch (e) {
 			console.error('Unable to read local config file - check JSON validity: ', e);
 		}
+	}
+
+	if (!cfg.stdlibPath) {
+		cfg.stdlibPath = path.join(extensionPath, 'stdlib', cfg.network);
+	}
+
+	if (!cfg.modulesPath) {
+		cfg.modulesPath = path.join(currPath.folder, 'modules');
 	}
 
 	return cfg;
