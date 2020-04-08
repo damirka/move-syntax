@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -103,8 +103,8 @@
 	},
 	"icon": "img/logo.256.png",
 	"galleryBanner": {
-		"color": "#002fa7",
-		"theme": "dark"
+		"color": "#000000",
+		"theme": "light"
 	},
 	"repository": {
 		"type": "git",
