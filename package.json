@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -90,8 +90,8 @@
 				},
 				"move.compilerUrl": {
 					"type": "string",
-					"default": "http://127.0.0.1:50053",
-					"description": "Compiler URL. Soon will be testnet by default"
+					"default": "rpc.testnet.dfinance.co:50053",
+					"description": "dfinance compiler URL; testnet by default"
 				},
 				"move.showModal": {
 					"type": "boolean",
@@ -100,6 +100,11 @@
 				}
 			}
 		}
+	},
+	"icon": "img/logo.256.png",
+	"galleryBanner": {
+		"color": "#002fa7",
+		"theme": "dark"
 	},
 	"repository": {
 		"type": "git",
