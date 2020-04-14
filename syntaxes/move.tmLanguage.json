@@ -305,8 +305,20 @@
                 },
                 {
                     "comment": "Highlight import",
-                    "match": "(?<=::)\\s*(\\w+)\\s*(?=;)",
+                    "match": "(?<=::)\\s*(\\w+)\\b",
                     "name": "entity.name.class.import.move"
+                },
+                {
+                    "comment": "as keyword",
+                    "begin": "\\b(as)\\b",
+                    "beginCaptures": {
+                        "1": { "name": "keyword.other.move" }
+                    },
+                    "end": "(?=;)",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#entity-name" }
+                    ]
                 },
                 { "include": "#comments" }
             ]
