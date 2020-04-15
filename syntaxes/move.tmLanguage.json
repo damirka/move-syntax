@@ -115,6 +115,12 @@
             ]
         },
 
+        "move-copy": {
+            "comment": "move <VAR> or copy <VAR>",
+            "match": "\\b(move|copy)\\b",
+            "name": "variable.language.move"
+        },
+
         "definitions-common": {
             "patterns": [
                 { "include": "#vector" },
@@ -406,6 +412,7 @@
         { "include": "#let-keyword" },
         { "include": "#literals" },
         { "include": "#functions" },
+        { "include": "#move-copy" },
         { "include": "#comments" }
     ]
 }
