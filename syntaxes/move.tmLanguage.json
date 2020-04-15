@@ -227,6 +227,7 @@
                     "begin": "(?<={)",
                     "end": "(?=})",
                     "patterns": [
+                        { "include": "#vector" },
                         { "include": "#method-or-prop" },
                         { "include": "#comments" },
                         { "include": "#types" }
