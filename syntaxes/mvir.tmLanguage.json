@@ -83,9 +83,22 @@
             "match": "\\b(?:loop|as|while|break|continue|if|else|return)\\b"
         },
 
+        "vector": {
+            "comment": "Vector type eg vector<u8>",
+            "begin": "\\b(vector)(?=\\<)",
+            "beginCaptures": {
+                "1": { "name": "support.type.vector.move" }
+            },
+            "end": "(?=>)",
+            "patterns": [
+                { "include": "#types" },
+                { "include": "#vector" }
+            ]
+        },
+
         "types": {
             "comment": "Standard types",
-            "match": "\\b(bytearray|u8|u64|u128|address|bool)\\b",
+            "match": "\\b(u8|u64|u128|address|bool)\\b",
             "name": "storage.type.move"
         },
 
@@ -352,6 +365,7 @@
         { "include": "#resource" },
         { "include": "#structure" },
         { "include": "#flow" },
+        { "include": "#vector" },
         { "include": "#typed-prededefined-methods" },
         { "include": "#predefined-methods" },
         { "include": "#functions" },
