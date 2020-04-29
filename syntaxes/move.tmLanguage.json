@@ -10,6 +10,7 @@
         },
 
         "block-comments": {
+            "comment": "CURRENTLY UNSUPPORTED IN MOVE",
             "patterns": [
                 {
                     "comment": "Block documentation comment",
@@ -28,8 +29,7 @@
 
         "comments": {
             "patterns": [
-                { "include": "#line-comments" },
-                { "include": "#block-comments" }
+                { "include": "#line-comments" }
             ]
         },
 
@@ -111,6 +111,7 @@
             "end": "(?=[;=])",
             "patterns": [
                 { "include": "#types" },
+                { "include": "#mut-keyword" },
                 { "include": "#structure-creation" }
             ]
         },
@@ -239,6 +240,17 @@
                         { "include": "#types" }
                     ]
                 }
+            ]
+        },
+
+        "spec": {
+            "begin": "\\b(spec)\\b",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.move" }
+            },
+            "end": "}",
+            "patterns": [
+                { "include": "source.move.spec" }
             ]
         },
 
@@ -398,6 +410,7 @@
         }
     },
     "patterns": [
+        { "include": "#spec" },
         { "include": "#stdlib-address" },
         { "include": "#module" },
         { "include": "#use-import" },
@@ -413,6 +426,6 @@
         { "include": "#literals" },
         { "include": "#functions" },
         { "include": "#move-copy" },
-        { "include": "#comments" }
+        { "include": "#comments"}
     ]
 }

@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.2.7",
+	"version": "0.2.8",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -33,6 +33,10 @@
 				"aliases": ["MVIR", "mvir", "Move IR"],
 				"extensions": [".mvir"],
 				"configuration": "./language-configuration.json"
+			},
+			{
+				"id": "move-spec",
+				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
@@ -45,6 +49,11 @@
 				"language": "mvir",
 				"scopeName": "source.mvir",
 				"path": "./syntaxes/mvir.tmLanguage.json"
+			},
+			{
+				"language": "move-spec",
+				"scopeName": "source.move.spec",
+				"path": "./syntaxes/move.spec.tmLanguage.json"
 			}
 		],
 		"commands": [
