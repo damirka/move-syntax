@@ -91,6 +91,7 @@
             },
             "end": "(?=>)",
             "patterns": [
+                { "include": "#comments" },
                 { "include": "#types" },
                 { "include": "#vector" }
             ]
@@ -111,6 +112,7 @@
             "end": "(?=[;=])",
             "patterns": [
                 { "include": "#types" },
+                { "include": "#comments" },
                 { "include": "#mut-keyword" },
                 { "include": "#structure-creation" }
             ]
@@ -374,6 +376,7 @@
                     "begin": "(?<=\\))",
                     "end": "(?=\\s*[{;])",
                     "patterns": [
+                        { "include": "#comments" },
                         { "include": "#acquires-keyword" },
                         { "include": "#method-or-prop" },
                         { "include": "#vector" },
@@ -399,6 +402,7 @@
             "end": "(?=\\))",
             "patterns": [
                 { "include": "#comments" },
+                { "include": "#mut-keyword" },
                 { "include": "#type-parameters" },
                 { "include": "#predefined-methods" },
                 { "include": "#typed-prededefined-methods" },
