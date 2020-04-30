@@ -53,6 +53,13 @@
                     }
                 },
                 {
+                    "comment": "vector<u8> as hex literal: x",
+                    "match": "x\"([A-F0-9a-f]+)\"",
+                    "captures": {
+                        "1": { "name": "constant.numeric.hex.move" }
+                    }
+                },
+                {
                     "comment": "Booleans",
                     "name": "constant.language.boolean.move",
                     "match": "\\b(?:true|false)\\b"
