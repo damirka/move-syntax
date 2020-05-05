@@ -294,7 +294,7 @@
 
         "stdlib-address": {
             "comment": "Stdlib address marker",
-            "match": "\\b(address)\\s+(0x0)\\s*:",
+            "match": "\\b(address)\\s+(0x[A-Fa-f0-9]+)\\s*:",
             "captures": {
                 "1": { "name": "storage.modifier.stdlib.address.move" },
                 "2": { "name": "support.constant.stdlib.move" }
