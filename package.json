@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.2.10",
+	"version": "0.2.11",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -146,7 +146,7 @@
 		"vscode-languageclient": "^6.1.3"
 	},
 	"move-ls": {
-		"version": "v0.3.0",
+		"version": "v0.4.0",
 		"repository": "dfinance/move-language-server",
 		"binaries": {
 			"win32": "move-language-server-win32.exe",

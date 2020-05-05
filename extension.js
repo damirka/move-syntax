@@ -61,10 +61,8 @@ async function startLanguageClient(context) {
 		initializationOptions: {
 			dialect: network,
 			sender_address:  config.defaultAccount,
-			modules_folders: [
-				config.stdlibPath,
-				// config.modulesPath // we'll get back to it later
-			]
+			modules_folders: config.modulesPath && [config.modulesPath] || [],
+			stdlib_path:     config.stdlibPath
 		}
 	};
 
@@ -133,7 +131,7 @@ function compileLibra(account, text, {file, folder}, config) {
 	const successMsg = 'File successfully compiled and saved in directory: ' + config.compilerDir;
 
 	return exec(bin + args.join(' '))
-		.then((stdout)  => vscode.window.showInformationMessage(successMsg, {modal: true}))
+		.then(() => vscode.window.showInformationMessage(successMsg, {modal: true}))
 		.catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
 }
 
@@ -199,11 +197,13 @@ function loadConfig() {
 		}
 	}
 
-	if (!cfg.stdlibPath) {
+	// it can be: null, undefined and string // careful
+	if (cfg.stdlibPath === undefined) {
 		cfg.stdlibPath = path.join(extensionPath, 'stdlib', cfg.network);
 	}
 
-	if (!cfg.modulesPath) {
+	// same here: null, undefined and string // careful
+	if (cfg.modulesPath === undefined) {
 		cfg.modulesPath = path.join(currPath.folder, 'modules');
 	}
 
@@ -248,4 +248,4 @@ function exec(cmd) {
 module.exports = {
 	activate,
 	deactivate
-}
+};
