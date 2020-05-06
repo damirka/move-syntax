@@ -55,14 +55,27 @@ async function startLanguageClient(context) {
 	const config  = loadConfig();
 	const network = config.network;
 
+	const modules_folders = [];
+
+	if (config.stdlibPath) {
+		modules_folders.push(config.stdlibPath);
+	}
+
+	// if (config.modulesPath) {
+	// 	modules_folders.push(config.modulesPath);
+	// }
+
 	const clientOptions = {
 		outputChannel: outputChannel,
 		documentSelector: [{ scheme: 'file', language: 'move' }],
 		initializationOptions: {
+			modules_folders,
 			dialect: network,
 			sender_address:  config.defaultAccount,
-			modules_folders: config.modulesPath && [config.modulesPath] || [],
-			stdlib_path:     config.stdlibPath
+
+			// Set back when MLS is stable
+			// modules_folders: config.modulesPath && [config.modulesPath] || [],
+			// stdlib_path:     config.stdlibPath
 		}
 	};
 
