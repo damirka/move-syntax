@@ -10,7 +10,7 @@
         },
 
         "block-comments": {
-            "comment": "CURRENTLY UNSUPPORTED IN MOVE",
+            "comment": "Supported since https://github.com/libra/libra/pull/3714",
             "patterns": [
                 {
                     "comment": "Block documentation comment",
@@ -29,7 +29,8 @@
 
         "comments": {
             "patterns": [
-                { "include": "#line-comments" }
+                { "include": "#line-comments" },
+                { "include": "#block-comments" }
             ]
         },
 
@@ -268,13 +269,19 @@
             "match": "\\b(\\w+)\\s*(?:<(\\w+)>)\\s*{"
         },
 
+        "entity-name": {
+            "comment": "Selector for entities",
+            "match": "\\b(\\w+)(?=\\W)",
+            "name": "entity.name.type.move"
+        },
+
         "module": {
             "comment": "Module definition",
-            "begin": "\\b(module)\\s+",
+            "begin": "\\b(module)\\b",
             "beginCaptures": {
                 "1": { "name": "storage.modifier.type.move" }
             },
-            "end": "({)",
+            "end": "(?={)",
             "patterns": [
                 {
                     "comment": "Module name",
@@ -283,22 +290,44 @@
                 },
                 { "include": "#comments" }
             ]
-
         },
 
-        "entity-name": {
-            "comment": "Selector for entities",
-            "match": "\\b(\\w+)(?=\\W)",
-            "name": "entity.name.type.move"
+        "address-block": {
+            "comment": "Address block, see https://github.com/libra/libra/pull/3669",
+            "begin": "\\b(address)\\b",
+            "end": "[:{]",
+            "beginCaptures": {
+                "1": { "name": "keyword.control.move" }
+            },
+            "patterns": [
+                { "include": "#dfinance-wallet-address" },
+                { "include": "#libra-walllet-address" },
+                { "include": "#comments" }
+            ]
         },
 
-        "stdlib-address": {
-            "comment": "Stdlib address marker",
-            "match": "\\b(address)\\s+(0x[A-Fa-f0-9]+)\\s*:",
-            "captures": {
-                "1": { "name": "storage.modifier.stdlib.address.move" },
-                "2": { "name": "support.constant.stdlib.move" }
-            }
+        "script-block": {
+            "comment": "Script block, see https://github.com/libra/libra/pull/3669",
+            "begin": "\\b(script)\\b",
+            "end": "(?={)",
+            "beginCaptures": {
+                "1": { "name": "keyword.control.move" }
+            },
+            "patterns": [
+                { "include": "#comments" }
+            ]
+        },
+
+        "libra-walllet-address": {
+            "comment": "16-byte (or shorter) hex address in Libra",
+            "match": "\\b(0x[A-Fa-f0-9][A-Fa-f0-9]{,31})\\b",
+            "name": "support.constant.libra.address.move"
+        },
+
+        "dfinance-wallet-address": {
+            "comment": "Bech32 with wallet1 prefix",
+            "match": "\\b(wallet1\\w{38})",
+            "name": "support.constant.dfinance.address.move"
         },
 
         "use-import": {
@@ -422,7 +451,10 @@
     },
     "patterns": [
         { "include": "#spec" },
-        { "include": "#stdlib-address" },
+
+        { "include": "#address-block" },
+        { "include": "#script-block" },
+
         { "include": "#module" },
         { "include": "#use-import" },
         { "include": "#resource" },
