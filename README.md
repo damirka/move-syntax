@@ -26,9 +26,7 @@ I've personally put much effort into making this syntax helpful (aka some keywor
 
 ![Move highlighting](https://raw.githubusercontent.com/damirka/vscode-move-ide/master/img/move.highlight.jpg)
 
-**Mvir** - you should know it well by now.
-
-![Mvir highlighting](https://raw.githubusercontent.com/damirka/vscode-move-ide/master/img/mvir.highlight.jpg)
+> Mvir is also supported, though it's support may end soon as Mvir is being removed from Libra
 
 <a name="setup"></a>
 
