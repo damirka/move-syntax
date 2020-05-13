@@ -1,8 +1,8 @@
 address 0x0 {
 
 module Event {
+
     use 0x0::LCS;
-    use 0x0::LibraTimestamp;
     use 0x0::Vector;
     use 0x0::Transaction;
 
@@ -29,33 +29,14 @@ module Event {
     }
 
     public fun grant_event_handle_creation_operation(): EventHandleGeneratorCreationCapability {
-        Transaction::assert(Transaction::sender() == 0xA550C18, 0);
+        Transaction::assert(Transaction::sender() == 0x0, 0);
         EventHandleGeneratorCreationCapability{}
     }
 
-    public fun grant_event_generator() {
-        Transaction::assert(LibraTimestamp::is_genesis(), 0);
-        move_to_sender(EventHandleGenerator { counter: 0, addr: Transaction::sender() })
-    }
-
     public fun new_event_generator(
-        addr: address,
-        _cap: &EventHandleGeneratorCreationCapability
-    ): EventHandleGenerator acquires EventHandleGenerator {
-        if (::exists<EventHandleGenerator>(addr) && LibraTimestamp::is_genesis()) {
-            // if the account already has an event handle generator, return it instead of creating
-            // a new one. the reason: it may have already been used to generate event handles and
-            // thus may have a nonzero `counter`.
-            // this should only happen during genesis bootstrapping, and only for the association
-            // account and the config account.
-            // TODO: see if we can eliminate this hack + the initialize() function
-            Transaction::assert(Transaction::sender() == 0xA550C18 || Transaction::sender() == 0xF1A95, 0);
-            Transaction::assert(addr == 0xA550C18 || addr == 0xF1A95, 0);
-
-            move_from<EventHandleGenerator>(addr)
-        } else {
-            EventHandleGenerator{ counter: 0, addr }
-        }
+        addr: address
+    ): EventHandleGenerator {
+        EventHandleGenerator{ counter: 0, addr }
     }
 
     // Derive a fresh unique id by using sender's EventHandleGenerator. The generated vector<u8> is indeed unique because it
@@ -105,5 +86,4 @@ module Event {
         EventHandle<T> { counter: _, guid: _ } = handle;
     }
 }
-
 }

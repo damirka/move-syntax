@@ -10,7 +10,10 @@
 		"Other"
 	],
 	"scripts": {
-		"postinstall": "./download-binaries"
+		"postinstall": "./download-binaries",
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./"
 	},
 	"engines": {
 		"vscode": "^1.43.0"
@@ -19,19 +22,30 @@
 		"onLanguage:mvir",
 		"onLanguage:move"
 	],
-	"main": "./extension.js",
+	"main": "./dist/extension.js",
 	"contributes": {
 		"languages": [
 			{
 				"id": "move",
-				"aliases": ["Move", "LibraMove"],
-				"extensions": [".move"],
+				"aliases": [
+					"Move",
+					"LibraMove"
+				],
+				"extensions": [
+					".move"
+				],
 				"configuration": "./language-configuration.json"
 			},
 			{
 				"id": "mvir",
-				"aliases": ["MVIR", "mvir", "Move IR"],
-				"extensions": [".mvir"],
+				"aliases": [
+					"MVIR",
+					"mvir",
+					"Move IR"
+				],
+				"extensions": [
+					".mvir"
+				],
 				"configuration": "./language-configuration.json"
 			},
 			{
@@ -65,26 +79,26 @@
 		],
 		"commandPalette": [
 			{
-			  "command": "extension.compile",
-			  "when": "resourceLangId == move"
+				"command": "extension.compile",
+				"when": "resourceLangId == move"
 			}
 		],
-		"configuration":{
+		"configuration": {
 			"title": "Move IDE",
 			"properties": {
 				"move.configPath": {
 					"type": "string",
-					"default": "/.mvconfig.json",
+					"default": ".mvconfig.json",
 					"description": "When set and file is present, json configuration will be used instead of editor config"
 				},
-				"move.network": {
+				"move.blockchain": {
 					"type": "string",
 					"enum": [
 						"libra",
 						"dfinance"
 					],
 					"default": "libra",
-					"description": "Infrastructure (Move version) to use: Dfinance or Libra (unsupported)",
+					"description": "Move compiler and dialect to use: Dfinance or Libra",
 					"scope": "resource"
 				},
 				"move.compilerDir": {
@@ -92,20 +106,20 @@
 					"default": "./out",
 					"description": "Relative path inside working directory to put compiled files into"
 				},
-				"move.defaultAccount": {
+				"move.account": {
 					"type": "string",
 					"default": "",
 					"description": "Default account to use when compiling. If not set prompt will be shown on compile command"
-				},
-				"move.compilerUrl": {
-					"type": "string",
-					"default": "rpc.testnet.dfinance.co:50053",
-					"description": "dfinance compiler URL; testnet by default"
 				},
 				"move.showModal": {
 					"type": "boolean",
 					"description": "Show notifications in modal window",
 					"default": true
+				},
+				"move.languageServerPath": {
+					"type": "string",
+					"default": "",
+					"description": "Custom path to Move Language Server binary"
 				}
 			}
 		}
@@ -124,6 +138,7 @@
 		"move",
 		"dfinance",
 		"ide",
+		"move ide",
 		"move-ide",
 		"libra-ide",
 		"dfinance-ide"
@@ -135,7 +150,9 @@
 	},
 	"homepage": "https://github.com/damirka/vscode-move-ide#readme",
 	"devDependencies": {
-		"@types/vscode": "^1.43.0"
+		"@types/node": "^14.0.1",
+		"@types/vscode": "^1.43.0",
+		"typescript": "^3.8.3"
 	},
 	"__metadata": {
 		"id": "7a08f3ad-eba4-44de-bca1-e41d38b68a5c",
@@ -146,7 +163,7 @@
 		"vscode-languageclient": "^6.1.3"
 	},
 	"move-ls": {
-		"version": "v0.3.0",
+		"version": "0.6.0",
 		"repository": "dfinance/move-language-server",
 		"binaries": {
 			"win32": "move-language-server-win32.exe",
@@ -155,12 +172,12 @@
 		}
 	},
 	"move-build": {
-		"version": "07.04.20",
+		"version": "12.05.20",
 		"repository": "dfinance/libra",
 		"binaries": {
 			"win32": null,
-			"linux": "movec-07.04.20-linux",
-			"darwin": "movec-07.04.20-darwin"
+			"linux": "movec-12.05.20-linux",
+			"darwin": "movec-12.05.20-darwin"
 		}
 	}
 }

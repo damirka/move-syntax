@@ -21,6 +21,7 @@ const https = require('https');
     if (bin !== null) {
         https.get(url, (res) => {
             https.get(res.headers.location, (res) => {
+                console.log('Downloading file from %s', url);
                 res.pipe(fs.createWriteStream(path.resolve('bin/' + tgt), {mode: '755'}));
             });
         });

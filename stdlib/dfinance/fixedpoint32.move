@@ -1,6 +1,7 @@
 address 0x0 {
 
 module FixedPoint32 {
+
     use 0x0::Transaction;
 
     // Define a fixed-point numeric type with 32 fractional bits.
@@ -75,5 +76,4 @@ module FixedPoint32 {
         num.value
     }
 }
-
 }
