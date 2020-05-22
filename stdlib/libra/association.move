@@ -270,5 +270,3 @@ module Association {
 
 }
 }
-
-}

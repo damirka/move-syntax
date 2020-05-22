@@ -240,5 +240,3 @@ module AccountLimits {
 }
 
 }
-
-}

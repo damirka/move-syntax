@@ -632,5 +632,3 @@ module Libra {
 
 }
 }
-
-}
