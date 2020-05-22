@@ -14,8 +14,8 @@ jobs:
         - run: git for-each-ref --format="## %(subject) %0a%0a %(body)" refs/tags/${{ steps.get_version.outputs.VERSION }} > body.md
         - uses: ncipollo/release-action@v1.6.1
           with:
-          bodyFile: "body.md"
-          token: ${{ secrets.GITHUB_TOKEN }}
+            bodyFile: "body.md"
+            token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     runs-on: ubuntu-latest
