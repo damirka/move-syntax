@@ -57,16 +57,12 @@ module Account {
     }
 
     public fun deposit<Token>(payee: address, to_deposit: Dfinance::T<Token>)
-    acquires Balance {
-        let value = Dfinance::value(&to_deposit);
-        Transaction::assert(value > 0, 7);
-
-        let payee_balance = borrow_global_mut<Balance<Token>>(payee);
-        Dfinance::deposit(&mut payee_balance.coin, to_deposit);
+    acquires T, Balance {
+        deposit_with_metadata(payee, to_deposit, x"")
     }
 
     public fun deposit_to_sender<Token>(to_deposit: Dfinance::T<Token>)
-    acquires Balance {
+    acquires T, Balance {
         deposit(Transaction::sender(), to_deposit)
     }
 
@@ -170,7 +166,7 @@ module Account {
         save_account(acc, evt, addr);
     }
 
-     native fun save_balance<Token>(balance: Balance<Token>, addr: address);
-     native fun save_account(account: T, event_generator: Event::EventHandleGenerator, addr: address);
+    native fun save_balance<Token>(balance: Balance<Token>, addr: address);
+    native fun save_account(account: T, event_generator: Event::EventHandleGenerator, addr: address);
 }
 }

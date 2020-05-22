@@ -72,17 +72,28 @@
 		],
 		"commands": [
 			{
-				"command": "extension.compile",
+				"command": "move.compile",
 				"when": "resourceLangId == move",
-				"title": "Move: Compile Files"
-			}
-		],
-		"commandPalette": [
+				"title": "Move: Compile"
+			},
 			{
-				"command": "extension.compile",
-				"when": "resourceLangId == move"
+				"command": "move.run",
+				"when": "resourceLangId == move",
+				"title": "Move: Run Script"
 			}
 		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "move.compile",
+					"when": "editorLangId == move"
+				},
+				{
+					"command": "move.run",
+					"when": "editorLangId == move"
+				}
+			]
+		},
 		"configuration": {
 			"title": "Move IDE",
 			"properties": {
@@ -120,6 +131,11 @@
 					"type": "string",
 					"default": "",
 					"description": "Custom path to Move Language Server binary"
+				},
+				"move.moveExecutorPath": {
+					"type": "string",
+					"default": "",
+					"description": "Custom path to Move Executor binary"
 				}
 			}
 		}
@@ -163,12 +179,21 @@
 		"vscode-languageclient": "^6.1.3"
 	},
 	"move-ls": {
-		"version": "0.6.0",
+		"version": "0.7.0",
 		"repository": "dfinance/move-language-server",
 		"binaries": {
 			"win32": "move-language-server-win32.exe",
 			"linux": "move-language-server-linux",
 			"darwin": "move-language-server-darwin"
+		}
+	},
+	"move-executor": {
+		"version": "0.7.0",
+		"repository": "dfinance/move-language-server",
+		"binaries": {
+			"win32": "move-executor-win32.exe",
+			"linux": "move-executor-linux",
+			"darwin": "move-executor-darwin"
 		}
 	},
 	"move-build": {

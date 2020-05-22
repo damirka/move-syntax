@@ -45,8 +45,8 @@ module LBR {
             1000,    // fractional_part = 10^3
             x"4C4252" // UTF8-encoded "LBR" as a hex string
         );
-        let mint_cap = Libra::grant_mint_capability();
-        let burn_cap = Libra::grant_burn_capability();
+        let mint_cap = Libra::remove_mint_capability();
+        let burn_cap = Libra::remove_burn_capability();
         let preburn_cap = Libra::new_preburn_with_capability(&burn_cap);
         let coin1 = ReserveComponent<Coin1::T> {
             ratio: FixedPoint32::create_from_rational(1, 2),
@@ -116,22 +116,18 @@ module LBR {
         (coin1, coin2)
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Helpers
-    ///////////////////////////////////////////////////////////////////////////
-
-    // Given an amount in Coin1, return the value in LBR. Note that the value
-    // of a LBR given any of the constituent currencies is well-defined since
-    // ratios are verified when creating a coin. Therefore given a Coin1 value
-    // we can return the LBR value.
-    fun to_libra_value(coin1: &Libra::T<Coin1::T>): u64
-    acquires Reserve {
-        let coin1_value = Libra::value(coin1);
+    // Create `amount_lbr` LBR using the `MintCapability` for the coin types in the reserve.
+    // Aborts if the caller does not have the appropriate `MintCapability`'s
+    public fun mint(amount_lbr: u64): Libra::T<T> acquires Reserve {
         let reserve = borrow_global<Reserve>(0xA550C18);
-        // The amount of libra to be issued is based upon the ratio number
-        // times the value of the currency on which the ratio is defined.
-        FixedPoint32::multiply_u64(coin1_value, *&reserve.coin1.ratio)
+        let num_coin1 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin1.ratio);
+        let num_coin2 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin2.ratio);
+        let coin1 = Libra::mint<Coin1::T>(num_coin1);
+        let coin2 = Libra::mint<Coin2::T>(num_coin2);
+        let (lbr, leftover1, leftover2) = create(amount_lbr, coin1, coin2);
+        Libra::destroy_zero(leftover1);
+        Libra::destroy_zero(leftover2);
+        lbr
     }
 }
-
 }

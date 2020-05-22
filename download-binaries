@@ -11,7 +11,7 @@ const fs    = require('fs');
 const path  = require('path');
 const https = require('https');
 
-['move-ls', 'move-build'].map(function (binName) {
+['move-ls', 'move-build', 'move-executor'].map(function (binName) {
 
     const cfg = require('package.json')[binName];
     const bin = cfg.binaries[process.platform];

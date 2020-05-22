@@ -8,6 +8,7 @@ module LibraAccount {
     use 0x0::Empty;
     use 0x0::Event;
     use 0x0::Hash;
+    use 0x0::LBR;
     use 0x0::LCS;
     use 0x0::Libra;
     use 0x0::LibraTransactionTimeout;
@@ -34,8 +35,6 @@ module LibraAccount {
         // Incremented by one each time a transaction is submitted
         sequence_number: u64,
         is_frozen: bool,
-        // The currency code string for the balance held by this account.
-        balance_currency_code: vector<u8>,
     }
 
     // A resource that holds the coins stored in this account
@@ -141,6 +140,7 @@ module LibraAccount {
         Transaction::assert(deposit_value > 0, 7);
 
         // TODO: on-chain config for travel rule limit instead of hardcoded value
+        // TODO: nail down details of limit (specified in LBR? is 1 LBR a milliLibra or microLibra?)
         let travel_rule_limit = 1000;
         // travel rule only applies for payments over a threshold
         let above_threshold =
@@ -158,12 +158,19 @@ module LibraAccount {
         ) {
             // sanity check of signature validity
             Transaction::assert(Vector::length(&metadata_signature) == 64, 9001);
+            // message should be metadata | sender_address | amount | domain_separator
+            // separator is the UTF8-encoded string @@$$LIBRA_ATTEST$$@@
+            let domain_separator = x"404024244C494252415F41545445535424244040";
+            let message = copy metadata;
+            Vector::append(&mut message, LCS::to_bytes(&sender));
+            Vector::append(&mut message, LCS::to_bytes(&deposit_value));
+            Vector::append(&mut message, domain_separator);
             // cryptographic check of signature validity
             Transaction::assert(
                 Signature::ed25519_verify(
                     metadata_signature,
-                    VASP::travel_rule_public_key(payee),
-                    copy metadata
+                    VASP::compliance_public_key(payee),
+                    message
                 ),
                 9002, // TODO: proper error code
             );
@@ -213,16 +220,26 @@ module LibraAccount {
         );
     }
 
-    // mint_to_address can only be called by accounts with MintCapability (see Libra)
-    // and those accounts will be charged for gas. If those accounts don't have enough gas to pay
-    // for the transaction cost they will fail minting.
-    // However those account can also mint to themselves so that is a decent workaround
+    // Create `amount` coins of type `Token` and send them to `payee`.
+    // `mint_to_address` can only be called by accounts with Libra::MintCapability<Token> and with
+    // Token=Coin1 or Token=Coin2. `mint_lbr_to_address` should be used for minting LBR
     public fun mint_to_address<Token>(
         payee: address,
         amount: u64
     ) acquires T, Balance, AccountOperationsCapability {
         // Mint and deposit the coin
         deposit(payee, Libra::mint<Token>(amount));
+    }
+
+    // Create `amount` LBR and send them to `payee`.
+    // `mint_lbr_to_address` can only be called by accounts with Libra::MintCapability<Coin1> and
+    // Libra::MintCapability<Coin2>
+    public fun mint_lbr_to_address(
+        payee: address,
+        amount: u64
+    ) acquires T, Balance, AccountOperationsCapability {
+        // Mint and deposit the coin
+        deposit(payee, LBR::mint(amount));
     }
 
     // Cancel the oldest burn request from `preburn_address` and return the funds.
@@ -400,7 +417,6 @@ module LibraAccount {
               x"746573746E6574",
               // "https://libra.org"
               x"68747470733A2F2F6C696272612E6F72672F",
-              x"",
               // An empty travel-rule key
               x"00000000000000000000000000000000",
          );
@@ -443,7 +459,6 @@ module LibraAccount {
                 sent_events: Event::new_event_handle_from_generator<SentPaymentEvent>(&mut generator),
                 sequence_number: 0,
                 is_frozen: false,
-                balance_currency_code: Libra::currency_code<Token>(),
             },
             generator,
             fresh_address,
@@ -621,14 +636,6 @@ module LibraAccount {
             // sent/received payment event.
             let transaction_fee_balance = borrow_global_mut<Balance<Token>>(0xFEE);
             Libra::deposit(&mut transaction_fee_balance.coin, transaction_fee);
-            Transaction::assert(
-                AccountTrack::update_deposit_limits<Token>(
-                    transaction_fee_amount,
-                    0xFEE,
-                    &borrow_global<AccountOperationsCapability>(0xA550C18).tracking_cap
-                ),
-                9
-            );
         }
     }
 }

@@ -30,11 +30,10 @@ interface MlsConfig {
  * Activate extension: register commands, attach handlers
  * @param {vscode.ExtensionContext} context
  */
-export async function activate(context: vscode.ExtensionContext): Promise<any> {
+export async function activate(context: vscode.ExtensionContext) {
 
-	context.subscriptions.push(
-		vscode.commands.registerCommand('extension.compile', () => compileCommand().catch(console.error))
-	);
+    context.subscriptions.push(vscode.commands.registerCommand('move.compile', () => compileCommand().catch(console.error)));
+    context.subscriptions.push(vscode.commands.registerCommand('move.run', () => runScriptCommand().catch(console.error)));
 
 	extensionPath = context.extensionPath;
 	const outputChannel = vscode.window.createOutputChannel('move-language-server');
@@ -157,6 +156,40 @@ function checkDocumentLanguage(document: vscode.TextDocument, languageId: string
 	}
 
 	return true;
+}
+
+async function runScriptCommand(): Promise<any> {
+
+    // @ts-ignore
+    const document = vscode.window.activeTextEditor.document;
+
+    if (!checkDocumentLanguage(document, 'move')) {
+        return vscode.window.showWarningMessage('Only .move scripts can be run');
+    }
+
+    const config = loadConfig(document);
+    let sender   = config.sender || '0x1'; // default sender in scripts is okay (I think)
+
+    const cfgBinPath = workspace.getConfiguration('move', document.uri).get<string>('moveExecutorPath');
+    const executable = (process.platform === 'win32') ? 'move-executor.exe' : 'move-executor';
+	const binaryPath = cfgBinPath || path.join(extensionPath, 'bin', executable);
+
+    const args = [
+        , document.uri.fsPath,
+        '--sender', sender,
+        '--dialect', config.network,
+    ];
+
+    const modules = [config.modulesPath, config.stdlibPath].filter((a) => !!a);
+
+    if (modules.length) {
+        // @ts-ignore
+        args.push('--modules', ...modules); // .map((mod) => mod + '/*'));
+    }
+
+    return exec(binaryPath + args.join(' '))
+        .then((stdout) => vscode.window.showInformationMessage(stdout, {modal: true}))
+        .catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
 }
 
 /**

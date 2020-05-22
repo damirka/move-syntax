@@ -54,7 +54,7 @@ module Dfinance {
     /// Work in progress. Make it public when register_token_info becomes native.
     /// Made private on purpose not to make a hole in chain security, though :resource
     /// constraint kinda-does the job and won't allow users to mint new 'real' coins
-    fun tokenize<Token: resource>(total_supply: u128, decimals: u8, denom: vector<u8>): T<Token> {
+    public fun tokenize<Token: resource>(total_supply: u128, decimals: u8, denom: vector<u8>): T<Token> {
 
         let owner = Transaction::sender();
 
