@@ -187,9 +187,12 @@ async function runScriptCommand(): Promise<any> {
         args.push('--modules', ...modules); // .map((mod) => mod + '/*'));
     }
 
+
     return exec(binaryPath + args.join(' '))
-        .then((stdout) => vscode.window.showInformationMessage(stdout, {modal: true}))
-        .catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
+    // @ts-ignore
+        .then((stdout) => console.log(stdout) || vscode.window.showInformationMessage(stdout, {modal: true}))
+        // @ts-ignore
+        .catch((stderr) => console.log(stderr) || vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
 }
 
 /**
@@ -365,7 +368,7 @@ function exec(cmd: string): Promise<string> {
 
 	return new Promise((resolve, reject) => {
 		return cp.exec(cmd, function onExec(error, stdout, stderr) {
-			return (error !== null || stderr) ? reject(stderr) : resolve(stdout);
+			return (error !== null || stderr) ? reject(stderr || stdout) : resolve(stdout);
 		});
 	});
 }
