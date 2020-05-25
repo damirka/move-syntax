@@ -64,7 +64,8 @@
                     "comment": "Booleans",
                     "name": "constant.language.boolean.move",
                     "match": "\\b(?:true|false)\\b"
-                }
+                },
+                { "include": "#dfinance-wallet-address" }
             ]
         },
 
