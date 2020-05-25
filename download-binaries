@@ -13,7 +13,7 @@ const https = require('https');
 
 ['move-ls', 'move-build', 'move-executor'].map(function (binName) {
 
-    const cfg = require('package.json')[binName];
+    const cfg = require('./package.json')[binName];
     const bin = cfg.binaries[process.platform];
     const url = `https://github.com/${cfg.repository}/releases/download/${cfg.version}/${bin}`;
     const tgt = (process.platform === 'win32') && (binName + '.exe') || binName;
