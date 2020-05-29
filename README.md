@@ -10,11 +10,11 @@ If you still aren't familiar with Move language you can follow [this link]
 
 **What's inside**:
 
-- Move and Mvir syntax highlighting (always up to date)
+- Move and Mvir syntax highlighting (always up to date) + spec support
 - [Move Language Server](https://github.com/dfinance/move-language-server) and syntax error check!
-- Built-in compiler Move (and Mvir) for Libra and Dfinance blockchains
 - Move Executor - you can run your code in VSCode! Type `Move: Run Script`
-- `{{sender}}` pattern support for your address.
+- `{{sender}}` pattern support for address in your modules and scripts
+- Built-in compiler Move (and Mvir) for Libra and Dfinance blockchains
 
 Already want to try? [To the marketplace!](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
 
