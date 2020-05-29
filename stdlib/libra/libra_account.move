@@ -495,8 +495,8 @@ module LibraAccount {
         addr: address,
     );
 
-    native fun create_signer(addr: address): signer;
-    native fun destroy_signer(addr: address): signer;
+    // native fun create_signer(addr: address): signer;
+    // native fun destroy_signer(addr: address): signer;
 
     // Helper to return the u64 value of the `balance` for `account`
     fun balance_for<Token>(balance: &Balance<Token>): u64 {

@@ -7,11 +7,11 @@ module Signer {
     // resource struct Signer { addr: address }
     // ```
     // `borrow_address` borrows this inner field
-    native public fun borrow_address(s: &signer): &address;
+    // native public fun borrow_address(s: &signer): &address;
 
     // Copies the address of the signer
-    public fun address_of(s: &signer): address {
-        *borrow_address(s)
-    }
+    // public fun address_of(s: &signer): address {
+    //     *borrow_address(s)
+    // }
 }
 }
