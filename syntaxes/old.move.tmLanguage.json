@@ -1,0 +1,475 @@
+{
+    "scopeName": "source.move",
+    "repository": {
+
+        "line-comments": {
+            "comment": "Single-line comment",
+            "name": "comment.line.double-slash.move",
+            "begin": "//",
+            "end": "$"
+        },
+
+        "block-comments": {
+            "comment": "Supported since https://github.com/libra/libra/pull/3714",
+            "patterns": [
+                {
+                    "comment": "Block documentation comment",
+                    "name": "comment.block.documentation.move",
+                    "begin": "/\\*[\\*!](?![\\*/])",
+                    "end": "\\*/"
+                },
+                {
+                    "comment": "Block comment",
+                    "name": "comment.block.move",
+                    "begin": "/\\*",
+                    "end": "\\*/"
+                }
+            ]
+        },
+
+        "comments": {
+            "patterns": [
+                { "include": "#line-comments" },
+                { "include": "#block-comments" }
+            ]
+        },
+
+        "literals": {
+            "patterns": [
+                {
+                    "comment": "Hex literal (still to find out)",
+                    "name": "constant.numeric.hex.move",
+                    "match": "0x[_a-fA-F0-9]+(?:[iu](?:8|16|32|64|size))?"
+                },
+                {
+                    "comment": "Numeric literal",
+                    "name": "constant.numeric.move",
+                    "match": "(?<!(?:\\w|(?:(?<!\\.)\\.)))[0-9][_0-9]*(?:\\.(?!\\.)(?:[0-9][_0-9]*)?)?(?:[eE][+\\-]?[_0-9]+)?(?:[u](?:8|64|128|))?"
+                },
+                {
+                    "comment": "Bytearray hex literal",
+                    "match": "\\b(?:h)(\"[a-fA-F0-9]+\")",
+                    "captures": {
+                        "1": { "name": "constant.character.move" }
+                    }
+                },
+                {
+                    "comment": "vector<u8> as hex literal: x",
+                    "match": "x\"([A-F0-9a-f]+)\"",
+                    "captures": {
+                        "1": { "name": "constant.numeric.hex.move" }
+                    }
+                },
+                {
+                    "comment": "Booleans",
+                    "name": "constant.language.boolean.move",
+                    "match": "\\b(?:true|false)\\b"
+                },
+                { "include": "#dfinance-wallet-address" }
+            ]
+        },
+
+        "mut-keyword": {
+            "comment": "&mut keyword",
+            "name": "storage.modifier.mut.move",
+            "match": "\\b(mut)\\b"
+        },
+
+        "modifiers": {
+            "patterns": [
+                {
+                    "comment": "Function visibility",
+                    "name": "storage.modifier.move",
+                    "match": "\\b(public|native)\\b"
+                },
+                { "include": "#mut-keyword" }
+            ]
+        },
+
+        "flow": {
+            "comment": "Control operators",
+            "name": "keyword.control.move",
+            "match": "\\b(?:loop|as|while|break|continue|if|else|return|abort)\\b"
+        },
+
+        "vector": {
+            "comment": "Vector type eg vector<u8>",
+            "begin": "\\b(vector)(?=\\<)",
+            "beginCaptures": {
+                "1": { "name": "support.type.vector.move" }
+            },
+            "end": "(?=>)",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#types" },
+                { "include": "#vector" }
+            ]
+        },
+
+        "types": {
+            "comment": "Standard types",
+            "match": "\\b(u8|u64|u128|address|bool)\\b",
+            "name": "support.type.primitives.move"
+        },
+
+        "let-keyword": {
+            "comment": "let something : anytype; or destructive assignment",
+            "begin": "\\b(let)\\b",
+            "captures": {
+                "1": { "name": "keyword.other.move" }
+            },
+            "end": "(?=[;=])",
+            "patterns": [
+                { "include": "#types" },
+                { "include": "#comments" },
+                { "include": "#mut-keyword" },
+                { "include": "#structure-creation" }
+            ]
+        },
+
+        "move-copy": {
+            "comment": "move <VAR> or copy <VAR>",
+            "match": "\\b(move|copy)\\b",
+            "name": "variable.language.move"
+        },
+
+        "definitions-common": {
+            "patterns": [
+                { "include": "#vector" },
+                { "include": "#types" }
+            ]
+        },
+
+        "predefined-methods": {
+            "comment": "Methods like move and copy",
+            "match": "\\b(move_to_sender)(?=\\()",
+            "name": "support.function.move"
+        },
+
+        "typed-prededefined-methods": {
+            "comment": "Language-specific typed keywords",
+            "begin": "\\b(borrow_global|emit_event|borrow_global_mut|exists|move_from|move_to_sender)(?=\\<)",
+            "beginCaptures": {
+                "1": { "name": "support.function.typed.move" }
+            },
+            "end": "\\(",
+            "patterns": [
+                { "include": "#type-parameters" }
+            ]
+        },
+
+        "type-parameters": {
+            "begin": "(<)",
+            "beginCaptures": {
+                "1": { "name": "punctuation.symbol.move" }
+            },
+            "end": "(>)",
+            "endCaptures": {
+                "1": { "name": "punctuation.symbol.move" }
+            },
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#type-parameters" },
+                { "include": "#definitions-common" },
+                { "include": "#method-or-prop" }
+            ]
+        },
+
+        "type-kind": {
+            "comment": "Trait-like matching. It's called Kind in Move",
+            "match": "\\b(unknown|resource|copyable)\\b",
+            "name": "entity.name.type.kind.move"
+        },
+
+        "resource-type-parameters": {
+            "comment": "Special group as there're different types of typed-calls and definitions",
+            "begin": "(<)",
+            "beginCaptures": {
+                "1": { "name": "punctuation.symbol.move" }
+            },
+            "end": "(>)",
+            "endCaptures": {
+                "1": { "name": "punctuation.symbol.move" }
+            },
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#types" },
+                {
+                    "comment": "Trait-like matching. It's called Kind in Move",
+                    "begin": "\\b(\\w+)\\s*:\\s*",
+                    "end": "(?=>)",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#type-kind" }
+                    ]
+                }
+            ]
+        },
+
+        "resource": {
+            "comment": "Resource definition",
+            "begin": "\\b(resource)\\s+",
+            "beginCaptures": {
+                "1": { "name": "storage.type.move" }
+            },
+            "end": "(?=\\s*[}])",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#structure" }
+            ]
+        },
+
+        "structure": {
+            "comment": "Structure definition",
+            "begin": "\\b(struct)\\s+",
+            "beginCaptures": {
+                "1": { "name": "storage.type.structure.move" }
+            },
+            "end": "(?=\\s*[}])",
+            "patterns": [
+                { "include": "#comments" },
+                {
+                    "comment": "Structure name",
+                    "begin": "\\b(\\w+)(?=[<\\s{;])",
+                    "end": "(?=[{])",
+                    "beginCaptures": {
+                        "1": { "name": "entity.name.type.move" }
+                    },
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#resource-type-parameters" }
+                    ]
+                },
+                {
+                    "comment": "Structure fields definition",
+                    "begin": "(?<={)",
+                    "end": "(?=})",
+                    "patterns": [
+                        { "include": "#vector" },
+                        { "include": "#method-or-prop" },
+                        { "include": "#comments" },
+                        { "include": "#types" }
+                    ]
+                }
+            ]
+        },
+
+        "spec": {
+            "begin": "\\b(spec)\\b",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.move" }
+            },
+            "end": "}",
+            "patterns": [
+                { "include": "source.move.spec" }
+            ]
+        },
+
+        "structure-creation": {
+            "comment": "create struct like: T { <fields> }",
+            "match": "\\b(\\w+)\\s*(?:<(\\w+)>)\\s*{"
+        },
+
+        "entity-name": {
+            "comment": "Selector for entities",
+            "match": "\\b(\\w+)(?=\\W)",
+            "name": "entity.name.type.move"
+        },
+
+        "module": {
+            "comment": "Module definition",
+            "begin": "\\b(module)\\b",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.type.move" }
+            },
+            "end": "(?={)",
+            "patterns": [
+                {
+                    "comment": "Module name",
+                    "match": "\\b(\\w+)\\b",
+                    "name": "entity.name.type.module.move"
+                },
+                { "include": "#comments" }
+            ]
+        },
+
+        "address-block": {
+            "comment": "Address block, see https://github.com/libra/libra/pull/3669",
+            "begin": "\\b(address)\\b",
+            "end": "[:{]",
+            "beginCaptures": {
+                "1": { "name": "keyword.control.move" }
+            },
+            "patterns": [
+                { "include": "#dfinance-wallet-address" },
+                { "include": "#libra-walllet-address" },
+                { "include": "#comments" }
+            ]
+        },
+
+        "script-block": {
+            "comment": "Script block, see https://github.com/libra/libra/pull/3669",
+            "begin": "\\b(script)\\b",
+            "end": "(?={)",
+            "beginCaptures": {
+                "1": { "name": "keyword.control.move" }
+            },
+            "patterns": [
+                { "include": "#comments" }
+            ]
+        },
+
+        "libra-walllet-address": {
+            "comment": "16-byte (or shorter) hex address in Libra",
+            "match": "\\b(0x[A-Fa-f0-9][A-Fa-f0-9]{,31})\\b",
+            "name": "support.constant.libra.address.move"
+        },
+
+        "dfinance-wallet-address": {
+            "comment": "Bech32 with wallet1 prefix",
+            "match": "\\b(wallet1\\w{38})",
+            "name": "support.constant.dfinance.address.move"
+        },
+
+        "use-import": {
+            "comment": "Import declaration with use keyword",
+            "begin": "\\b(use)\\s+",
+            "beginCaptures": {
+                "1": { "name": "keyword.other.move" }
+            },
+            "end": "(;)",
+            "patterns": [
+                {
+                    "comment": "0x import",
+                    "begin": "\\b(0x[0-9A-Fa-f]+)\\s*",
+                    "beginCaptures": {
+                        "1": { "name": "support.constant.0x0.move" }
+                    },
+                    "end": "(?=::)",
+                    "patterns": [
+                        { "include": "#comments" }
+                    ]
+                },
+                {
+                    "comment": "Dfinance wallet format",
+                    "begin": "\\b(wallet1\\w{38})",
+                    "beginCaptures": {
+                        "1": { "name": "support.constant.dfinance.move" }
+                    },
+                    "end": "(?=::)",
+                    "patterns": [
+                        { "include": "#comments" }
+                    ]
+                },
+                {
+                    "comment": "Highlight import",
+                    "match": "(?<=::)\\s*(\\w+)\\b",
+                    "name": "entity.name.class.import.move"
+                },
+                {
+                    "comment": "as keyword",
+                    "begin": "\\b(as)\\b",
+                    "beginCaptures": {
+                        "1": { "name": "keyword.other.move" }
+                    },
+                    "end": "(?=;)",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#entity-name" }
+                    ]
+                },
+                { "include": "#comments" }
+            ]
+        },
+
+        "acquires-keyword": {
+            "comment": "Acquires keyword",
+            "match": "\\b(acquires)\\b",
+            "name": "storage.modifier.acquires.move"
+        },
+
+        "functions": {
+            "patterns": [
+                { "include": "#function-definition" },
+                { "include": "#method-or-prop" },
+                { "include": "#local-method-call" }
+            ]
+        },
+
+        "function-definition": {
+            "begin": "\\b(fun)\\s+(\\w+)",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.move" },
+                "2": { "name": "entity.name.function.move" }
+            },
+            "end": "(?=\\s*[{;])",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#mut-keyword" },
+                { "include": "#resource-type-parameters" },
+                { "include": "#definitions-common" },
+                { "include": "#method-or-prop" },
+                {
+                    "begin": "(?<=\\))",
+                    "end": "(?=\\s*[{;])",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#acquires-keyword" },
+                        { "include": "#method-or-prop" },
+                        { "include": "#vector" },
+                        { "include": "#types" }
+                    ]
+                }
+            ]
+        },
+
+        "method-or-prop": {
+            "match": "\\b(\\w+)::(\\w+)\\b",
+            "captures": {
+                "1": { "name": "entity.name.class.move" },
+                "2": { "name": "entity.name.function.call.move" }
+            }
+        },
+
+        "local-method-call": {
+            "begin": "\\b(\\w+)(?=[<(])",
+            "beginCaptures": {
+                "1": { "name": "entity.name.function.call.move" }
+            },
+            "end": "(?=\\))",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#mut-keyword" },
+                { "include": "#type-parameters" },
+                { "include": "#predefined-methods" },
+                { "include": "#typed-prededefined-methods" },
+                { "include": "#local-method-call" },
+                { "include": "#definitions-common" },
+                { "include": "#method-or-prop" },
+                { "include": "#literals" }
+            ]
+        }
+    },
+    "patterns": [
+        { "include": "#spec" },
+
+        { "include": "#address-block" },
+        { "include": "#script-block" },
+
+        { "include": "#module" },
+        { "include": "#use-import" },
+        { "include": "#resource" },
+        { "include": "#flow" },
+        { "include": "#definitions-common" },
+        { "include": "#structure" },
+        { "include": "#structure-creation" },
+        { "include": "#predefined-methods" },
+        { "include": "#typed-prededefined-methods" },
+        { "include": "#modifiers" },
+        { "include": "#let-keyword" },
+        { "include": "#literals" },
+        { "include": "#functions" },
+        { "include": "#move-copy" },
+        { "include": "#comments"}
+    ]
+}
