@@ -285,7 +285,7 @@ function loadConfig(document: vscode.TextDocument): AppConfig {
 
 	const cfg = {
 		sender: globalCfg.get<string>('account') || null,
-		network: globalCfg.get<string>('network') || 'libra',
+		network: globalCfg.get<string>('blockchain') || 'libra',
 		compilerDir: globalCfg.get<string>('compilerDir') || 'out',
 		modulesPath: globalCfg.get<string>('modulesPath') || 'modules',
 		stdlibPath: globalCfg.get<string>('stdlibPath') || undefined,

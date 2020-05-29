@@ -1,16 +1,20 @@
 # Move IDE for VSCode
 
-Built by developer for developers, this extension will simplify your Move development and will (I guarantee!) make your first experience with Move less painful.
+Built by developer for developers, this extension will simplify your Move development and will make your first experience with Move less painful.
 
-[Jump to setup](#setup)
+- [Jump to setup](#setup)
+- [Move Whitepaper](https://developers.libra.org/docs/move-paper)
+- [Marketplace](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
 
-If you still aren't familiar with Move language you can follow [this link](https://developers.libra.org/docs/move-paper)
+If you still aren't familiar with Move language you can follow [this link]
 
 **What's inside**:
 
 - Move and Mvir syntax highlighting (always up to date)
 - [Move Language Server](https://github.com/dfinance/move-language-server) and syntax error check!
 - Built-in compiler Move (and Mvir) for Libra and Dfinance blockchains
+- Move Executor - you can run your code in VSCode! Type `Move: Run Script`
+- `{{sender}}` pattern support for your address.
 
 Already want to try? [To the marketplace!](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
 
@@ -39,10 +43,7 @@ For Libra `move-build` is used, hence you can only compile Move files.
 
 ### Dfinance
 
-To compile code for dfinance network you need:
-- dncli - see [dfinance/dnode releases](https://github.com/dfinance/dnode/releases) for binaries.
-
-After installing `dncli` globally, the world of compillation is yours (both Mvir and Move supported).
+Temporarily unsupported.
 
 ## Recomended directory structure
 
@@ -65,7 +66,7 @@ Configuration for Libra:
 ```json
 {
     "network": "libra",
-    "defaultAccount": "0x....",
+    "account": "0x....",
     "compilerDir": "out"
 }
 ```
@@ -75,8 +76,7 @@ Configuration file for dfinance:
 ```json
 {
     "network": "dfinance",
-    "defaultAccount": "wallet1...",
-    "compiler": "rpc.testnet.dfinance.co:50053",
+    "account": "wallet1...",
     "compilerDir": "out"
 }
 ```
@@ -85,16 +85,9 @@ Compiler given here supports both Move and Mvir, though you'll need to know stan
 
 **Comments:**
 
-- network: `dfinance` or `libra`
-- defaultAccount: account from which you're going to deploy scripts
-- compilerDir: compiler output directory
-- compiler: compiler address (for dfinance only)
-
-## Future
-
-- [x] implement compiler support for Libra
-- [x] add LSP (language server protocol) for Move
-- [ ] yeoman bootstrap for directory structure
+- network: `libra` or `dfinance` (libra is default);s
+- account: account from which you're going to deploy scripts;
+- compilerDir: compiler output directory;
 
 ## Contribution
 

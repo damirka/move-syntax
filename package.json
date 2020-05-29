@@ -47,10 +47,6 @@
 					".mvir"
 				],
 				"configuration": "./language-configuration.json"
-			},
-			{
-				"id": "move-spec",
-				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
@@ -63,11 +59,6 @@
 				"language": "mvir",
 				"scopeName": "source.mvir",
 				"path": "./syntaxes/mvir.tmLanguage.json"
-			},
-			{
-				"language": "move-spec",
-				"scopeName": "source.move.spec",
-				"path": "./syntaxes/move.spec.tmLanguage.json"
 			}
 		],
 		"commands": [
