@@ -6,7 +6,7 @@ Built by developer for developers, this extension will simplify your Move develo
 - [Move Whitepaper](https://developers.libra.org/docs/move-paper)
 - [Marketplace](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
 
-If you still aren't familiar with Move language you can follow [this link]
+If you still aren't familiar with Move language you can see [Move Book](https://move-book.com).
 
 **What's inside**:
 
