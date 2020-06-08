@@ -2,6 +2,10 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.3.5
+
+- fixes move-executor run command due to recent changes in cli args
+
 ## v0.3.4 - `signer` type support in MLS and syntax
 
 - adds highlighting of `signer`  type and `move_to`
