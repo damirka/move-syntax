@@ -182,17 +182,13 @@ async function runScriptCommand(): Promise<any> {
 
     const modules = [config.modulesPath, config.stdlibPath].filter((a) => !!a);
 
-    if (modules.length) {
-        // @ts-ignore
-        args.push('--modules', ...modules); // .map((mod) => mod + '/*'));
-    }
-
+    modules.forEach((m) => m && args.push('--modules', m));
 
     return exec(binaryPath + args.join(' '))
     // @ts-ignore
-        .then((stdout) => console.log(stdout) || vscode.window.showInformationMessage(stdout, {modal: true}))
+        .then((stdout) => vscode.window.showInformationMessage(stdout, {modal: true}))
         // @ts-ignore
-        .catch((stderr) => console.log(stderr) || vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
+        .catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
 }
 
 /**
