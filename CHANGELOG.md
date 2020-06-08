@@ -2,6 +2,12 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.3.4 - `signer` type support in MLS and syntax
+
+- adds highlighting of `signer`  type and `move_to`
+- move-language-server also updated to latest v0.8.2 along with move-executor
+- Libra stdlib updated to latest version
+
 ## v0.3.3 - Syntax is now scope based
 
 - spec syntax support added
