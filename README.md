@@ -66,7 +66,7 @@ Configuration for Libra:
 ```json
 {
     "network": "libra",
-    "account": "0x....",
+    "sender": "0x....",
     "compilerDir": "out"
 }
 ```
@@ -76,7 +76,7 @@ Configuration file for dfinance:
 ```json
 {
     "network": "dfinance",
-    "account": "wallet1...",
+    "sender": "wallet1...",
     "compilerDir": "out"
 }
 ```
@@ -85,9 +85,15 @@ Compiler given here supports both Move and Mvir, though you'll need to know stan
 
 **Comments:**
 
-- network: `libra` or `dfinance` (libra is default);s
-- account: account from which you're going to deploy scripts;
+- network: `libra` or `dfinance` (libra is default);
+- sender: account from which you're going to deploy/run scripts;
 - compilerDir: compiler output directory;
+
+**Additional configuration options:**
+
+- stdlibPath - custom path to stdlib folder - either relative to workspace or absolute or null;
+- modulesPath - custom path to modules folder (instead of default modules) - relative or absolute or null;
+- showModal - bool - whether to show compile/run command output in modal window or not;
 
 ## Contribution
 
