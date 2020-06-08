@@ -90,7 +90,7 @@ module Account {
     acquires T, Balance {
         deposit_with_metadata<Token>(
             payee,
-            withdraw_from_sender(amount),
+            withdraw_from_sender<Token>(amount),
             metadata
         )
     }

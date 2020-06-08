@@ -372,7 +372,7 @@
 
         "resource_methods": {
             "comment": "Methods to work with resource",
-            "match": "\\b(borrow_global|borrow_global_mut|exists|move_from|move_to_sender)\\b",
+            "match": "\\b(borrow_global|borrow_global_mut|exists|move_from|move_to_sender|move_to)\\b",
             "name": "support.function.typed.move"
         },
 
@@ -416,7 +416,7 @@
 
         "primitives": {
             "comment": "Primitive types",
-            "match": "\\b(u8|u64|u128|address|bool)\\b",
+            "match": "\\b(u8|u64|u128|address|bool|signer)\\b",
             "name": "support.type.primitives.move"
         },
 
