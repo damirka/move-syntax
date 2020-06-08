@@ -5,7 +5,7 @@ module LBR {
     use 0x0::Coin2;
     use 0x0::FixedPoint32;
     use 0x0::Libra;
-    use 0x0::Transaction;
+    use 0x0::Signer;
 
     // The type tag for this coin type.
     resource struct T { }
@@ -36,17 +36,16 @@ module LBR {
     // already be registered in order for this to succeed. The sender must
     // both be the correct address and have the correct permissions. These
     // restrictions are enforced in the Libra::register_currency function.
-    public fun initialize() {
+    public fun initialize(account: &signer) {
         // Register the LBR currency.
-        Libra::register_currency<T>(
+        let (mint_cap, burn_cap) = Libra::register_currency<T>(
+            account,
             FixedPoint32::create_from_rational(1, 1), // exchange rate to LBR
             true,    // is_synthetic
             1000000, // scaling_factor = 10^6
             1000,    // fractional_part = 10^3
-            x"4C4252" // UTF8-encoded "LBR" as a hex string
+            b"LBR"
         );
-        let mint_cap = Libra::remove_mint_capability();
-        let burn_cap = Libra::remove_burn_capability();
         let preburn_cap = Libra::new_preburn_with_capability(&burn_cap);
         let coin1 = ReserveComponent<Coin1::T> {
             ratio: FixedPoint32::create_from_rational(1, 2),
@@ -56,7 +55,7 @@ module LBR {
             ratio: FixedPoint32::create_from_rational(1, 2),
             backing: Libra::zero<Coin2::T>(),
         };
-        move_to_sender(Reserve{ mint_cap, burn_cap, preburn_cap, coin1, coin2});
+        move_to(account, Reserve { mint_cap, burn_cap, preburn_cap, coin1, coin2 });
     }
 
     // Given the constituent coins return as much LBR as possible, with any
@@ -102,11 +101,11 @@ module LBR {
 
     // Unpack a LBR coin and return the backing currencies (in the correct
     // amounts).
-    public fun unpack(coin: Libra::T<T>): (Libra::T<Coin1::T>, Libra::T<Coin2::T>)
+    public fun unpack(account: &signer, coin: Libra::T<T>): (Libra::T<Coin1::T>, Libra::T<Coin2::T>)
     acquires Reserve {
         let reserve = borrow_global_mut<Reserve>(0xA550C18);
         let ratio_multiplier = Libra::value(&coin);
-        let sender = Transaction::sender();
+        let sender = Signer::address_of(account);
         Libra::preburn_with_resource(coin, &mut reserve.preburn_cap, sender);
         Libra::burn_with_resource_cap(&mut reserve.preburn_cap, sender, &reserve.burn_cap);
         let coin1_amount = FixedPoint32::multiply_u64(ratio_multiplier, *&reserve.coin1.ratio);
@@ -118,16 +117,40 @@ module LBR {
 
     // Create `amount_lbr` LBR using the `MintCapability` for the coin types in the reserve.
     // Aborts if the caller does not have the appropriate `MintCapability`'s
-    public fun mint(amount_lbr: u64): Libra::T<T> acquires Reserve {
+    public fun mint(account: &signer, amount_lbr: u64): Libra::T<T> acquires Reserve {
         let reserve = borrow_global<Reserve>(0xA550C18);
         let num_coin1 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin1.ratio);
         let num_coin2 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin2.ratio);
-        let coin1 = Libra::mint<Coin1::T>(num_coin1);
-        let coin2 = Libra::mint<Coin2::T>(num_coin2);
+        let coin1 = Libra::mint<Coin1::T>(account, num_coin1);
+        let coin2 = Libra::mint<Coin2::T>(account, num_coin2);
         let (lbr, leftover1, leftover2) = create(amount_lbr, coin1, coin2);
         Libra::destroy_zero(leftover1);
         Libra::destroy_zero(leftover2);
         lbr
     }
+
+    // **************** SPECIFICATIONS ****************
+
+    /*
+    This module defines the synthetic coin type called LBR and the operations on LBR coins. A global property that this
+    module has to satisfy is as follows: LBR must be backed by the reserve of fiat coins in order to exist. In the
+    current system, there are two fiat coins called coin1 and coin2. So, there must be a sufficient amounts of coin1
+    and coin2 respectively in the reserve to be backing LBR. Here, the "sufficient amount" is determined by the
+    pre-defined ratio of each of the fiat coins to the total value of LBR. To define this global property more precisely,
+
+    let reserve_coin1 refer to global<Reserve>(0xA550C18).coin1 (the reserve of coin1 backing LBR)
+    let reserve_coin2 refer to global<Reserve>(0xA550C18).coin2 (the reserve of coin2 backing LBR).
+    Let lbr_total_value be the synthetic variable that represents the total amount of LBR that exists.
+    Note: lbr_total_value could refer to global<Libra::CurrencyInfo<LBR::T>>(0xA550C18).total_value, but this may make
+    verification harder because one need prove a relational invariant of two modules (such as Libra and LBR).
+    The module invariant can be formulated as:
+    (1) lbr_total_value * r_coin1.ratio <= reserve_coin1.backing.value, and
+    (2) lbr_total_value * r_coin2.ratio <= reserve_coin2.backing.value
+    where '*' is the multiplication over real numbers. (Yet, it could be the FP multiplication. It should not matter.)
+
+    Note that to argue this, the system needs to satisfy the following property (beyond the scope of this module):
+    LBR coins should be created only through LBR::create, and there is no other way in the system. Specifically,
+    Libra::mint<LBR::T> should not be able to create LBR coins because if so, the invariant above may not be guaranteed.
+    */
 }
 }

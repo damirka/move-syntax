@@ -1,253 +1,244 @@
-// Implements logic for registering addresses as association addresses, and
-// determining if the sending account is an association account.
-// Errors:
-// 1000 -> INVALID_GENESIS_ADDR
-// 1001 -> INSUFFICIENT_PRIVILEGES
-// 1002 -> NOT_AN_ASSOCIATION_ACCOUNT
-// 1003 -> ACCOUNT_DOES_NOT_HAVE_PRIVILEGE
-// 1004 -> ACCOUNT_DOES_NOT_HAVE_PRIVILEGE_RESOURCE
 address 0x0 {
 
+/// Implements logic for registering addresses as association addresses, and
+/// determining if the sending account is an association account.
+
+/// Errors:
+///
+/// ```
+/// 1000 -> INVALID_GENESIS_ADDR
+/// 1001 -> INSUFFICIENT_PRIVILEGES
+/// 1002 -> NOT_AN_ASSOCIATION_ACCOUNT
+/// 1003 -> ACCOUNT_DOES_NOT_HAVE_PRIVILEGE
+/// 1004 -> ACCOUNT_DOES_NOT_HAVE_PRIVILEGE_RESOURCE
+/// 1005 -> CANT_REMOVE_ROOT_PRIVILEGE
+/// ```
+
 module Association {
+    use 0x0::Signer;
     use 0x0::Transaction;
 
-    // The root account privilege. This is created at genesis and has
-    // special privileges (e.g. removing an account as an association
-    // account). It cannot be removed.
+    /// The root account privilege. This is created at genesis and has
+    /// special privileges (e.g. removing an account as an association
+    /// account). It cannot be removed.
     resource struct Root { }
 
-    // There are certain association capabilities that are more
-    // privileged than other association operations. This resource with the
-    // type representing that privilege is published under the privileged
-    // account.
-    resource struct PrivilegedCapability<Privilege> { is_certified: bool }
+    /// There are certain association capabilities that are more
+    /// privileged than other association operations. This resource with the
+    /// type representing that privilege is published under the privileged
+    /// account.
+    resource struct PrivilegedCapability<Privilege> { }
 
-    // A type tag to mark that this account is an association account.
-    // It cannot be used for more specific/privileged operations.
+    /// A type tag to mark that this account is an association account.
+    /// It cannot be used for more specific/privileged operations.
 
-    // DD: The presence of an instance of T at and address, with is_certified,
-    // means that the address is an association address. I suggest giving "T"
-    // a more meaningful name (e.g., AssociationMember? AssociationPrivileges?)
+    /// The presence of an instance of Association::T at and address
+    /// means that the address is an association address.
     struct T { }
 
-    // Initialization is called in genesis. It publishes the root resource
-    // under the root_address() address, marks it as a normal
-    // association account.
-    public fun initialize() {
-        let sender = Transaction::sender();
-        Transaction::assert(sender == root_address(), 1000);
-        move_to_sender(Root{ });
-        move_to_sender(PrivilegedCapability<T>{ is_certified: true });
+    /// Initialization is called in genesis. It publishes the `Root` resource under `association`
+    /// and marks it as an Association account by publishing a `PrivilegedCapability<T>` resource.
+    /// Aborts if the address of `association` is not `root_address`
+    public fun initialize(association: &signer) {
+        Transaction::assert(Signer::address_of(association) == root_address(), 1000);
+        move_to(association, PrivilegedCapability<T>{ });
+        move_to(association, Root{ });
     }
 
-    // Publish a specific privilege under the sending account.
-    public fun apply_for_privilege<Privilege>() {
-        if (::exists<PrivilegedCapability<Privilege>>(Transaction::sender())) return;
-        move_to_sender(PrivilegedCapability<Privilege>{ is_certified: false });
+    /// Certify the privileged capability published under `association`.
+    public fun grant_privilege<Privilege>(association: &signer, recipient: &signer) {
+        assert_is_root(association);
+        move_to(recipient, PrivilegedCapability<Privilege>{ });
     }
 
-    // Certify the privileged capability published under for_addr.
-    public fun grant_privilege<Privilege>(for_addr: address)
+    /// Grant the association privilege to `association`
+    public fun grant_association_address(association: &signer, recipient: &signer) {
+        grant_privilege<T>(association, recipient)
+    }
+
+    /// Return whether the `addr` has the specified `Privilege`.
+    public fun has_privilege<Privilege>(addr: address): bool {
+        // TODO: make genesis work with this check enabled
+        //addr_is_association(addr) &&
+        exists<PrivilegedCapability<Privilege>>(addr)
+    }
+
+    /// Remove the `Privilege` from the address at `addr`. The `sender` must be the root association
+    /// account.
+    /// Aborts if `addr` is the address of the root account
+    public fun remove_privilege<Privilege>(association: &signer, addr: address)
     acquires PrivilegedCapability {
-        assert_sender_is_root();
-        Transaction::assert(exists<PrivilegedCapability<Privilege>>(for_addr), 1003);
-        borrow_global_mut<PrivilegedCapability<Privilege>>(for_addr).is_certified = true;
-    }
-
-    // Return whether the `addr` has the specified `Privilege`.
-    public fun has_privilege<Privilege>(addr: address): bool
-    acquires PrivilegedCapability {
-        addr_is_association(addr) &&
-        exists<PrivilegedCapability<Privilege>>(addr) &&
-        borrow_global<PrivilegedCapability<Privilege>>(addr).is_certified
-    }
-
-    // Remove the `Privilege` from the address at `addr`. The sender must
-    // be the root association account. The `Privilege` need not be
-    // certified.
-    // DD: Perhaps should not allow root to remove itself from Association?
-    public fun remove_privilege<Privilege>(addr: address)
-    acquires PrivilegedCapability {
-        assert_sender_is_root();
+        assert_is_root(association);
+        // root should not be able to remove its own privileges
+        Transaction::assert(Signer::address_of(association) != addr, 1005);
         Transaction::assert(exists<PrivilegedCapability<Privilege>>(addr), 1004);
-        PrivilegedCapability<Privilege>{ is_certified: _ } = move_from<PrivilegedCapability<Privilege>>(addr);
+        PrivilegedCapability<Privilege>{ } = move_from<PrivilegedCapability<Privilege>>(addr);
     }
 
-    // Publishes an Association::PrivilegedCapability<T> under the sending
-    // account.
-    public fun apply_for_association() {
-        apply_for_privilege<T>()
+    /// Assert that the sender is an association account.
+    public fun assert_is_association(account: &signer) {
+        assert_addr_is_association(Signer::address_of(account))
     }
 
-    // Certifies the Association::PrivilegedCapability<T> resource that is
-    // published under `addr`.
-    public fun grant_association_address(addr: address)
-    acquires PrivilegedCapability {
-        grant_privilege<T>(addr)
+    /// Assert that the sender is the root association account.
+    public fun assert_is_root(account: &signer) {
+        Transaction::assert(exists<Root>(Signer::address_of(account)), 1001);
     }
 
-    // Assert that the sender is an association account.
-    public fun assert_sender_is_association()
-    acquires PrivilegedCapability {
-        assert_addr_is_association(Transaction::sender())
+    /// Return whether the account at `addr` is an association account.
+    public fun addr_is_association(addr: address): bool {
+        exists<PrivilegedCapability<T>>(addr)
     }
 
-    // Assert that the sender is the root association account.
-    public fun assert_sender_is_root() {
-        Transaction::assert(exists<Root>(Transaction::sender()), 1001);
+    public fun assert_account_is_blessed(sender_account: &signer) {
+        // Verify that the sender is treasury compliant account
+        Transaction::assert(Signer::address_of(sender_account) == treasury_compliance_account(), 0)
     }
 
-    // Return whether the account at `addr` is an association account.
-    public fun addr_is_association(addr: address): bool
-    acquires PrivilegedCapability {
-        exists<PrivilegedCapability<T>>(addr) &&
-            borrow_global<PrivilegedCapability<T>>(addr).is_certified
+    fun treasury_compliance_account(): address {
+        0xB1E55ED
     }
 
-    // The address at which the root account will be published.
+    /// The address at which the root account will be published.
     public fun root_address(): address {
         0xA550C18
     }
 
-    // Assert that `addr` is an association account.
-    fun assert_addr_is_association(addr: address)
-    acquires PrivilegedCapability {
+    /// Assert that `addr` is an association account.
+    fun assert_addr_is_association(addr: address) {
         Transaction::assert(addr_is_association(addr), 1002);
     }
 
     // **************** SPECIFICATIONS ****************
-    // *Note:* I need to work on the doc comments more.
 
-    // # Specifications for association.move
+    /// # Module Specification
 
-    // > This is preliminary.  This is one of the first real module libraries with global
-    // > specifications, and everything is evolving.
+    /// **Caveat:** These specifications are preliminary.
+    /// This is one of the first real module libraries with global
+    /// specifications, and everything is evolving.
 
     spec module {
+        /// Verify all functions in this module, including private ones.
         pragma verify = true;
 
-        // Returns the association root address.  spec_root_address needs to be
-        // consistent with the Move function root_address.
+        /// The following helper functions do the same things as Move functions.
+        /// I have prefaced them with "spec_" to emphasize that they're different,
+        /// which might matter if the Move functions are updated.  I'm not sure
+        /// this is a good convention.  The long-term solution would be to allow
+        /// the use of side-effect-free Move functions in specifications, directly.
+
+        /// Returns true iff `initialize` has been run.
+        define spec_is_initialized(): bool { exists<Root>(spec_root_address()) }
+
+        /// Returns the association root address.  `Self::spec_root_address` needs to be
+        /// consistent with the Move function `Self::root_address`.
         define spec_root_address(): address { 0xA550C18 }
 
-        // mirrors Move addr_is_association
+        /// Helper which mirrors Move `Self::addr_is_association`.
         define spec_addr_is_association(addr: address): bool {
             exists<PrivilegedCapability<T>>(addr)
-            && global<PrivilegedCapability<T>>(addr).is_certified
         }
      }
 
-    // ## Management of privileges
+    /// ## Management of Root marker
 
-    // > TODO: With grant/remove etc., separately specify that only root may grant or remove privileges
-
-    // ### Management of Root {} marker.
-
-    // The root_address is marked by a Root{} object that is stored at that place only.
+    /// The root_address is marked by a `Root` object that is stored only at the root address.
     spec module {
-        // Defines an abbreviation for an invariant, so that it can be repeated
-        // in a schema and as a post-condition to `initialize`
-        // Informally: "Only the root address has a Root{} resource."
+        /// Defines an abbreviation for an invariant, so that it can be repeated
+        /// in a schema and as a post-condition to `initialize`.
+        ///
+        /// **Informally:** Only the root address has a Root resource.
         define only_root_addr_has_root_privilege(): bool {
-            all(domain<address>(), |addr| exists<Root>(addr) ==> (addr == spec_root_address()))
+            all(domain<address>(), |addr| exists<Root>(addr) ==> addr == spec_root_address())
         }
     }
     spec schema OnlyRootAddressHasRootPrivilege {
-        invariant only_root_addr_has_root_privilege();
+        /// This is the base case of the induction, before initialization.
+        ///
+        /// **Informally:** No address has Root{} stored at it before initialization.
+        ///
+        /// **BUG:** If you change `addr1` to `addr` below, we get a 'more than one declaration
+        /// of variable error from Boogie, which should not happen with a lambda variable.
+        /// I have not been able to figure out what is going on. Is it a Boogie problem?
+        invariant module !spec_is_initialized() ==> all(domain<address>(), |addr1| !exists<Root>(addr1));
+        /// Induction hypothesis for invariant, after initialization
+        invariant module spec_is_initialized() ==> only_root_addr_has_root_privilege();
     }
     spec module {
-        // apply OnlyRootAddressHasRootPrivilege to all functions except
-        // "initialize" and functions that "initialize" calls
-        // before the invariant is established.
-        // > Note: All the called functions *obviously* cannot affect the invariant.
-        // > TODO: Try to find a better approach to this that does not require excepting functions.
-        // > Note: this needs to be applied to *<Privilege>, otherwise it gets a false error on
-        // > the assert_addr_is_root in grant_privilege<Privilege>
-        apply OnlyRootAddressHasRootPrivilege to *<Privilege>, *
-            except initialize, root_address, has_privilege, addr_is_association,
-            assert_addr_is_association, assert_sender_is_association;
-    }
-    spec fun initialize {
-        // "initialize" establishes the invariant, so it's a special case.
-        // Before initialize, no addresses have a Root{} resource.
-        // Afterwards, only Root {} has the root resource.
-        requires all(domain<address>(), |addr| !exists<Root>(addr));
-        ensures only_root_addr_has_root_privilege();
+        /// Apply `OnlyRootAddressHasRootPrivilege` to all functions.
+        apply OnlyRootAddressHasRootPrivilege to *<Privilege>, *;
     }
 
-    // This post-condition to assert_sender_is_root is a sanity check that
-    // the Root {} invariant really works. It needs the invariant
-    // OnlyRootAddressHasRootPrivilege, because it assert_sender_is_root does not
-    // directly check that the sender == root_address(). Instead, it aborts if
-    // sender has root privilege (Root{}), and only the root_address has Root{}
-    // > TODO: There is a style question about whether this should just check for presence of
-    // a Root privilege. I guess it's moot so long as OnlyRootAddressHasRootPrivilege holds.
-    spec fun assert_sender_is_root {
-        ensures sender() == spec_root_address();
+    /// This post-condition to `Self::assert_is_root` is a sanity check that
+    /// the `Root` invariant really works. It needs the invariant
+    /// `OnlyRootAddressHasRootPrivilege`, because `assert_is_root` does not
+    /// directly check that the `Signer::address_of(account) == root_address()`. Instead, it aborts
+    /// if `account` does not have root privilege, and only the root_address has `Root`.
+    ///
+    /// > TODO: There is a style question about whether this should just check for presence of
+    /// a Root privilege. I guess it's moot so long as `OnlyRootAddressHasRootPrivilege` holds.
+    spec fun assert_is_root {
+        ensures Signer::get_address(account) == spec_root_address();
     }
 
-    // ### authority to set is_certified flag
+    // Switch documentation context back to module level.
+    spec module {}
 
-    // Informally: only grant_* functions can set the is_certified flag in
-    // PrivilegedCapability<Privilege>. The logic must also take into account the
-    // possibility that the PrivilegedCapability<Privilege> does not exist in the old
-    // state, or, even if it did exist in the old state, it is deleted by
-    // "remove_privilege."
-    spec schema OnlyGrantCanCertify<Privilege> {
-       ensures all(domain<address>(),
-                   |addr1| old(!exists<PrivilegedCapability<Privilege>>(addr1)
-                              || !global<PrivilegedCapability<Privilege>>(addr1).is_certified)
-                        ==> (!exists<PrivilegedCapability<Privilege>>(addr1)
-                             || !global<PrivilegedCapability<Privilege>>(addr1).is_certified));
+    /// ## Privilege granting
+    /// > TODO: We want to say: "There is some way to have an association address that is
+    /// > not root." It's ok to provide a specific way to do it.
+
+    // Switch documentation context back to module level.
+    spec module {}
+
+    /// Taken together, the following properties show that the only way to
+    /// remove PrivilegedCapability is to have the root_address invoke remove_privilege.
+
+    /// ## Privilege Removal
+
+    /// Only `Self::remove_privilege` can remove privileges.
+    ///
+    /// **Informally:** if addr1 had a PrivilegedCapability (of any type),
+    /// it continues to have it.
+    spec schema OnlyRemoveCanRemovePrivileges {
+         ensures all(domain<type>(),
+                     |ty| all(domain<address>(),
+                              |addr1| old(exists<PrivilegedCapability<ty>>(addr1))
+                                         ==> exists<PrivilegedCapability<ty>>(addr1)));
     }
     spec module {
-        // By excepting only grant_*, we make sure only these two functions
-        // can change the is_certified from true to false.
-        // > TODO: Try deleting the association version to see if prover catches it.
-        apply OnlyGrantCanCertify<Privilege> to *<Privilege>
-            except grant_privilege, grant_association_address;
-    }
-
-    // ### Functions can't make privileges disappear, except remove_privilege
-
-    // *Informally:* Only remove_privilege can remove privileges
-    spec schema OnlyRemoveCanRemovePrivileges<Privilege> {
-         ensures any(domain<address>(), |a| (old(exists<PrivilegedCapability<Privilege>>(a))
-                                       && !exists<PrivilegedCapability<Privilege>>(a))
-                                       ==> sender() == spec_root_address());
-    }
-    spec module {
-        // > *Feature request*: We need to be able to apply this to functions that don't have
-        // > a type parameter (or a type parameter for something different)? They could violate
-        // > the property by removing a specific privilege. We need the effect of universal
-        // > quantification over all possible instantiations of Privilege.
-        apply OnlyRemoveCanRemovePrivileges<Privilege> to *<Privilege>;
+        /// Show that every function except remove_privilege preserves privileges
+        apply OnlyRemoveCanRemovePrivileges to *<Privilege>, * except remove_privilege;
     }
     spec fun remove_privilege {
-        // *Informally:* Only root can call remove_privilege without aborting.
-        ensures sender() == spec_root_address();
+        // Only root can call remove_privilege without aborting.
+        ensures Signer::get_address(association) == spec_root_address();
     }
 
-    // ### management of association privilege
+    // Switch documentation context back to module level.
+    spec module {}
 
-    // *Informally:* Every root address (address with Root{}) is also an association address.
-    // Note: There is just one root address, so I think it would have been clearer to write
-    // "invariant spec_addr_is_association(spec_root_address(sender()))"
-    // > The prover reports a violation of this property:
-    // > Root can remove its own association privilege, by calling
-    // > remove_privilege<T>(root_address()).
-    // > I have therefore commented out the "apply"
+    /// ## Management of Association Privilege
+
+    /// Every `Root` address is also an association address.
+    /// The prover found a violation because root could remove association privilege from
+    /// itself.  I added assertion 1005 above to prevent that, and this verifies.
+    ///
+    /// > **Note:** There is just one root address, so I think it would have been clearer to write
+    /// "invariant spec_addr_is_association(spec_root_address(sender()))"
     spec schema RootAddressIsAssociationAddress {
-        invariant all(domain<address>(), |a| exists<Root>(a) ==> spec_addr_is_association(a));
-    }
-    spec module {
-        // except functions called from initialize before invariant is established.
-        // > Note: Why doesn't this include initialize, root_address()?
-//        apply RootAddressIsAssociationAddress to *<Privilege>, *
-//            except has_privilege, addr_is_association, assert_addr_is_association, assert_sender_is_association;
+        invariant module
+            all(domain<address>(),
+                |addr1| exists<Root>(addr1) ==> spec_addr_is_association(addr1));
     }
 
-    // ### post-condtions for assertions of privilege.
+    /// > **Note:** Why doesn't this include initialize, root_address()?
+    /// The prover reports a violation of this property:
+    /// Root can remove its own association privilege, by calling
+    /// remove_privilege<T>(root_address()).
+    spec module {
+        apply RootAddressIsAssociationAddress to *<Privilege>, *;
+    }
 
     spec fun addr_is_association {
         aborts_if false;
@@ -259,14 +250,16 @@ module Association {
         ensures spec_addr_is_association(addr);
     }
 
-    spec fun assert_sender_is_association {
-        aborts_if !spec_addr_is_association(sender());
-        ensures spec_addr_is_association(sender());
+    spec fun assert_is_association {
+        aborts_if !spec_addr_is_association(Signer::get_address(account));
+        ensures spec_addr_is_association(Signer::get_address(account));
     }
 
 
-    // > TODO: add properties that you can't do things without the right privileges.
-    // > TODO: add termination requirements.
+    /// > TODO: add properties that you can't do things without the right privileges.
+    ///
+    /// > TODO: add termination requirements.
+    spec module {}
 
 }
 }
