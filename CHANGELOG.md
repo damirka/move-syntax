@@ -2,6 +2,16 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.3.6 - bytestring literal support
+
+- fixes `move` and `copy` highlight
+- adds string literals to syntax
+- move-runner and move-language server now support win32
+- commands are now run in terminal instead of modal (hooray!)
+- Libra std is almost latest - just before built-in assert
+- `move-build` arguments fixed for latest version
+
+
 ## v0.3.5
 
 - fixes move-executor run command due to recent changes in cli args
