@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.3.5",
+	"version": "0.3.6",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -170,30 +170,30 @@
 		"vscode-languageclient": "^6.1.3"
 	},
 	"move-ls": {
-		"version": "0.8.2",
-		"repository": "dfinance/move-language-server",
+		"version": "0.9.0",
+		"repository": "dfinance/move-tools",
 		"binaries": {
-			"win32": null,
+			"win32": "move-language-server-win32.exe",
 			"linux": "move-language-server-linux",
 			"darwin": "move-language-server-darwin"
 		}
 	},
 	"move-executor": {
-		"version": "0.8.2",
-		"repository": "dfinance/move-language-server",
+		"version": "0.9.0",
+		"repository": "dfinance/move-tools",
 		"binaries": {
-			"win32": null,
+			"win32": "move-executor-win32.exe",
 			"linux": "move-executor-linux",
 			"darwin": "move-executor-darwin"
 		}
 	},
 	"move-build": {
-		"version": "12.05.20",
+		"version": "09.06.20",
 		"repository": "dfinance/libra",
 		"binaries": {
 			"win32": null,
-			"linux": "movec-12.05.20-linux",
-			"darwin": "movec-12.05.20-darwin"
+			"linux": "movec-09.06.20-linux",
+			"darwin": "movec-09.06.20-darwin"
 		}
 	}
 }

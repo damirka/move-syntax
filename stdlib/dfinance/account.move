@@ -7,11 +7,12 @@ module Account {
 
     use 0x0::Transaction;
     use 0x0::Dfinance;
+    use 0x0::Signer;
     use 0x0::Event;
 
     /// holds account data, currently, only events
     resource struct T {
-        sent_events: Event::EventHandle<SentPaymentEvent>,
+        sent_events:     Event::EventHandle<SentPaymentEvent>,
         received_events: Event::EventHandle<ReceivedPaymentEvent>,
     }
 
@@ -36,11 +37,11 @@ module Account {
     }
 
     /// Init wallet for measurable currency, hence accept <Token> currency
-    public fun accept<Token>() {
-        move_to_sender<Balance<Token>>(Balance { coin: Dfinance::zero<Token>() })
+    public fun accept<Token>(account: &signer) {
+        move_to<Balance<Token>>(account, Balance { coin: Dfinance::zero<Token>() })
     }
 
-    public fun can_accept<Token>(payee: address): bool {
+    public fun has_balance<Token>(payee: address): bool {
         ::exists<Balance<Token>>(payee)
     }
 
@@ -48,56 +49,80 @@ module Account {
         ::exists<T>(payee)
     }
 
-    public fun balance<Token>(): u128 acquires Balance {
-        balance_for<Token>(Transaction::sender())
+    public fun balance<Token>(account: &signer): u128 acquires Balance {
+        balance_for<Token>(Signer::address_of(account))
     }
 
     public fun balance_for<Token>(addr: address): u128 acquires Balance {
         Dfinance::value(&borrow_global<Balance<Token>>(addr).coin)
     }
 
-    public fun deposit<Token>(payee: address, to_deposit: Dfinance::T<Token>)
-    acquires T, Balance {
-        deposit_with_metadata(payee, to_deposit, x"")
+    public fun deposit_to_sender<Token>(
+        account: &signer,
+        to_deposit: Dfinance::T<Token>
+    ) acquires T, Balance {
+        deposit<Token>(
+            account,
+            Signer::address_of(account),
+            to_deposit
+        )
     }
 
-    public fun deposit_to_sender<Token>(to_deposit: Dfinance::T<Token>)
-    acquires T, Balance {
-        deposit(Transaction::sender(), to_deposit)
+    public fun deposit<Token>(
+        account: &signer,
+        payee: address,
+        to_deposit: Dfinance::T<Token>
+    ) acquires T, Balance {
+        deposit_with_metadata<Token>(
+            account,
+            payee,
+            to_deposit,
+            b""
+        )
     }
 
     public fun deposit_with_metadata<Token>(
+        account: &signer,
         payee: address,
         to_deposit: Dfinance::T<Token>,
         metadata: vector<u8>
     ) acquires T, Balance {
-        deposit_with_sender_and_metadata(
+        deposit_with_sender_and_metadata<Token>(
+            account,
             payee,
-            Transaction::sender(),
             to_deposit,
             metadata
         )
     }
 
-    public fun pay_from_sender<Token>(payee: address, amount: u128)
-    acquires T, Balance {
+    public fun pay_from_sender<Token>(
+        account: &signer,
+        payee: address,
+        amount: u128
+    ) acquires T, Balance {
         pay_from_sender_with_metadata<Token>(
-            payee, amount, x""
+            account, payee, amount, b""
         )
     }
 
-    public fun pay_from_sender_with_metadata<Token>(payee: address, amount: u128, metadata: vector<u8>)
+    public fun pay_from_sender_with_metadata<Token>(
+        account: &signer,
+        payee: address,
+        amount: u128,
+        metadata: vector<u8>
+    )
     acquires T, Balance {
         deposit_with_metadata<Token>(
+            account,
             payee,
-            withdraw_from_sender<Token>(amount),
+            withdraw_from_sender<Token>(account, amount),
             metadata
         )
     }
 
     fun deposit_with_sender_and_metadata<Token>(
+        sender: &signer,
         payee: address,
-        sender: address,
         to_deposit: Dfinance::T<Token>,
         metadata: vector<u8>
     ) acquires T, Balance {
@@ -105,7 +130,7 @@ module Account {
         Transaction::assert(amount > 0, 7);
 
         let denom = Dfinance::denom<Token>();
-        let sender_acc = borrow_global_mut<T>(sender);
+        let sender_acc = borrow_global_mut<T>(Signer::address_of(sender));
 
         // add event as sent into account
         Event::emit_event<SentPaymentEvent>(
@@ -119,12 +144,12 @@ module Account {
         );
 
         // there's no way to improve this place as payee is not sender :(
-        if (!can_accept<Token>(payee)) {
-            save_balance<Token>(Balance { coin: Dfinance::zero<Token>() }, payee);
+        if (!has_balance<Token>(payee)) {
+            create_balance<Token>(payee);
         };
 
         if (!exists(payee)) {
-            new_account(payee);
+            create_account(payee);
         };
 
         let payee_acc     = borrow_global_mut<T>(payee);
@@ -139,15 +164,14 @@ module Account {
                 amount,
                 denom,
                 metadata,
-                payer: sender
+                payer: Signer::address_of(sender)
             }
         )
     }
 
-    public fun withdraw_from_sender<Token>(amount: u128): Dfinance::T<Token>
+    public fun withdraw_from_sender<Token>(account: &signer, amount: u128): Dfinance::T<Token>
     acquires Balance {
-        let sender  = Transaction::sender();
-        let balance = borrow_global_mut<Balance<Token>>(sender);
+        let balance = borrow_global_mut<Balance<Token>>(Signer::address_of(account));
 
         withdraw_from_balance<Token>(balance, amount)
     }
@@ -156,17 +180,30 @@ module Account {
         Dfinance::withdraw(&mut balance.coin, amount)
     }
 
-    fun new_account(addr: address) {
-        let evt = Event::new_event_generator(addr);
-        let acc = T {
-            sent_events: Event::new_event_handle_from_generator(&mut evt),
-            received_events: Event::new_event_handle_from_generator(&mut evt),
-         };
+    fun create_balance<Token>(addr: address) {
+        let sig = create_signer(addr);
 
-        save_account(acc, evt, addr);
+        move_to<Balance<Token>>(&sig, Balance {
+            coin: Dfinance::zero<Token>()
+        });
+
+        destroy_signer(sig);
     }
 
-    native fun save_balance<Token>(balance: Balance<Token>, addr: address);
-    native fun save_account(account: T, event_generator: Event::EventHandleGenerator, addr: address);
+    fun create_account(addr: address) {
+        let sig = create_signer(addr);
+
+        Event::publish_generator(&sig);
+
+        move_to<T>(&sig, T {
+            sent_events: Event::new_event_handle(&sig),
+            received_events: Event::new_event_handle(&sig),
+        });
+
+        destroy_signer(sig);
+    }
+
+    native fun create_signer(addr: address): signer;
+    native fun destroy_signer(sig: signer);
 }
 }

@@ -295,6 +295,7 @@
                 { "include": "#types" },
                 { "include": "#literals" },
                 { "include": "#control" },
+                { "include": "#move_copy" },
                 { "include": "#resource_methods" },
                 { "include": "#self_access" },
                 { "include": "#module_access" },
@@ -317,6 +318,7 @@
                 { "include": "#resource_methods" },
                 { "include": "#self_access" },
                 { "include": "#module_access" },
+                { "include": "#move_copy" },
                 { "include": "#literals" },
                 { "include": "#fun_call" },
                 { "include": "#block" },
@@ -338,6 +340,7 @@
                 { "include": "#types" },
                 { "include": "#literals" },
                 { "include": "#control" },
+                { "include": "#move_copy" },
                 { "include": "#resource_methods" },
                 { "include": "#module_access" },
                 { "include": "#fun_call" },
@@ -350,6 +353,12 @@
             "comment": "Keyword let",
             "match": "\\b(let)\\b",
             "name": "keyword.control.move"
+        },
+
+        "move_copy": {
+            "comment": "Keywords move and copy",
+            "match": "\\b(move|copy)\\b",
+            "name": "variable.language.move"
         },
 
         "control": {
@@ -452,6 +461,13 @@
                     "match": "\\b(?:h)(\"[a-fA-F0-9]+\")",
                     "captures": {
                         "1": { "name": "constant.character.move" }
+                    }
+                },
+                {
+                    "comment": "ASCII Bytestring literal",
+                    "match": "\\b(\"(.*)\")",
+                    "captures": {
+                        "1": { "name": "string.quoted.double.raw.byte.move"}
                     }
                 },
                 {

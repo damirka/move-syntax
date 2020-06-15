@@ -1,6 +1,7 @@
 address 0x0 {
 
 module Unhosted {
+    use 0x0::CoreAddresses;
     use 0x0::AccountLimits;
     use 0x0::Signer;
     use 0x0::Testnet;
@@ -9,7 +10,7 @@ module Unhosted {
     // An unhosted account is subject to account holding/velocity limits.
     // This holds the metadata about the account transactions during a
     // given time period that tracks this and enforces these limits.
-    struct T {
+    struct Unhosted {
     }
 
     public fun publish_global_limits_definition(account: &signer) {
@@ -25,13 +26,13 @@ module Unhosted {
         AccountLimits::certify_limits_definition(account, limits_addr());
     }
 
-    public fun create(): T {
+    public fun create(): Unhosted {
         Transaction::assert(Testnet::is_testnet(), 10041);
-        T {  }
+        Unhosted {  }
     }
 
     public fun limits_addr(): address {
-        0xA550C18
+        CoreAddresses::ASSOCIATION_ROOT_ADDRESS()
     }
 }
 }

@@ -170,6 +170,7 @@ async function runScriptCommand(): Promise<any> {
     const config = loadConfig(document);
     let sender   = config.sender || '0x1'; // default sender in scripts is okay (I think)
 
+    const workdir    = workspace.getWorkspaceFolder(document.uri);
     const cfgBinPath = workspace.getConfiguration('move', document.uri).get<string>('moveExecutorPath');
     const executable = (process.platform === 'win32') ? 'move-executor.exe' : 'move-executor';
 	const binaryPath = cfgBinPath || path.join(extensionPath, 'bin', executable);
@@ -184,11 +185,17 @@ async function runScriptCommand(): Promise<any> {
 
     modules.forEach((m) => m && args.push('--modules', m));
 
-    return exec(binaryPath + args.join(' '))
-    // @ts-ignore
-        .then((stdout) => vscode.window.showInformationMessage(stdout, {modal: true}))
-        // @ts-ignore
-        .catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
+    if (!workdir) {
+        return;
+    }
+
+    return vscode.tasks.executeTask(new vscode.Task(
+        {type: 'move', task: 'run'},
+        workdir,
+        'run',
+        'move',
+        new vscode.ShellExecution(binaryPath + args.join(' '))
+    ));
 }
 
 /**
@@ -239,25 +246,35 @@ async function compileCommand(): Promise<any> {
 
 function compileLibra(account: string, document: vscode.TextDocument, outdir: string, config: AppConfig) {
 
-	const bin  = path.join(extensionPath, 'bin', 'move-build');
-	const mods = [config.stdlibPath, config.modulesPath].filter((a) => !!a);
+    const bin  = path.join(extensionPath, 'bin', 'move-build');
+    // @ts-ignore
+	const mods = [config.stdlibPath, config.modulesPath].filter((a) => !!a).filter((a) => fs.existsSync(a));
 	const args = [
 		,
 		'--out-dir', outdir,
-		'--source-files', document.uri.fsPath,
 		'--sender', account
 	];
 
 	if (mods.length) {
-		args.push('--dependencies');
+		args.push('--dependency');
 		args.push(...mods.map((mod) => mod + '/*'));
-	}
+    }
 
-	const successMsg = 'File successfully compiled and saved in directory: ' + config.compilerDir;
+    args.push('--', document.uri.fsPath);
 
-	return exec(bin + args.join(' '))
-		.then(() => vscode.window.showInformationMessage(successMsg, {modal: true}))
-		.catch((stderr) => vscode.window.showErrorMessage(stderr, {modal: config.showModal || false}));
+    const workdir  = workspace.getWorkspaceFolder(document.uri);
+
+    if (!workdir) {
+        return;
+    }
+
+	return vscode.tasks.executeTask(new vscode.Task(
+        {type: 'move', task: 'compile'},
+        workdir,
+        'compile',
+        'move',
+        new vscode.ShellExecution(bin + args.join(' '))
+    ));
 }
 
 function compileDfinance(account: string, document: vscode.TextDocument, outdir: string, config: AppConfig) {

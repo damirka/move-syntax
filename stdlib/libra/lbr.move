@@ -1,14 +1,16 @@
 address 0x0 {
 
 module LBR {
-    use 0x0::Coin1;
-    use 0x0::Coin2;
-    use 0x0::FixedPoint32;
-    use 0x0::Libra;
+    use 0x0::CoreAddresses;
+    use 0x0::Coin1::Coin1;
+    use 0x0::Coin2::Coin2;
+    use 0x0::FixedPoint32::{Self, FixedPoint32};
+    use 0x0::Libra::{Self, Libra};
     use 0x0::Signer;
+    use 0x0::Transaction;
 
     // The type tag for this coin type.
-    resource struct T { }
+    resource struct LBR { }
 
     // A reserve component holds one part of the LBR. It holds
     // both backing currency itself, along with the ratio of the backing
@@ -16,19 +18,19 @@ module LBR {
     resource struct ReserveComponent<CoinType> {
         // Specifies the relative ratio between `CoinType` and LBR (i.e. how
         // many `CoinType`s makeup one LBR).
-        ratio: FixedPoint32::T,
-        backing: Libra::T<CoinType>
+        ratio: FixedPoint32,
+        backing: Libra<CoinType>
     }
 
     // The reserve for the LBR holds both the capability of minting LBR
     // coins, and also each reserve component that backs these coins
     // on-chain.
     resource struct Reserve {
-        mint_cap: Libra::MintCapability<T>,
-        burn_cap: Libra::BurnCapability<T>,
-        preburn_cap: Libra::Preburn<T>,
-        coin1: ReserveComponent<Coin1::T>,
-        coin2: ReserveComponent<Coin2::T>,
+        mint_cap: Libra::MintCapability<LBR>,
+        burn_cap: Libra::BurnCapability<LBR>,
+        preburn_cap: Libra::Preburn<LBR>,
+        coin1: ReserveComponent<Coin1>,
+        coin2: ReserveComponent<Coin2>,
     }
 
     // Initialize the LBR module. This sets up the initial LBR ratios, and
@@ -36,39 +38,40 @@ module LBR {
     // already be registered in order for this to succeed. The sender must
     // both be the correct address and have the correct permissions. These
     // restrictions are enforced in the Libra::register_currency function.
-    public fun initialize(account: &signer) {
+    public fun initialize(association: &signer) {
+        Transaction::assert(Signer::address_of(association) == 0xA550C18, 0);
         // Register the LBR currency.
-        let (mint_cap, burn_cap) = Libra::register_currency<T>(
-            account,
+        let (mint_cap, burn_cap) = Libra::register_currency<LBR>(
+            association,
             FixedPoint32::create_from_rational(1, 1), // exchange rate to LBR
             true,    // is_synthetic
             1000000, // scaling_factor = 10^6
             1000,    // fractional_part = 10^3
             b"LBR"
         );
-        let preburn_cap = Libra::new_preburn_with_capability(&burn_cap);
-        let coin1 = ReserveComponent<Coin1::T> {
+        let preburn_cap = Libra::create_preburn<LBR>(association);
+        let coin1 = ReserveComponent<Coin1> {
             ratio: FixedPoint32::create_from_rational(1, 2),
-            backing: Libra::zero<Coin1::T>(),
+            backing: Libra::zero<Coin1>(),
         };
-        let coin2 = ReserveComponent<Coin2::T> {
+        let coin2 = ReserveComponent<Coin2> {
             ratio: FixedPoint32::create_from_rational(1, 2),
-            backing: Libra::zero<Coin2::T>(),
+            backing: Libra::zero<Coin2>(),
         };
-        move_to(account, Reserve { mint_cap, burn_cap, preburn_cap, coin1, coin2 });
+        move_to(association, Reserve { mint_cap, burn_cap, preburn_cap, coin1, coin2 });
     }
 
     // Given the constituent coins return as much LBR as possible, with any
     // remainder in those coins returned back along with the newly minted LBR.
     public fun swap_into(
-        coin1: Libra::T<Coin1::T>,
-        coin2: Libra::T<Coin2::T>
-    ): (Libra::T<T>, Libra::T<Coin1::T>, Libra::T<Coin2::T>)
+        coin1: Libra<Coin1>,
+        coin2: Libra<Coin2>
+    ): (Libra<LBR>, Libra<Coin1>, Libra<Coin2>)
     acquires Reserve {
-        let reserve = borrow_global_mut<Reserve>(0xA550C18);
+        let reserve = borrow_global_mut<Reserve>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS());
         let coin1_value = Libra::value(&coin1);
         let coin2_value = Libra::value(&coin2);
-        if (coin1_value <= 1 || coin2_value <= 1) return (Libra::zero<T>(), coin1, coin2);
+        if (coin1_value <= 1 || coin2_value <= 1) return (Libra::zero<LBR>(), coin1, coin2);
         let lbr_num_coin1 = FixedPoint32::divide_u64(coin1_value - 1, *&reserve.coin1.ratio);
         let lbr_num_coin2 = FixedPoint32::divide_u64(coin2_value - 1, *&reserve.coin2.ratio);
         let num_lbr = if (lbr_num_coin2 < lbr_num_coin1) {
@@ -84,26 +87,26 @@ module LBR {
     // remaining Coin1 and Coin2 coins.
     public fun create(
         amount_lbr: u64,
-        coin1: Libra::T<Coin1::T>,
-        coin2: Libra::T<Coin2::T>
-    ): (Libra::T<T>, Libra::T<Coin1::T>, Libra::T<Coin2::T>)
+        coin1: Libra<Coin1>,
+        coin2: Libra<Coin2>
+    ): (Libra<LBR>, Libra<Coin1>, Libra<Coin2>)
     acquires Reserve {
-        if (amount_lbr == 0) return (Libra::zero<T>(), coin1, coin2);
-        let reserve = borrow_global_mut<Reserve>(0xA550C18);
+        if (amount_lbr == 0) return (Libra::zero<LBR>(), coin1, coin2);
+        let reserve = borrow_global_mut<Reserve>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS());
         let num_coin1 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin1.ratio);
         let num_coin2 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin2.ratio);
         let coin1_exact = Libra::withdraw(&mut coin1, num_coin1);
         let coin2_exact = Libra::withdraw(&mut coin2, num_coin2);
         Libra::deposit(&mut reserve.coin1.backing, coin1_exact);
         Libra::deposit(&mut reserve.coin2.backing, coin2_exact);
-        (Libra::mint_with_capability<T>(amount_lbr, &reserve.mint_cap), coin1, coin2)
+        (Libra::mint_with_capability<LBR>(amount_lbr, &reserve.mint_cap), coin1, coin2)
     }
 
     // Unpack a LBR coin and return the backing currencies (in the correct
     // amounts).
-    public fun unpack(account: &signer, coin: Libra::T<T>): (Libra::T<Coin1::T>, Libra::T<Coin2::T>)
+    public fun unpack(account: &signer, coin: Libra<LBR>): (Libra<Coin1>, Libra<Coin2>)
     acquires Reserve {
-        let reserve = borrow_global_mut<Reserve>(0xA550C18);
+        let reserve = borrow_global_mut<Reserve>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS());
         let ratio_multiplier = Libra::value(&coin);
         let sender = Signer::address_of(account);
         Libra::preburn_with_resource(coin, &mut reserve.preburn_cap, sender);
@@ -117,12 +120,12 @@ module LBR {
 
     // Create `amount_lbr` LBR using the `MintCapability` for the coin types in the reserve.
     // Aborts if the caller does not have the appropriate `MintCapability`'s
-    public fun mint(account: &signer, amount_lbr: u64): Libra::T<T> acquires Reserve {
-        let reserve = borrow_global<Reserve>(0xA550C18);
+    public fun mint(account: &signer, amount_lbr: u64): Libra<LBR> acquires Reserve {
+        let reserve = borrow_global<Reserve>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS());
         let num_coin1 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin1.ratio);
         let num_coin2 = 1 + FixedPoint32::multiply_u64(amount_lbr, *&reserve.coin2.ratio);
-        let coin1 = Libra::mint<Coin1::T>(account, num_coin1);
-        let coin2 = Libra::mint<Coin2::T>(account, num_coin2);
+        let coin1 = Libra::mint<Coin1>(account, num_coin1);
+        let coin2 = Libra::mint<Coin2>(account, num_coin2);
         let (lbr, leftover1, leftover2) = create(amount_lbr, coin1, coin2);
         Libra::destroy_zero(leftover1);
         Libra::destroy_zero(leftover2);
@@ -138,10 +141,10 @@ module LBR {
     and coin2 respectively in the reserve to be backing LBR. Here, the "sufficient amount" is determined by the
     pre-defined ratio of each of the fiat coins to the total value of LBR. To define this global property more precisely,
 
-    let reserve_coin1 refer to global<Reserve>(0xA550C18).coin1 (the reserve of coin1 backing LBR)
-    let reserve_coin2 refer to global<Reserve>(0xA550C18).coin2 (the reserve of coin2 backing LBR).
+    let reserve_coin1 refer to global<Reserve>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS()).coin1 (the reserve of coin1 backing LBR)
+    let reserve_coin2 refer to global<Reserve>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS()).coin2 (the reserve of coin2 backing LBR).
     Let lbr_total_value be the synthetic variable that represents the total amount of LBR that exists.
-    Note: lbr_total_value could refer to global<Libra::CurrencyInfo<LBR::T>>(0xA550C18).total_value, but this may make
+    Note: lbr_total_value could refer to global<Libra::CurrencyInfo<LBR::T>>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS()).total_value, but this may make
     verification harder because one need prove a relational invariant of two modules (such as Libra and LBR).
     The module invariant can be formulated as:
     (1) lbr_total_value * r_coin1.ratio <= reserve_coin1.backing.value, and

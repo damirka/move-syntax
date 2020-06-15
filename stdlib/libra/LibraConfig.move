@@ -1,5 +1,6 @@
 address 0x0 {
 module LibraConfig {
+    use 0x0::CoreAddresses;
     use 0x0::Transaction;
     use 0x0::Event;
     use 0x0::LibraTimestamp;
@@ -8,7 +9,7 @@ module LibraConfig {
     use 0x0::Offer;
 
     // A generic singleton resource that holds a value of a specific type.
-    resource struct T<Config: copyable> { payload: Config }
+    resource struct LibraConfig<Config: copyable> { payload: Config }
 
     struct NewEpochEvent {
         epoch: u64,
@@ -29,7 +30,7 @@ module LibraConfig {
     // This can only be invoked by the config address, and only a single time.
     // Currently, it is invoked in the genesis transaction
     public fun initialize(config_account: &signer, association_account: &signer) {
-        Transaction::assert(Signer::address_of(config_account) == default_config_address(), 1);
+        Transaction::assert(Signer::address_of(config_account) == CoreAddresses::DEFAULT_CONFIG_ADDRESS(), 1);
         Association::grant_privilege<CreateConfigCapability>(association_account, config_account);
         Association::grant_privilege<CreateConfigCapability>(association_account, association_account);
 
@@ -45,25 +46,25 @@ module LibraConfig {
     }
 
     // Get a copy of `Config` value stored under `addr`.
-    public fun get<Config: copyable>(): Config acquires T {
-        let addr = default_config_address();
-        Transaction::assert(::exists<T<Config>>(addr), 24);
-        *&borrow_global<T<Config>>(addr).payload
+    public fun get<Config: copyable>(): Config acquires LibraConfig {
+        let addr = CoreAddresses::DEFAULT_CONFIG_ADDRESS();
+        Transaction::assert(exists<LibraConfig<Config>>(addr), 24);
+        *&borrow_global<LibraConfig<Config>>(addr).payload
     }
 
     // Set a config item to a new value with the default capability stored under config address and trigger a
     // reconfiguration.
-    public fun set<Config: copyable>(account: &signer, payload: Config) acquires T, Configuration {
-        let addr = default_config_address();
-        Transaction::assert(::exists<T<Config>>(addr), 24);
+    public fun set<Config: copyable>(account: &signer, payload: Config) acquires LibraConfig, Configuration {
+        let addr = CoreAddresses::DEFAULT_CONFIG_ADDRESS();
+        Transaction::assert(exists<LibraConfig<Config>>(addr), 24);
         let signer_address = Signer::address_of(account);
         Transaction::assert(
-            ::exists<ModifyConfigCapability<Config>>(signer_address)
+            exists<ModifyConfigCapability<Config>>(signer_address)
              || signer_address == Association::root_address(),
             24
         );
 
-        let config = borrow_global_mut<T<Config>>(addr);
+        let config = borrow_global_mut<LibraConfig<Config>>(addr);
         config.payload = payload;
 
         reconfigure_();
@@ -73,18 +74,13 @@ module LibraConfig {
     public fun set_with_capability<Config: copyable>(
         _cap: &ModifyConfigCapability<Config>,
         payload: Config
-    ) acquires T, Configuration {
-        let addr = default_config_address();
-        Transaction::assert(::exists<T<Config>>(addr), 24);
-        let config = borrow_global_mut<T<Config>>(addr);
+    ) acquires LibraConfig, Configuration {
+        let addr = CoreAddresses::DEFAULT_CONFIG_ADDRESS();
+        Transaction::assert(exists<LibraConfig<Config>>(addr), 24);
+        let config = borrow_global_mut<LibraConfig<Config>>(addr);
         config.payload = payload;
 
         reconfigure_();
-    }
-
-    // DD -- to ensure initialize only runs once in registered_currencies
-    public fun is_published<Config: copyable>(addr: address): bool {
-        exists<T<Config>>(addr)
     }
 
     // Publish a new config item. The caller will use the returned ModifyConfigCapability to specify the access control
@@ -98,7 +94,7 @@ module LibraConfig {
             1
         );
 
-        move_to(config_account, T { payload });
+        move_to(config_account, LibraConfig { payload });
         // We don't trigger reconfiguration here, instead we'll wait for all validators update the binary
         // to register this config into ON_CHAIN_CONFIG_REGISTRY then send another transaction to change
         // the value which triggers the reconfiguration.
@@ -114,7 +110,7 @@ module LibraConfig {
         );
 
         move_to(config_account, ModifyConfigCapability<Config> {});
-        move_to(config_account, T{ payload });
+        move_to(config_account, LibraConfig{ payload });
         // We don't trigger reconfiguration here, instead we'll wait for all validators update the binary
         // to register this config into ON_CHAIN_CONFIG_REGISTRY then send another transaction to change
         // the value which triggers the reconfiguration.
@@ -132,7 +128,7 @@ module LibraConfig {
         );
 
         Offer::create(config_account, ModifyConfigCapability<Config>{}, delegate);
-        move_to(config_account, T { payload });
+        move_to(config_account, LibraConfig { payload });
         // We don't trigger reconfiguration here, instead we'll wait for all validators update the
         // binary to register this config into ON_CHAIN_CONFIG_REGISTRY then send another
         // transaction to change the value which triggers the reconfiguration.
@@ -158,7 +154,7 @@ module LibraConfig {
            return ()
        };
 
-       let config_ref = borrow_global_mut<Configuration>(default_config_address());
+       let config_ref = borrow_global_mut<Configuration>(CoreAddresses::DEFAULT_CONFIG_ADDRESS());
 
        // Ensure that there is at most one reconfiguration per transaction. This ensures that there is a 1-1
        // correspondence between system reconfigurations and emitted ReconfigurationEvents.
@@ -173,7 +169,7 @@ module LibraConfig {
     // Emit a reconfiguration event. This function will be invoked by the genesis directly to generate the very first
     // reconfiguration event.
     fun emit_reconfiguration_event() acquires Configuration {
-        let config_ref = borrow_global_mut<Configuration>(default_config_address());
+        let config_ref = borrow_global_mut<Configuration>(CoreAddresses::DEFAULT_CONFIG_ADDRESS());
         config_ref.epoch = config_ref.epoch + 1;
 
         Event::emit_event<NewEpochEvent>(
@@ -184,39 +180,38 @@ module LibraConfig {
         );
     }
 
-    public fun default_config_address(): address {
-        0xF1A95
-    }
-
     // **************** Specifications ****************
 
     spec module {
 
-        // Verification is disabled because of a false error in signer, called
-        // from offer.  There are other problems that may be genuine, but we have to
-        // debug the previous first.
-        pragma verify = false;
+        /// Specifications of LibraConfig are very incomplete.  There are just a few
+        /// definitions that are used by RegisteredCurrencies
 
-        // spec_default_config_address() is spec version of default_config_address()
-        define spec_default_config_address(): address { 0xF1A95 }
+        pragma verify = true;
 
         // spec_get is the spec version of get<Config>
         define spec_get<Config>(): Config {
-            global<T<Config>>(spec_default_config_address()).payload
+            global<LibraConfig<Config>>(0xF1A95).payload
         }
 
-        // spec_get is the spec version of get<Config>
         define spec_is_published<Config>(addr: address): bool {
-            exists<T<Config>>(addr)
+            exists<LibraConfig<Config>>(addr)
         }
     }
 
     // check spec_is_published
     spec fun publish_new_config {
         // aborts_if spec_is_published<Config>();
-        ensures old(!spec_is_published<Config>(sender()));
-        ensures spec_is_published<Config>(sender());
+        ensures old(!spec_is_published<Config>(Signer::get_address(config_account)));
+        ensures spec_is_published<Config>(Signer::get_address(config_account));
     }
+
+    spec fun publish_new_config_with_capability {
+        // aborts_if spec_is_published<Config>();
+        ensures old(!spec_is_published<Config>(Signer::get_address(config_account)));
+        ensures spec_is_published<Config>(Signer::get_address(config_account));
+    }
+
 
 }
 }

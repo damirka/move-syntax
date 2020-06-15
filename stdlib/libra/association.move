@@ -15,6 +15,7 @@ address 0x0 {
 /// ```
 
 module Association {
+    use 0x0::CoreAddresses;
     use 0x0::Signer;
     use 0x0::Transaction;
 
@@ -32,16 +33,21 @@ module Association {
     /// A type tag to mark that this account is an association account.
     /// It cannot be used for more specific/privileged operations.
 
-    /// The presence of an instance of Association::T at and address
+    /// The presence of an instance of Association::Association at and address
     /// means that the address is an association address.
-    struct T { }
+    struct Association { }
+
+    /// The presence of an instance of an `Association::PublishModule`
+    /// privilege at an address means that that address can publish code to
+    /// the chain.
+    struct PublishModule { }
 
     /// Initialization is called in genesis. It publishes the `Root` resource under `association`
-    /// and marks it as an Association account by publishing a `PrivilegedCapability<T>` resource.
+    /// and marks it as an Association account by publishing a `PrivilegedCapability<Association>` resource.
     /// Aborts if the address of `association` is not `root_address`
     public fun initialize(association: &signer) {
         Transaction::assert(Signer::address_of(association) == root_address(), 1000);
-        move_to(association, PrivilegedCapability<T>{ });
+        move_to(association, PrivilegedCapability<Association>{ });
         move_to(association, Root{ });
     }
 
@@ -53,7 +59,7 @@ module Association {
 
     /// Grant the association privilege to `association`
     public fun grant_association_address(association: &signer, recipient: &signer) {
-        grant_privilege<T>(association, recipient)
+        grant_privilege<Association>(association, recipient)
     }
 
     /// Return whether the `addr` has the specified `Privilege`.
@@ -87,7 +93,7 @@ module Association {
 
     /// Return whether the account at `addr` is an association account.
     public fun addr_is_association(addr: address): bool {
-        exists<PrivilegedCapability<T>>(addr)
+        exists<PrivilegedCapability<Association>>(addr)
     }
 
     public fun assert_account_is_blessed(sender_account: &signer) {
@@ -96,12 +102,12 @@ module Association {
     }
 
     fun treasury_compliance_account(): address {
-        0xB1E55ED
+        CoreAddresses::TREASURY_COMPLIANCE_ADDRESS()
     }
 
     /// The address at which the root account will be published.
     public fun root_address(): address {
-        0xA550C18
+        CoreAddresses::ASSOCIATION_ROOT_ADDRESS()
     }
 
     /// Assert that `addr` is an association account.
@@ -136,7 +142,7 @@ module Association {
 
         /// Helper which mirrors Move `Self::addr_is_association`.
         define spec_addr_is_association(addr: address): bool {
-            exists<PrivilegedCapability<T>>(addr)
+            exists<PrivilegedCapability<Association>>(addr)
         }
      }
 
@@ -168,6 +174,22 @@ module Association {
         /// Apply `OnlyRootAddressHasRootPrivilege` to all functions.
         apply OnlyRootAddressHasRootPrivilege to *<Privilege>, *;
     }
+
+    spec schema InitializationPersists {
+        /// For every `is_initialized` predicate, we want to make sure that the
+        /// predicate never becomes false again.  Since `is_initialized` simply
+        /// checks for the presence of a Root {} value at the root address,
+        /// the same property also checks that "root stays root", which is of
+        /// interest for the correct functioning of the system.
+        ///
+        /// *Informally:* Once initialize is run, the module continues to be
+        /// initialized, forever.
+        ensures old(spec_is_initialized()) ==> spec_is_initialized();
+    }
+    spec module {
+        apply InitializationPersists to *<Privilege>, *;
+    }
+
 
     /// This post-condition to `Self::assert_is_root` is a sanity check that
     /// the `Root` invariant really works. It needs the invariant
@@ -235,7 +257,7 @@ module Association {
     /// > **Note:** Why doesn't this include initialize, root_address()?
     /// The prover reports a violation of this property:
     /// Root can remove its own association privilege, by calling
-    /// remove_privilege<T>(root_address()).
+    /// remove_privilege<Association>(root_address()).
     spec module {
         apply RootAddressIsAssociationAddress to *<Privilege>, *;
     }
