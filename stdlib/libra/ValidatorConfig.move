@@ -7,14 +7,16 @@
 // 1105 -> VALIDATOR_OPERATOR_IS_NOT_SET
 // 1106 -> VALIDATOR_RESOURCE_DOES_NOT_EXIST
 // 1107 -> INVALID_NET
-address 0x0 {
+address 0x1 {
 
 module ValidatorConfig {
-    use 0x0::Association;
-    use 0x0::Option::{Self, Option};
-    use 0x0::Transaction;
-    use 0x0::Signer;
-    use 0x0::CoreAddresses;
+    use 0x1::Option::{Self, Option};
+    use 0x1::Signer;
+    use 0x1::Roles::{Self, Capability, AssociationRootRole};
+
+    resource struct UpdateValidatorConfig {}
+    resource struct DecertifyValidator {}
+    resource struct CertifyValidator {}
 
     struct Config {
         consensus_pubkey: vector<u8>,
@@ -38,17 +40,22 @@ module ValidatorConfig {
 
     // TODO(valerini): add events here
 
+    public fun grant_privileges(account: &signer) {
+        Roles::add_privilege_to_account_association_root_role(account, CertifyValidator{});
+        Roles::add_privilege_to_account_association_root_role(account, DecertifyValidator{});
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Validator setup methods
     ///////////////////////////////////////////////////////////////////////////
 
-    public fun publish(creator: &signer, account: &signer) {
-        Transaction::assert(Signer::address_of(creator) == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 1101);
+    public fun publish(account: &signer, _: &Capability<AssociationRootRole>) {
         move_to(account, ValidatorConfig {
             config: Option::none(),
             operator_account: Option::none(),
             is_certified: true
         });
+        Roles::add_privilege_to_account_validator_role(account, UpdateValidatorConfig{})
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -85,7 +92,7 @@ module ValidatorConfig {
         full_node_network_identity_pubkey: vector<u8>,
         full_node_network_address: vector<u8>,
     ) acquires ValidatorConfig {
-        Transaction::assert(
+        assert(
             Signer::address_of(signer) == get_operator(validator_account),
             1101
         );
@@ -107,7 +114,7 @@ module ValidatorConfig {
         validator_account: address,
         consensus_pubkey: vector<u8>,
     ) acquires ValidatorConfig {
-        Transaction::assert(
+        assert(
             Signer::address_of(account) == get_operator(validator_account),
             1101
         );
@@ -130,7 +137,7 @@ module ValidatorConfig {
     // Get Config
     // Aborts if there is no ValidatorConfig resource of if its config is empty
     public fun get_config(addr: address): Config acquires ValidatorConfig {
-        Transaction::assert(exists<ValidatorConfig>(addr), 1106);
+        assert(exists<ValidatorConfig>(addr), 1106);
         let config = &borrow_global<ValidatorConfig>(addr).config;
         *Option::borrow(config)
     }
@@ -139,7 +146,7 @@ module ValidatorConfig {
     // Aborts if there is no ValidatorConfig resource, if its operator_account is
     // empty, returns the input
     public fun get_operator(addr: address): address acquires ValidatorConfig {
-        Transaction::assert(exists<ValidatorConfig>(addr), 1106);
+        assert(exists<ValidatorConfig>(addr), 1106);
         let t_ref = borrow_global<ValidatorConfig>(addr);
         *Option::borrow_with_default(&t_ref.operator_account, &addr)
     }
@@ -166,13 +173,11 @@ module ValidatorConfig {
     // Proof of concept code used for Validator certification
     ///////////////////////////////////////////////////////////////////////////
 
-    public fun decertify(account: &signer, addr: address) acquires ValidatorConfig {
-        Transaction::assert(Association::addr_is_association(Signer::address_of(account)), 1002);
+    public fun decertify(_: &Capability<DecertifyValidator>, addr: address) acquires ValidatorConfig {
         borrow_global_mut<ValidatorConfig>(addr).is_certified = false;
     }
 
-    public fun certify(account: &signer, addr: address) acquires ValidatorConfig {
-        Transaction::assert(Association::addr_is_association(Signer::address_of(account)), 1002);
+    public fun certify(_: &Capability<CertifyValidator>, addr: address) acquires ValidatorConfig {
         borrow_global_mut<ValidatorConfig>(addr).is_certified = true;
     }
 

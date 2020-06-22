@@ -1,4 +1,4 @@
-address 0x0 {
+address 0x1 {
 
 module Time {
     // A singleton resource holding the current Unix time in seconds
@@ -13,7 +13,7 @@ module Time {
 
     // Helper function to determine if the blockchain is at genesis state.
     public fun is_genesis(): bool {
-        !::exists<Self::CurrentTimestamp>(0x0)
+        !exists<Self::CurrentTimestamp>(0x0)
     }
 }
 }

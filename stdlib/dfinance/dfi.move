@@ -1,4 +1,4 @@
-address 0x0 {
+address 0x1 {
 
 /// DFI Coin. The one and only.
 /// Put into separate module to highlight its importance and role in Dfinance

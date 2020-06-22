@@ -1,13 +1,13 @@
-address 0x0 {
+address 0x1 {
 
 module LibraWriteSetManager {
-    use 0x0::CoreAddresses;
-    use 0x0::LibraAccount;
-    use 0x0::Event;
-    use 0x0::Hash;
-    use 0x0::Signer;
-    use 0x0::Transaction;
-    use 0x0::LibraConfig;
+    use 0x1::CoreAddresses;
+    use 0x1::LibraAccount;
+    use 0x1::Event;
+    use 0x1::Hash;
+    use 0x1::Signer;
+    use 0x1::LibraConfig;
+    use 0x1::Roles;
 
     resource struct LibraWriteSetManager {
         upgrade_events: Event::EventHandle<Self::UpgradeEvent>,
@@ -18,7 +18,8 @@ module LibraWriteSetManager {
     }
 
     public fun initialize(account: &signer) {
-        Transaction::assert(Signer::address_of(account) == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 1);
+        // Operational constraint
+        assert(Signer::address_of(account) == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 1);
 
         move_to(
             account,
@@ -34,15 +35,15 @@ module LibraWriteSetManager {
         writeset_public_key: vector<u8>,
     ) {
         let sender = Signer::address_of(account);
-        Transaction::assert(sender == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 33);
+        assert(sender == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 33);
 
         let association_auth_key = LibraAccount::authentication_key(sender);
         let sequence_number = LibraAccount::sequence_number(sender);
 
-        Transaction::assert(writeset_sequence_number >= sequence_number, 3);
+        assert(writeset_sequence_number >= sequence_number, 3);
 
-        Transaction::assert(writeset_sequence_number == sequence_number, 11);
-        Transaction::assert(
+        assert(writeset_sequence_number == sequence_number, 11);
+        assert(
             Hash::sha3_256(writeset_public_key) == association_auth_key,
             2
         );
@@ -50,12 +51,14 @@ module LibraWriteSetManager {
 
     fun epilogue(account: &signer, writeset_payload: vector<u8>) acquires LibraWriteSetManager {
         let t_ref = borrow_global_mut<LibraWriteSetManager>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS());
+        let association_root_capability = Roles::extract_privilege_to_capability(account);
 
         Event::emit_event<Self::UpgradeEvent>(
             &mut t_ref.upgrade_events,
             UpgradeEvent { writeset_payload },
         );
-        LibraConfig::reconfigure(account);
+        LibraConfig::reconfigure(&association_root_capability);
+        Roles::restore_capability_to_privilege(account, association_root_capability);
     }
 }
 

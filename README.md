@@ -93,7 +93,6 @@ Compiler given here supports both Move and Mvir, though you'll need to know stan
 
 - stdlibPath - custom path to stdlib folder - either relative to workspace or absolute or null;
 - modulesPath - custom path to modules folder (instead of default modules) - relative or absolute or null;
-- showModal - bool - whether to show compile/run command output in modal window or not;
 
 ## Contribution
 

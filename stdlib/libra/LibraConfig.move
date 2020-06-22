@@ -1,12 +1,13 @@
-address 0x0 {
+address 0x1 {
 module LibraConfig {
-    use 0x0::CoreAddresses;
-    use 0x0::Transaction;
-    use 0x0::Event;
-    use 0x0::LibraTimestamp;
-    use 0x0::Signer;
-    use 0x0::Association;
-    use 0x0::Offer;
+    use 0x1::CoreAddresses;
+    use 0x1::Event;
+    use 0x1::LibraTimestamp;
+    use 0x1::Signer;
+    use 0x1::Offer;
+    use 0x1::Roles::{Self, Capability, AssociationRootRole};
+
+    resource struct CreateOnChainConfig {}
 
     // A generic singleton resource that holds a value of a specific type.
     resource struct LibraConfig<Config: copyable> { payload: Config }
@@ -21,20 +22,27 @@ module LibraConfig {
         events: Event::EventHandle<NewEpochEvent>,
     }
 
-    // Accounts with this association privilege can publish new config under default_address
-    struct CreateConfigCapability {}
-
     // Accounts with this privilege can modify config of type TypeName under default_address
     resource struct ModifyConfigCapability<TypeName> {}
 
+    /// Will fail if the account is not association root
+    public fun grant_privileges(account: &signer) {
+        Roles::add_privilege_to_account_association_root_role(account, CreateOnChainConfig{});
+    }
+
+    /// > TODO(tzakian): This needs to be removed
+    public fun grant_privileges_for_config_TESTNET_HACK_REMOVE(account: &signer) {
+        Roles::add_privilege_to_account_parent_vasp_role(account, CreateOnChainConfig{});
+    }
+
     // This can only be invoked by the config address, and only a single time.
     // Currently, it is invoked in the genesis transaction
-    public fun initialize(config_account: &signer, association_account: &signer) {
-        Transaction::assert(Signer::address_of(config_account) == CoreAddresses::DEFAULT_CONFIG_ADDRESS(), 1);
-        Association::grant_privilege<CreateConfigCapability>(association_account, config_account);
-        Association::grant_privilege<CreateConfigCapability>(association_account, association_account);
-
-
+    public fun initialize(
+        config_account: &signer,
+        _: &Capability<CreateOnChainConfig>,
+    ) {
+        // Operational constraint
+        assert(Signer::address_of(config_account) == CoreAddresses::DEFAULT_CONFIG_ADDRESS(), 1);
         move_to<Configuration>(
             config_account,
             Configuration {
@@ -48,7 +56,7 @@ module LibraConfig {
     // Get a copy of `Config` value stored under `addr`.
     public fun get<Config: copyable>(): Config acquires LibraConfig {
         let addr = CoreAddresses::DEFAULT_CONFIG_ADDRESS();
-        Transaction::assert(exists<LibraConfig<Config>>(addr), 24);
+        assert(exists<LibraConfig<Config>>(addr), 24);
         *&borrow_global<LibraConfig<Config>>(addr).payload
     }
 
@@ -56,13 +64,9 @@ module LibraConfig {
     // reconfiguration.
     public fun set<Config: copyable>(account: &signer, payload: Config) acquires LibraConfig, Configuration {
         let addr = CoreAddresses::DEFAULT_CONFIG_ADDRESS();
-        Transaction::assert(exists<LibraConfig<Config>>(addr), 24);
+        assert(exists<LibraConfig<Config>>(addr), 24);
         let signer_address = Signer::address_of(account);
-        Transaction::assert(
-            exists<ModifyConfigCapability<Config>>(signer_address)
-             || signer_address == Association::root_address(),
-            24
-        );
+        assert(exists<ModifyConfigCapability<Config>>(signer_address), 24);
 
         let config = borrow_global_mut<LibraConfig<Config>>(addr);
         config.payload = payload;
@@ -76,10 +80,9 @@ module LibraConfig {
         payload: Config
     ) acquires LibraConfig, Configuration {
         let addr = CoreAddresses::DEFAULT_CONFIG_ADDRESS();
-        Transaction::assert(exists<LibraConfig<Config>>(addr), 24);
+        assert(exists<LibraConfig<Config>>(addr), 24);
         let config = borrow_global_mut<LibraConfig<Config>>(addr);
         config.payload = payload;
-
         reconfigure_();
     }
 
@@ -87,28 +90,35 @@ module LibraConfig {
     // policy for who can modify the config.
     public fun publish_new_config_with_capability<Config: copyable>(
         config_account: &signer,
+        _: &Capability<CreateOnChainConfig>,
         payload: Config,
     ): ModifyConfigCapability<Config> {
-        Transaction::assert(
-            Association::has_privilege<CreateConfigCapability>(Signer::address_of(config_account)),
-            1
-        );
-
+        assert(Signer::address_of(config_account) == CoreAddresses::DEFAULT_CONFIG_ADDRESS(), 1);
         move_to(config_account, LibraConfig { payload });
         // We don't trigger reconfiguration here, instead we'll wait for all validators update the binary
         // to register this config into ON_CHAIN_CONFIG_REGISTRY then send another transaction to change
         // the value which triggers the reconfiguration.
-
         return ModifyConfigCapability<Config> {}
     }
 
-    // Publish a new config item. Only the config address can modify such config.
-    public fun publish_new_config<Config: copyable>(config_account: &signer, payload: Config) {
-        Transaction::assert(
-            Association::has_privilege<CreateConfigCapability>(Signer::address_of(config_account)),
-            1
-        );
+    // publish config and give capability only to TC account
+    public fun publish_new_treasury_compliance_config<Config: copyable>(
+        config_account: &signer,
+        tc_account: &signer,
+        _: &Capability<CreateOnChainConfig>,
+        payload: Config,
+    ) {
+        move_to(config_account, LibraConfig { payload });
+        move_to(tc_account, ModifyConfigCapability<Config> {});
+    }
 
+    // Publish a new config item. Only the config address can modify such config.
+    public fun publish_new_config<Config: copyable>(
+        config_account: &signer,
+        _: &Capability<CreateOnChainConfig>,
+        payload: Config
+    ) {
+        assert(Signer::address_of(config_account) == CoreAddresses::DEFAULT_CONFIG_ADDRESS(), 1);
         move_to(config_account, ModifyConfigCapability<Config> {});
         move_to(config_account, LibraConfig{ payload });
         // We don't trigger reconfiguration here, instead we'll wait for all validators update the binary
@@ -119,14 +129,11 @@ module LibraConfig {
     // Publish a new config item. Only the delegated address can modify such config after redeeming the capability.
     public fun publish_new_config_with_delegate<Config: copyable>(
         config_account: &signer,
+        _: &Capability<CreateOnChainConfig>,
         payload: Config,
         delegate: address,
     ) {
-        Transaction::assert(
-            Association::has_privilege<CreateConfigCapability>(Signer::address_of(config_account)),
-            1
-        );
-
+        assert(Signer::address_of(config_account) == CoreAddresses::DEFAULT_CONFIG_ADDRESS(), 1);
         Offer::create(config_account, ModifyConfigCapability<Config>{}, delegate);
         move_to(config_account, LibraConfig { payload });
         // We don't trigger reconfiguration here, instead we'll wait for all validators update the
@@ -139,12 +146,10 @@ module LibraConfig {
         move_to(account, Offer::redeem<ModifyConfigCapability<Config>>(account, offer_address))
     }
 
-    public fun reconfigure(account: &signer) acquires Configuration {
+    public fun reconfigure(
+        _: &Capability<AssociationRootRole>,
+    ) acquires Configuration {
         // Only callable by association address or by the VM internally.
-        Transaction::assert(
-            Association::has_privilege<Self::CreateConfigCapability>(Signer::address_of(account)),
-            1
-        );
         reconfigure_();
     }
 
@@ -160,7 +165,7 @@ module LibraConfig {
        // correspondence between system reconfigurations and emitted ReconfigurationEvents.
 
        let current_block_time = LibraTimestamp::now_microseconds();
-       Transaction::assert(current_block_time > config_ref.last_reconfiguration_time, 23);
+       assert(current_block_time > config_ref.last_reconfiguration_time, 23);
        config_ref.last_reconfiguration_time = current_block_time;
 
        emit_reconfiguration_event();

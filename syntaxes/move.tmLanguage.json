@@ -293,6 +293,7 @@
                 { "include": "#mut" },
                 { "include": "#let" },
                 { "include": "#types" },
+                { "include": "#assert" },
                 { "include": "#literals" },
                 { "include": "#control" },
                 { "include": "#move_copy" },
@@ -338,6 +339,7 @@
                 { "include": "#mut" },
                 { "include": "#let" },
                 { "include": "#types" },
+                { "include": "#assert" },
                 { "include": "#literals" },
                 { "include": "#control" },
                 { "include": "#move_copy" },
@@ -383,6 +385,12 @@
             "comment": "Methods to work with resource",
             "match": "\\b(borrow_global|borrow_global_mut|exists|move_from|move_to_sender|move_to)\\b",
             "name": "support.function.typed.move"
+        },
+
+        "assert": {
+            "comment": "Assert built-in",
+            "match": "\\b(assert)\\b",
+            "name": "support.function.assert.move"
         },
 
         "self_access": {

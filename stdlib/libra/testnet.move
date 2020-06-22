@@ -1,14 +1,13 @@
-address 0x0 {
+address 0x1 {
 
 module Testnet {
-    use 0x0::CoreAddresses;
-    use 0x0::Signer;
-    use 0x0::Transaction;
+    use 0x1::CoreAddresses;
+    use 0x1::Signer;
 
     resource struct IsTestnet { }
 
     public fun initialize(account: &signer) {
-        Transaction::assert(Signer::address_of(account) == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 0);
+        assert(Signer::address_of(account) == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 0);
         move_to(account, IsTestnet{})
     }
 
@@ -19,7 +18,7 @@ module Testnet {
     // only used for testing purposes
     public fun remove_testnet(account: &signer)
     acquires IsTestnet {
-        Transaction::assert(Signer::address_of(account) == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 0);
+        assert(Signer::address_of(account) == CoreAddresses::ASSOCIATION_ROOT_ADDRESS(), 0);
         IsTestnet{} = move_from<IsTestnet>(CoreAddresses::ASSOCIATION_ROOT_ADDRESS());
     }
 
@@ -52,14 +51,13 @@ module Testnet {
     spec module {
         /// Returns true if no address has IsTestNet resource.
         define spec_no_addr_has_testnet(): bool {
-            all(domain<address>(), |addr| !exists<IsTestnet>(addr))
+            forall addr: address: !exists<IsTestnet>(addr)
         }
 
         /// Returns true if only the root address has an IsTestNet resource.
         define spec_only_root_addr_has_testnet(): bool {
-            all(domain<address>(), |addr|
-                exists<IsTestnet>(addr)
-                    ==> addr == spec_root_address())
+            forall addr: address:
+                exists<IsTestnet>(addr) ==> addr == spec_root_address()
         }
     }
 

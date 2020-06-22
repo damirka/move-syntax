@@ -1,11 +1,11 @@
-address 0x0 {
+address 0x1 {
 
 module Unhosted {
-    use 0x0::CoreAddresses;
-    use 0x0::AccountLimits;
-    use 0x0::Signer;
-    use 0x0::Testnet;
-    use 0x0::Transaction;
+    use 0x1::CoreAddresses;
+    use 0x1::AccountLimits;
+    use 0x1::Signer;
+    use 0x1::Testnet;
+    use 0x1::Roles::{Capability, TreasuryComplianceRole};
 
     // An unhosted account is subject to account holding/velocity limits.
     // This holds the metadata about the account transactions during a
@@ -13,8 +13,9 @@ module Unhosted {
     struct Unhosted {
     }
 
-    public fun publish_global_limits_definition(account: &signer) {
-        Transaction::assert(Signer::address_of(account) == limits_addr(), 100042);
+    // Global limits published during genesis
+    public fun publish_global_limits_definition(account: &signer, cap: &Capability<TreasuryComplianceRole>) {
+        assert(Signer::address_of(account) == CoreAddresses::TREASURY_COMPLIANCE_ADDRESS(), 100042);
         // These are limits for testnet _only_.
         AccountLimits::publish_unrestricted_limits(account);
         /*AccountLimits::publish_limits_definition(
@@ -23,16 +24,19 @@ module Unhosted {
             50000,
             31540000000000
         );*/
-        AccountLimits::certify_limits_definition(account, limits_addr());
+        AccountLimits::certify_limits_definition(cap, CoreAddresses::TREASURY_COMPLIANCE_ADDRESS());
     }
 
+    // Regular unhosted wallet accounts are currently Testnet only
     public fun create(): Unhosted {
-        Transaction::assert(Testnet::is_testnet(), 10041);
+        assert(Testnet::is_testnet(), 10041);
         Unhosted {  }
     }
 
-    public fun limits_addr(): address {
-        CoreAddresses::ASSOCIATION_ROOT_ADDRESS()
+    fun window_length(): u64 {
+        // number of microseconds in a day
+        86400000000
     }
+
 }
 }

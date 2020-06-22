@@ -2,13 +2,12 @@
 // this resource, but the account's authentication key will be updated in lockstep. This ensures
 // that the two keys always stay in sync.
 
-address 0x0 {
+address 0x1 {
 module SharedEd25519PublicKey {
-    use 0x0::Authenticator;
-    use 0x0::LibraAccount;
-    use 0x0::Signature;
-    use 0x0::Signer;
-    use 0x0::Transaction;
+    use 0x1::Authenticator;
+    use 0x1::LibraAccount;
+    use 0x1::Signature;
+    use 0x1::Signer;
 
     // A resource that forces the account associated with `rotation_cap` to use a ed25519
     // authentication key derived from `key`
@@ -35,7 +34,7 @@ module SharedEd25519PublicKey {
 
     fun rotate_key_(shared_key: &mut SharedEd25519PublicKey, new_public_key: vector<u8>) {
         // Cryptographic check of public key validity
-        Transaction::assert(
+        assert(
             Signature::ed25519_validate_pubkey(copy new_public_key),
             9003, // TODO: proper error code
         );

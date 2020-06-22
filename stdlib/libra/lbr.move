@@ -1,13 +1,13 @@
-address 0x0 {
+address 0x1 {
 
 module LBR {
-    use 0x0::CoreAddresses;
-    use 0x0::Coin1::Coin1;
-    use 0x0::Coin2::Coin2;
-    use 0x0::FixedPoint32::{Self, FixedPoint32};
-    use 0x0::Libra::{Self, Libra};
-    use 0x0::Signer;
-    use 0x0::Transaction;
+    use 0x1::CoreAddresses;
+    use 0x1::Coin1::Coin1;
+    use 0x1::Coin2::Coin2;
+    use 0x1::FixedPoint32::{Self, FixedPoint32};
+    use 0x1::Libra::{Self, Libra,  RegisterNewCurrency};
+    use 0x1::Signer;
+    use 0x1::Roles::{Capability, TreasuryComplianceRole};
 
     // The type tag for this coin type.
     resource struct LBR { }
@@ -38,18 +38,24 @@ module LBR {
     // already be registered in order for this to succeed. The sender must
     // both be the correct address and have the correct permissions. These
     // restrictions are enforced in the Libra::register_currency function.
-    public fun initialize(association: &signer) {
-        Transaction::assert(Signer::address_of(association) == 0xA550C18, 0);
+    public fun initialize(
+        association: &signer,
+        register_currency_capability: &Capability<RegisterNewCurrency>,
+        tc_capability: &Capability<TreasuryComplianceRole>,
+    ) {
+        // Opertational constraint
+        assert(Signer::address_of(association) == CoreAddresses::CURRENCY_INFO_ADDRESS(), 0);
         // Register the LBR currency.
         let (mint_cap, burn_cap) = Libra::register_currency<LBR>(
             association,
+            register_currency_capability,
             FixedPoint32::create_from_rational(1, 1), // exchange rate to LBR
             true,    // is_synthetic
             1000000, // scaling_factor = 10^6
             1000,    // fractional_part = 10^3
             b"LBR"
         );
-        let preburn_cap = Libra::create_preburn<LBR>(association);
+        let preburn_cap = Libra::create_preburn<LBR>(tc_capability);
         let coin1 = ReserveComponent<Coin1> {
             ratio: FixedPoint32::create_from_rational(1, 2),
             backing: Libra::zero<Coin1>(),
@@ -59,6 +65,12 @@ module LBR {
             backing: Libra::zero<Coin2>(),
         };
         move_to(association, Reserve { mint_cap, burn_cap, preburn_cap, coin1, coin2 });
+    }
+
+    /// Return true if CoinType is LBR::LBR
+    public fun is_lbr<CoinType>(): bool {
+        Libra::is_currency<CoinType>() &&
+            Libra::currency_code<CoinType>() == Libra::currency_code<LBR>()
     }
 
     // Given the constituent coins return as much LBR as possible, with any

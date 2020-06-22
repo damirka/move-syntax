@@ -1,12 +1,11 @@
-address 0x0 {
+address 0x1 {
 
 /// Dfinance is a governance module which handles balances merging. It's basically
 /// a mediator or wrapper around money-related operations. It holds knowledge about
 /// registered coins and rules of their usage. Also it lessens load from 0x0::Account
 module Dfinance {
 
-    use 0x0::Transaction;
-    use 0x0::Signer;
+    use 0x1::Signer;
 
     resource struct T<Coin> {
         value: u128
@@ -46,7 +45,7 @@ module Dfinance {
     }
 
     public fun withdraw<Coin>(coin: &mut T<Coin>, amount: u128): T<Coin> {
-        Transaction::assert(coin.value >= amount, 10);
+        assert(coin.value >= amount, 10);
         coin.value = coin.value - amount;
         T { value: amount }
     }
@@ -60,7 +59,7 @@ module Dfinance {
         let owner = Signer::address_of(account);
 
         // check if this token has never been registered
-        Transaction::assert(!::exists<Info<Token>>(0x0), 1);
+        assert(!exists<Info<Token>>(0x0), 1);
 
         let info = Info {denom, decimals, owner, total_supply, is_token: true };
         register_token_info<Token>(info);
@@ -121,7 +120,7 @@ module Dfinance {
 
     /// check whether sender is 0x0, helper method
     fun assert_can_register_coin(account: &signer) {
-        Transaction::assert(Signer::address_of(account) == 0x0, 1);
+        assert(Signer::address_of(account) == 0x0, 1);
     }
 }
 }
