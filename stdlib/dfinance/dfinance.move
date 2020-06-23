@@ -2,7 +2,7 @@ address 0x1 {
 
 /// Dfinance is a governance module which handles balances merging. It's basically
 /// a mediator or wrapper around money-related operations. It holds knowledge about
-/// registered coins and rules of their usage. Also it lessens load from 0x0::Account
+/// registered coins and rules of their usage. Also it lessens load from 0x1::Account
 module Dfinance {
 
     use 0x1::Signer;
@@ -59,7 +59,7 @@ module Dfinance {
         let owner = Signer::address_of(account);
 
         // check if this token has never been registered
-        assert(!exists<Info<Token>>(0x0), 1);
+        assert(!exists<Info<Token>>(0x1), 1);
 
         let info = Info {denom, decimals, owner, total_supply, is_token: true };
         register_token_info<Token>(info);
@@ -67,44 +67,44 @@ module Dfinance {
         T<Token> { value: total_supply }
     }
 
-    /// Created Info resource must be attached to 0x0 address.
+    /// Created Info resource must be attached to 0x1 address.
     /// Keeping this public until native function is ready.
     native fun register_token_info<Coin: resource>(info: Info<Coin>);
 
-    /// Working with CoinInfo - coin registration procedure, 0x0 account used
+    /// Working with CoinInfo - coin registration procedure, 0x1 account used
 
     /// What can be done here:
     ///   - proposals API: user creates resource Info, pushes it into queue
-    ///     0x0 government reads and registers proposed resources by taking them
+    ///     0x1 government reads and registers proposed resources by taking them
     ///   - try to find the way to share Info using custom module instead of
     ///     writing into main register (see above)
 
-    /// getter for denom. reads denom information from 0x0 resource
+    /// getter for denom. reads denom information from 0x1 resource
     public fun denom<Coin>(): vector<u8> acquires Info {
-        *&borrow_global<Info<Coin>>(0x0).denom
+        *&borrow_global<Info<Coin>>(0x1).denom
     }
 
     /// getter for currency decimals
     public fun decimals<Coin>(): u8 acquires Info {
-        borrow_global<Info<Coin>>(0x0).decimals
+        borrow_global<Info<Coin>>(0x1).decimals
     }
 
     /// getter for is_token property of Info
     public fun is_token<Coin>(): bool acquires Info {
-        borrow_global<Info<Coin>>(0x0).is_token
+        borrow_global<Info<Coin>>(0x1).is_token
     }
 
     /// getter for total_supply property of Info
     public fun total_supply<Coin>(): u128 acquires Info {
-        borrow_global<Info<Coin>>(0x0).total_supply
+        borrow_global<Info<Coin>>(0x1).total_supply
     }
 
     /// getter for owner property of Info
     public fun owner<Coin>(): address acquires Info {
-        borrow_global<Info<Coin>>(0x0).owner
+        borrow_global<Info<Coin>>(0x1).owner
     }
 
-    /// only 0x0 address and add denom descriptions, 0x0 holds information resource
+    /// only 0x1 address and add denom descriptions, 0x1 holds information resource
     public fun register_coin<Coin>(account: &signer, denom: vector<u8>, decimals: u8) {
         assert_can_register_coin(account);
 
@@ -112,15 +112,15 @@ module Dfinance {
             denom,
             decimals,
 
-            owner: 0x0,
+            owner: 0x1,
             total_supply: 0,
             is_token: false
         });
     }
 
-    /// check whether sender is 0x0, helper method
+    /// check whether sender is 0x1, helper method
     fun assert_can_register_coin(account: &signer) {
-        assert(Signer::address_of(account) == 0x0, 1);
+        assert(Signer::address_of(account) == 0x1, 1);
     }
 }
 }
