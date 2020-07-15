@@ -104,6 +104,7 @@
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#import" },
+                        { "include": "#const" },
                         { "include": "#resource" },
                         { "include": "#struct" },
                         { "include": "#public_fun" },
@@ -127,10 +128,44 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#address_literal" },
+                { "include": "#as" },
+                {
+                    "comment": "Module members",
+                    "begin": "{",
+                    "end": "}",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#as" },
+                        {
+                            "comment": "Uppercase entities",
+                            "match": "\\b(\\w+)\\b",
+                            "name": "entity.name.type.move"
+                        }
+                    ]
+                },
                 {
                     "comment": "Name of the imported module",
                     "match": "\\b(\\w+)\\b",
                     "name": "entity.name.type.module.move"
+                }
+            ]
+        },
+
+        "const": {
+            "name": "meta.const.move",
+            "begin": "\\b(const)\\b",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.const.move" }
+            },
+            "end": ";",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#primitives" },
+                { "include": "#vector" },
+                { "include": "#literals" },
+                {
+                    "match": "\\b([\\w_]+)\\b",
+                    "name": "constant.other.move"
                 }
             ]
         },

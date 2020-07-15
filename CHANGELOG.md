@@ -2,6 +2,20 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.3.8 - module constants support
+
+- syntax support for `const`
+- MLS updated to v0.9.4 (const support)
+- syntax fixes - member import highlight added
+- latest libra stdlib added
+
+## v0.3.7 - assert builtin, stdlib at 0x1
+
+- `assert()` built-in (no more `Transaction::assert()`)
+- standard library at `0x1` address
+- libra and dfinance stdlib updated
+- dependencies now support new features (move-build included!)
+
 ## v0.3.6 - bytestring literal support
 
 - fixes `move` and `copy` highlight

@@ -3,10 +3,9 @@
 Built by developer for developers, this extension will simplify your Move development and will make your first experience with Move less painful.
 
 - [Jump to setup](#setup)
+- [The Move Book](https://move-book.com)
 - [Move Whitepaper](https://developers.libra.org/docs/move-paper)
 - [Marketplace](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
-
-If you still aren't familiar with Move language you can see [Move Book](https://move-book.com).
 
 **What's inside**:
 
@@ -24,31 +23,21 @@ Extension features best syntax highlighting you can get for Move or Mvir. Each l
 
 I've personally put much effort into making this syntax helpful (aka some keywords - like `acquires` won't be highlighted when misplaced).
 
-### Samples:
+### Samples
 
 **Move** - brand new language now shines bright in your VSCode (the best with [Atom Light theme](https://marketplace.visualstudio.com/items?itemName=akamud.vscode-theme-onelight))
 
 ![Move highlighting](https://raw.githubusercontent.com/damirka/vscode-move-ide/master/img/move.highlight.jpg)
 
-> Mvir is also supported, though it's support may end soon as Mvir is being removed from Libra
-
 <a name="setup"></a>
 
 ## IDE Setup
 
-### Libra Compiler
-
-Libra compiler is supported on Darwin and Linux. Soon Win32 will be supported too.
-For Libra `move-build` is used, hence you can only compile Move files.
-
-### Dfinance
-
-Temporarily unsupported.
-
-## Recomended directory structure
+### Recomended directory structure
 
 I highly recommend you using following directory structure:
-```
+
+```text
 modules/       - here you'll put your modules (module.move)
 scripts/       - same here! scripts! (script.move)
 out/           - compiler output directory (module.mv or module.mv.json)
@@ -56,7 +45,7 @@ out/           - compiler output directory (module.mv or module.mv.json)
 .mvconfig.json - this file will help you keep setup within working directory (overrides vscode config)
 ```
 
-## Config file: .mvconfig.json
+### Config file: .mvconfig.json
 
 Not to mess up configurations and keep it simple I suggest you using config file inside your working directory.
 Sample here (put inside your working dir):
@@ -81,8 +70,6 @@ Configuration file for dfinance:
 }
 ```
 
-Compiler given here supports both Move and Mvir, though you'll need to know standard library you're accessing - [it's over here](https://github.com/dfinance/dvm/tree/master/lang/stdlib).
-
 **Comments:**
 
 - network: `libra` or `dfinance` (libra is default);
@@ -97,4 +84,3 @@ Compiler given here supports both Move and Mvir, though you'll need to know stan
 ## Contribution
 
 Feel free to ask any questions or report bugs [by opening new issue](https://github.com/damirka/vscode-move-ide/issues).
-

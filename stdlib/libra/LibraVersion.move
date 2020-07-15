@@ -2,23 +2,26 @@ address 0x1 {
 
 module LibraVersion {
     use 0x1::CoreAddresses;
-    use 0x1::LibraConfig::{Self, CreateOnChainConfig};
+    use 0x1::LibraConfig;
+    use 0x1::LibraTimestamp;
     use 0x1::Signer;
-    use 0x1::Roles::Capability;
 
     struct LibraVersion {
         major: u64,
     }
 
+    const ENOT_GENESIS: u64 = 0;
+    const EINVALID_SINGLETON_ADDRESS: u64 = 1;
+    const EINVALID_MAJOR_VERSION_NUMBER: u64 = 2;
+
     public fun initialize(
-        account: &signer,
-        create_config_capability: &Capability<CreateOnChainConfig>,
+        lr_account: &signer,
     ) {
-        assert(Signer::address_of(account) == CoreAddresses::DEFAULT_CONFIG_ADDRESS(), 1);
+        assert(LibraTimestamp::is_genesis(), ENOT_GENESIS);
+        assert(Signer::address_of(lr_account) == CoreAddresses::LIBRA_ROOT_ADDRESS(), EINVALID_SINGLETON_ADDRESS);
 
         LibraConfig::publish_new_config<LibraVersion>(
-            account,
-            create_config_capability,
+            lr_account,
             LibraVersion { major: 1 },
         );
     }
@@ -28,7 +31,7 @@ module LibraVersion {
 
         assert(
             old_config.major < major,
-            25
+            EINVALID_MAJOR_VERSION_NUMBER
         );
 
         LibraConfig::set<LibraVersion>(
