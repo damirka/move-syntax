@@ -2,6 +2,11 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.3.9 - non-ascii line break on Win32
+
+- updates MLS to v0.9.5
+- fixes non-ascii breaks on win32
+
 ## v0.3.8 - module constants support
 
 - syntax support for `const`
@@ -24,7 +29,6 @@ Version history from v0.2.0 to this day.
 - commands are now run in terminal instead of modal (hooray!)
 - Libra std is almost latest - just before built-in assert
 - `move-build` arguments fixed for latest version
-
 
 ## v0.3.5
 
@@ -51,7 +55,7 @@ Version history from v0.2.0 to this day.
 
 ## v0.3.0 - Move Runner and improved MLS
 
-###  Features
+### Features
 
 - Multiple workspaces support - now you can work on multiple projects
 - `Move: Run Script` command is now available - it runs an opened script (with dependencies!)
@@ -92,7 +96,6 @@ Version history from v0.2.0 to this day.
 - move-language-server is updated to v0.7.0
 - move-executor is at v0.7.0
 - move-build is now at version 12.05.20
-
 
 ## v0.2.0 - Libra compiler support added and Move Language Server upgraded
 
