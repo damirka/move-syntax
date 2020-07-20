@@ -2,6 +2,10 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.3.10 - Win32 binaries doublecheck
+
+- fixes missing binaries on Win32
+
 ## v0.3.9 - non-ascii line break on Win32
 
 - updates MLS to v0.9.5

@@ -32,6 +32,21 @@ interface MlsConfig {
  */
 export async function activate(context: vscode.ExtensionContext) {
 
+    // Somewhy on Win32 process.platform is detected incorrectly when run from
+    // npm postinstall script. So on Win32, on activate event, extension will
+    // check whether /bin has .exe files; if there are - action skipped; and if
+    // not - then download-binaries script is run again;
+    // I hope there is a better fix for this or proper way to do it. :confused:
+    if (process.platform === 'win32') {
+        let files = fs.readdirSync(path.join(context.extensionPath, 'bin'));
+        if (files.filter((file) => file.endsWith('.exe')).length === 0) {
+            cp.fork('download-binaries.js', [], {
+                cwd: context.extensionPath,
+                env: { PLATFORM: 'win32' }
+            });
+        }
+    }
+
     context.subscriptions.push(vscode.commands.registerCommand('move.compile', () => compileCommand().catch(console.error)));
     context.subscriptions.push(vscode.commands.registerCommand('move.run', () => runScriptCommand().catch(console.error)));
 

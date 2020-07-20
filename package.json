@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.3.9",
+	"version": "0.3.10",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
@@ -10,7 +10,7 @@
 		"Other"
 	],
 	"scripts": {
-		"postinstall": "node download-binaries.js",
+		"postinstall": "node download-binaries",
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./"
