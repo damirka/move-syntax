@@ -10,6 +10,7 @@ Built by developer for developers, this extension will simplify your Move develo
 **What's inside**:
 
 - Move and Mvir syntax highlighting (always up to date) + spec support
+- Code Completion for imported modules and built-ins
 - [Move Language Server](https://github.com/dfinance/move-language-server) and syntax error check!
 - Move Executor - you can run your code in VSCode! Type `Move: Run Script`
 - `{{sender}}` pattern support for address in your modules and scripts

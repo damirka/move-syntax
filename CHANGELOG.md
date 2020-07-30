@@ -2,6 +2,26 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.4.0 - Move Code Completion
+
+This update adds code completion.
+
+### Completion
+
+Code completion feature currently works only for standard library modules. It includes
+import, module methods and built-in functions suggestions based on cursor context.
+More detail will be given in docs section which will be created and improved through
+patches in 0.4 version of Move IDE.
+
+This feature can be turned off in extension settings.
+
+### Notes
+
+- tree-sitter grammar integrated into a second Language Server which provides autocompletion
+- binary downloader improved, all the platforms are supported (including Windows)
+- completely refactored code, more error checks
+- fixed highlighting of constants in scripts
+
 ## v0.3.10 - Win32 binaries doublecheck
 
 - fixes missing binaries on Win32

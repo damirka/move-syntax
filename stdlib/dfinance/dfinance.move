@@ -54,7 +54,12 @@ module Dfinance {
     /// Work in progress. Make it public when register_token_info becomes native.
     /// Made private on purpose not to make a hole in chain security, though :resource
     /// constraint kinda-does the job and won't allow users to mint new 'real' coins
-    public fun tokenize<Token: resource>(account: &signer, total_supply: u128, decimals: u8, denom: vector<u8>): T<Token> {
+    public fun tokenize<Token: resource>(
+        account: &signer,
+        total_supply: u128,
+        decimals: u8,
+        denom: vector<u8>
+    ): T<Token> {
 
         let owner = Signer::address_of(account);
 
@@ -105,7 +110,11 @@ module Dfinance {
     }
 
     /// only 0x1 address and add denom descriptions, 0x1 holds information resource
-    public fun register_coin<Coin>(account: &signer, denom: vector<u8>, decimals: u8) {
+    public fun register_coin<Coin>(
+        account: &signer,
+        denom: vector<u8>,
+        decimals: u8
+    ) {
         assert_can_register_coin(account);
 
         move_to<Info<Coin>>(account, Info {

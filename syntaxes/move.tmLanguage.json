@@ -48,6 +48,7 @@
                     "begin": "{",
                     "end": "}",
                     "patterns": [
+                        { "include": "#const" },
                         { "include": "#comments" },
                         { "include": "#import" },
                         { "include": "#fun" }
