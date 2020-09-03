@@ -2,6 +2,13 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.4.1 - Fix duplicates in autocompletion
+
+- keyword `as` is highlighted in function body
+- removed duplicates in completion list
+- update Libra std to latest
+- upd executor and mls to 0.9.6 (better spec support)
+
 ## v0.4.0 - Move Code Completion
 
 This update adds code completion.
