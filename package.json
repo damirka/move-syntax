@@ -1,6 +1,6 @@
 {
 	"name": "move-ide",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"description": "Move/mvir IDE for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move IDE",
