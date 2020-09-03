@@ -181,7 +181,7 @@
 		"web-tree-sitter": "^0.16.4"
 	},
 	"move-ls": {
-		"version": "0.9.5",
+		"version": "0.9.6",
 		"repository": "dfinance/move-tools",
 		"binaries": {
 			"win32": "move-language-server-win32.exe",
@@ -190,7 +190,7 @@
 		}
 	},
 	"move-executor": {
-		"version": "0.9.5",
+		"version": "0.9.6",
 		"repository": "dfinance/move-tools",
 		"binaries": {
 			"win32": "move-executor-win32.exe",

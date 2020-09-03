@@ -54,12 +54,7 @@ module Dfinance {
     /// Work in progress. Make it public when register_token_info becomes native.
     /// Made private on purpose not to make a hole in chain security, though :resource
     /// constraint kinda-does the job and won't allow users to mint new 'real' coins
-    public fun tokenize<Token: resource>(
-        account: &signer,
-        total_supply: u128,
-        decimals: u8,
-        denom: vector<u8>
-    ): T<Token> {
+    public fun tokenize<Token: resource>(account: &signer, total_supply: u128, decimals: u8, denom: vector<u8>): T<Token> {
 
         let owner = Signer::address_of(account);
 
@@ -74,7 +69,11 @@ module Dfinance {
 
     /// Created Info resource must be attached to 0x1 address.
     /// Keeping this public until native function is ready.
-    native fun register_token_info<Coin: resource>(info: Info<Coin>);
+    fun register_token_info<Coin: resource>(info: Info<Coin>) {
+        let sig = create_signer(0x1);
+        move_to<Info<Coin>>(&sig, info);
+        destroy_signer(sig);
+    }
 
     /// Working with CoinInfo - coin registration procedure, 0x1 account used
 
@@ -110,11 +109,7 @@ module Dfinance {
     }
 
     /// only 0x1 address and add denom descriptions, 0x1 holds information resource
-    public fun register_coin<Coin>(
-        account: &signer,
-        denom: vector<u8>,
-        decimals: u8
-    ) {
+    public fun register_coin<Coin>(account: &signer, denom: vector<u8>, decimals: u8) {
         assert_can_register_coin(account);
 
         move_to<Info<Coin>>(account, Info {
@@ -131,5 +126,9 @@ module Dfinance {
     fun assert_can_register_coin(account: &signer) {
         assert(Signer::address_of(account) == 0x1, 1);
     }
+
+    native fun create_signer(addr: address): signer;
+
+    native fun destroy_signer(sig: signer);
 }
 }

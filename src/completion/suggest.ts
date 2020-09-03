@@ -58,11 +58,9 @@ export function suggestCompletion(
     const usedAddresses = mod.imports.map((mod) => `${mod.address}::${mod.module}`);
 
     // Get standard library modules if we can
-    const usedModules = usedAddresses
+    const usedModules = uniqueArray(usedAddresses)
         .filter((address) => standardLibrary.has(address))
         .map((address) => standardLibrary.get(address));
-
-
 
     // Finally let's get back to the cursor position and provide completion
     switch (cursor.location[0]) {
@@ -103,7 +101,7 @@ export function suggestCompletion(
             }
 
             // @ts-ignore
-            return getMethods(usedModules).concat(
+            return uniqueItems(getMethods(usedModules)).concat(
                 builtIns(globalScope)
             );
 
@@ -283,3 +281,10 @@ function builtIns(globalScope: Location): CompletionItem[] {
     return methods.filter((item) => item.data.globalScopes.includes(globalScope));
 }
 
+function uniqueArray<T>(arr: Array<T>): Array<T> {
+    return [...new Set(arr)];
+}
+
+function uniqueItems(items: CompletionItem[]): CompletionItem[] {
+    return [...new Map(items.map((item) => [item.label, item])).values()];
+}

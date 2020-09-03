@@ -3,6 +3,7 @@ address 0x1 {
 /// A variable-sized container that can hold both unrestricted types and resources.
 module Vector {
 
+    /// The index into the vector is out of bounds
     const EINDEX_OUT_OF_BOUNDS: u64 = 0;
 
     /// Create an empty vector.
@@ -39,6 +40,17 @@ module Vector {
         let v = empty();
         push_back(&mut v, e);
         v
+    }
+    spec fun singleton {
+        // TODO(wrwg): when using opaque here, we get verification errors.
+        // pragma opaque;
+        aborts_if false;
+        ensures result == spec_singleton(e);
+    }
+    spec module {
+        define spec_singleton<Element>(e: Element): vector<Element> {
+            singleton_vector(e)
+        }
     }
 
     /// Reverses the order of the elements in the vector `v` in place.

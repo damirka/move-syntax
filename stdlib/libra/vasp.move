@@ -2,6 +2,7 @@ address 0x1 {
 
 module VASP {
     use 0x1::CoreAddresses;
+    use 0x1::Errors;
     use 0x1::LibraTimestamp;
     use 0x1::Signer;
     use 0x1::Roles;
@@ -21,22 +22,28 @@ module VASP {
     /// A singleton resource allowing this module to publish limits definitions and accounting windows
     resource struct VASPOperationsResource { limits_cap: AccountLimitMutationCapability }
 
-    const ENOT_GENESIS: u64 = 0;
-    const ENOT_A_REGISTERED_CURRENCY: u64 = 1;
-    const EINVALID_SINGLETON_ADDRESS: u64 = 2;
-    const ENOT_LIBRA_ROOT: u64 = 3;
+    /// The `VASPOperationsResource` was not in the required state
+    const EVASP_OPERATIONS_RESOURCE: u64 = 0;
+    /// The `ParentVASP` or `ChildVASP` resources are not in the required state
+    const EPARENT_OR_CHILD_VASP: u64 = 1;
+    /// The creation of a new Child VASP account would exceed the number of children permitted for a VASP
+    const ETOO_MANY_CHILDREN: u64 = 2;
+    /// The account must be a Parent or Child VASP account
+    const ENOT_A_VASP: u64 = 3;
+    /// The creating account must be a Parent VASP account
     const ENOT_A_PARENT_VASP: u64 = 4;
-    const ENOT_A_VASP: u64 = 5;
-    const EALREADY_A_VASP: u64 = 7;
-    const ETOO_MANY_CHILDREN: u64 = 8;
+
 
     /// Maximum number of child accounts that can be created by a single ParentVASP
     const MAX_CHILD_ACCOUNTS: u64 = 256;
 
     public fun initialize(lr_account: &signer) {
-        assert(LibraTimestamp::is_genesis(), ENOT_GENESIS);
-        assert(Roles::has_libra_root_role(lr_account), ENOT_LIBRA_ROOT);
-        assert(Signer::address_of(lr_account) == CoreAddresses::LIBRA_ROOT_ADDRESS(), EINVALID_SINGLETON_ADDRESS);
+        LibraTimestamp::assert_genesis();
+        Roles::assert_libra_root(lr_account);
+        assert(
+            !exists<VASPOperationsResource>(CoreAddresses::LIBRA_ROOT_ADDRESS()),
+            Errors::already_published(EVASP_OPERATIONS_RESOURCE)
+        );
         move_to(lr_account, VASPOperationsResource {
             limits_cap: AccountLimits::grant_mutation_capability(lr_account),
         })
@@ -49,17 +56,22 @@ module VASP {
     /// Create a new `ParentVASP` resource under `vasp`
     /// Aborts if `lr_account` is not the libra root account,
     /// or if there is already a VASP (child or parent) at this account.
-    public fun publish_parent_vasp_credential(vasp: &signer, lr_account: &signer) {
-        assert(Roles::has_libra_root_role(lr_account), ENOT_LIBRA_ROOT);
+    public fun publish_parent_vasp_credential(vasp: &signer, tc_account: &signer) {
+        LibraTimestamp::assert_operating();
+        Roles::assert_treasury_compliance(tc_account);
+        Roles::assert_parent_vasp_role(vasp);
         let vasp_addr = Signer::address_of(vasp);
-        assert(!is_vasp(vasp_addr), ENOT_A_VASP);
+        assert(!is_vasp(vasp_addr), Errors::already_published(EPARENT_OR_CHILD_VASP));
         move_to(vasp, ParentVASP { num_children: 0 });
     }
     spec fun publish_parent_vasp_credential {
-        aborts_if !Roles::spec_has_libra_root_role_addr(Signer::spec_address_of(lr_account));
-        aborts_if spec_is_vasp(Signer::spec_address_of(vasp));
-        ensures spec_is_parent_vasp(Signer::spec_address_of(vasp));
-        ensures spec_get_num_children(Signer::spec_address_of(vasp)) == 0;
+        include LibraTimestamp::AbortsIfNotOperating;
+        include Roles::AbortsIfNotTreasuryCompliance{account: tc_account};
+        include Roles::AbortsIfNotParentVasp{account: vasp};
+        let vasp_addr = Signer::spec_address_of(vasp);
+        aborts_if is_vasp(vasp_addr) with Errors::ALREADY_PUBLISHED;
+        ensures is_parent(vasp_addr);
+        ensures spec_get_num_children(vasp_addr) == 0;
     }
 
     /// Create a child VASP resource for the `parent`
@@ -73,27 +85,30 @@ module VASP {
         // DD: Since it checks for a ParentVASP property, anyway, checking
         // for role might be a bit redundant (would need invariant that only
         // Parent Role has ParentVASP)
-        assert(Roles::has_parent_VASP_role(parent), ENOT_A_PARENT_VASP);
+        Roles::assert_parent_vasp_role(parent);
         let child_vasp_addr = Signer::address_of(child);
-        assert(!is_vasp(child_vasp_addr), EALREADY_A_VASP);
+        assert(!is_vasp(child_vasp_addr), Errors::already_published(EPARENT_OR_CHILD_VASP));
         let parent_vasp_addr = Signer::address_of(parent);
-        assert(is_parent(parent_vasp_addr), ENOT_A_PARENT_VASP);
+        assert(is_parent(parent_vasp_addr), Errors::invalid_argument(ENOT_A_PARENT_VASP));
         let num_children = &mut borrow_global_mut<ParentVASP>(parent_vasp_addr).num_children;
         // Abort if creating this child account would put the parent VASP over the limit
-        assert(*num_children < MAX_CHILD_ACCOUNTS, ETOO_MANY_CHILDREN);
+        assert(*num_children < MAX_CHILD_ACCOUNTS, Errors::limit_exceeded(ETOO_MANY_CHILDREN));
         *num_children = *num_children + 1;
         move_to(child, ChildVASP { parent_vasp_addr });
     }
     spec fun publish_child_vasp_credential {
-        aborts_if !Roles::spec_has_parent_VASP_role_addr(Signer::spec_address_of(parent));
-        aborts_if spec_is_vasp(Signer::spec_address_of(child));
-        aborts_if !spec_is_parent_vasp(Signer::spec_address_of(parent));
-        aborts_if spec_get_num_children(Signer::spec_address_of(parent)) + 1 > 256; // MAX_CHILD_ACCOUNTS
-        ensures spec_get_num_children(Signer::spec_address_of(parent))
-             == old(spec_get_num_children(Signer::spec_address_of(parent))) + 1;
-        ensures spec_is_child_vasp(Signer::spec_address_of(child));
-        ensures TRACE(spec_parent_address(Signer::spec_address_of(child)))
-             == TRACE(Signer::spec_address_of(parent));
+        /// TODO: this times out some times, some times not. To avoid flakes, turn this off until it
+        ///   reliably terminates.
+        pragma verify_duration_estimate = 100;
+        include Roles::AbortsIfNotParentVasp{account: parent};
+        let parent_addr = Signer::spec_address_of(parent);
+        let child_addr = Signer::spec_address_of(child);
+        aborts_if is_vasp(child_addr) with Errors::ALREADY_PUBLISHED;
+        aborts_if !is_parent(parent_addr) with Errors::INVALID_ARGUMENT;
+        aborts_if spec_get_num_children(parent_addr) + 1 > MAX_CHILD_ACCOUNTS with Errors::LIMIT_EXCEEDED;
+        ensures spec_get_num_children(parent_addr) == old(spec_get_num_children(parent_addr)) + 1;
+        ensures is_child(child_addr);
+        ensures spec_parent_address(child_addr) == parent_addr;
     }
 
     /// Return `true` if `addr` is a parent or child VASP whose parent VASP account contains an
@@ -101,27 +116,6 @@ module VASP {
     /// Aborts if `addr` is not a VASP
     public fun has_account_limits<CoinType>(addr: address): bool acquires ChildVASP {
         AccountLimits::has_window_published<CoinType>(parent_address(addr))
-    }
-    spec fun has_account_limits {
-        ensures result == spec_has_account_limits<CoinType>(addr);
-    }
-    spec module {
-        define spec_has_account_limits<CoinType>(addr: address): bool {
-            AccountLimits::spec_has_window_published<CoinType>(spec_parent_address(addr))
-        }
-    }
-
-    /// Publish an `AccountLimits<CoinType>` resource under `account`.
-    /// Aborts if `account` is not a ParentVASP
-    /// Aborts if `account` already contains a `AccountLimits<CoinType>` resource
-    public fun add_account_limits<CoinType>(account: &signer) acquires VASPOperationsResource {
-        assert(Roles::has_parent_VASP_role(account), ENOT_A_PARENT_VASP);
-
-        AccountLimits::publish_window<CoinType>(
-            account,
-            &borrow_global<VASPOperationsResource>(CoreAddresses::LIBRA_ROOT_ADDRESS()).limits_cap,
-            CoreAddresses::LIBRA_ROOT_ADDRESS()
-        )
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -136,21 +130,25 @@ module VASP {
         } else if (is_child(addr)) {
             borrow_global<ChildVASP>(addr).parent_vasp_addr
         } else { // wrong account type, abort
-            abort(88)
+            abort(Errors::invalid_argument(ENOT_A_VASP))
         }
     }
     spec fun parent_address {
         pragma opaque = true;
+        aborts_if !is_parent(addr) && !is_child(addr) with Errors::INVALID_ARGUMENT;
         ensures result == spec_parent_address(addr);
     }
     spec module {
         /// Spec version of `Self::parent_address`.
         define spec_parent_address(addr: address): address {
-            if (spec_is_parent_vasp(addr)) {
+            if (is_parent(addr)) {
                 addr
             } else {
                 global<ChildVASP>(addr).parent_vasp_addr
             }
+        }
+        define spec_has_account_limits<Token>(addr: address): bool {
+            AccountLimits::has_window_published<Token>(spec_parent_address(addr))
         }
     }
 
@@ -160,13 +158,8 @@ module VASP {
     }
     spec fun is_parent {
         pragma opaque = true;
-        ensures result == spec_is_parent_vasp(addr);
-    }
-    spec module {
-        /// Spec version of `Self::is_parent`.
-        define spec_is_parent_vasp(addr: address): bool {
-            exists<ParentVASP>(addr)
-        }
+        aborts_if false;
+        ensures result == is_parent(addr);
     }
 
     /// Returns true if `addr` is a child VASP.
@@ -174,18 +167,9 @@ module VASP {
         exists<ChildVASP>(addr)
     }
     spec fun is_child {
-        /// TODO(wrwg): Because the `ChildHasParent` invariant currently lets the prover hang,
-        /// we make this function opaque and specify the *expected* result. We know its true
-        /// because of the way ChildVASP is published, but can't verify this right now. This
-        /// enables verification of code which checks is_child or is_vasp.
         pragma opaque = true;
-        ensures result == spec_is_child_vasp(addr);
-    }
-    spec module {
-        /// Spec version `Self::is_child`.
-        define spec_is_child_vasp(addr: address): bool {
-            exists<ChildVASP>(addr)
-        }
+        aborts_if false;
+        ensures result == is_child(addr);
     }
 
     /// Returns true if `addr` is a VASP.
@@ -194,27 +178,14 @@ module VASP {
     }
     spec fun is_vasp {
         pragma opaque = true;
-        ensures result == spec_is_vasp(addr);
+        aborts_if false;
+        ensures result == is_vasp(addr);
     }
-    spec module {
-        /// Spec version of `Self::is_vasp`.
-        define spec_is_vasp(addr: address): bool {
-            spec_is_parent_vasp(addr) || spec_is_child_vasp(addr)
-        }
+    spec schema AbortsIfNotVASP {
+        addr: address;
+        aborts_if !is_vasp(addr);
+    }
 
-        /// This is a stronger version of `Self::is_vasp` which also handles the potential abortion
-        /// if the VASP under `addr` would not be well-formed (i.e. a child which has not parent).
-        /// This is used in specification of callers for e.g. `Self::parent_address`.
-        ///
-        /// > TODO(wrwg): We would really like to have the fact that each child has a parent encoded
-        /// > as a data invariant. We currently have formulated it as a module invariant, but this is
-        /// > not clean because this invariant is only enforced after program points we have made a
-        /// > a call to VASP functions.
-        define spec_is_valid_vasp(addr: address): bool {
-            spec_is_parent_vasp(addr)
-                || spec_is_child_vasp(addr) && spec_is_parent_vasp(global<ChildVASP>(addr).parent_vasp_addr)
-        }
-    }
 
     /// Returns true if both addresses are VASPs and they have the same parent address.
     public fun is_same_vasp(addr1: address, addr2: address): bool acquires ChildVASP {
@@ -222,12 +193,13 @@ module VASP {
     }
     spec fun is_same_vasp {
         pragma opaque = true;
+        aborts_if false;
         ensures result == spec_is_same_vasp(addr1, addr2);
     }
     spec module {
         /// Spec version of `Self::is_same_vasp`.
         define spec_is_same_vasp(addr1: address, addr2: address): bool {
-            spec_is_vasp(addr1) && spec_is_vasp(addr2) && spec_parent_address(addr1) == spec_parent_address(addr2)
+            is_vasp(addr1) && is_vasp(addr2) && spec_parent_address(addr1) == spec_parent_address(addr2)
         }
     }
 
@@ -235,7 +207,15 @@ module VASP {
     /// The total number of accounts for this VASP is num_children() + 1
     /// Aborts if `addr` is not a ParentVASP or ChildVASP account
     public fun num_children(addr: address): u64  acquires ChildVASP, ParentVASP {
+        // If parent VASP succeeds, the parent is guaranteed to exist.
         *&borrow_global<ParentVASP>(parent_address(addr)).num_children
+    }
+    spec fun num_children {
+        aborts_if !is_vasp(addr) with Errors::INVALID_ARGUMENT;
+        /// This abort is supposed to not happen because of the parent existence invariant. However, for now
+        /// we have deactivated this invariant, so prevent this is leaking to callers with an assumed aborts
+        /// condition.
+        aborts_if [assume] !exists<ParentVASP>(spec_parent_address(addr)) with EXECUTION_FAILURE;
     }
 
     // **************** SPECIFICATIONS ****************
@@ -243,27 +223,30 @@ module VASP {
     /// # Module specifications
 
     spec module {
-        pragma verify = true;
+        pragma verify;
     }
 
-    /// # Each children has a parent
+    /// ## Post Genesis
 
-    spec schema ChildHasParent {
-        /// > TODO(wrwg): this property currently causes timeouts/long running verification for multiple
-        /// > functions in this module. Investigate why.
-        invariant module true /*forall a: address: spec_child_has_parent(a)*/;
-    }
     spec module {
-        apply ChildHasParent to *, *<CoinType>;
+        /// `VASPOperationsResource` is published under the LibraRoot address after genesis.
+        invariant [global, isolated]
+            LibraTimestamp::is_operating() ==>
+                exists<VASPOperationsResource>(CoreAddresses::LIBRA_ROOT_ADDRESS());
+    }
 
-        /// Returns true if the `addr`, when a ChildVASP, has a ParentVASP.
-        define spec_child_has_parent(addr: address): bool {
-            spec_is_child_vasp(addr) ==> spec_is_parent_vasp(global<ChildVASP>(addr).parent_vasp_addr)
-        }
+    /// # Existence of Parents
+
+    spec module {
+        /* TODO: reactivate when termination problem is solved.
+        invariant [global]
+            forall child_addr: address where is_child(child_addr):
+                is_parent(global<ChildVASP>(child_addr).parent_vasp_addr);
+        */
     }
 
 
-    /// ## Privileges
+    /// ## Mutation
 
     /// Only a parent VASP calling publish_child_vast_credential can create
     /// child VASP.
@@ -273,6 +256,7 @@ module VASP {
         ensures forall a: address : exists<ChildVASP>(a) == old(exists<ChildVASP>(a));
     }
     spec module {
+        /// TODO(wrwg): this should be replaced by a modifies clause
         apply ChildVASPsDontChange to *<T>, * except
             publish_child_vasp_credential;
     }
@@ -288,11 +272,12 @@ module VASP {
 
     spec schema NumChildrenRemainsSame {
         ensures forall parent: address
-            where old(spec_is_parent_vasp(parent)):
+            where old(is_parent(parent)):
                 old(spec_get_num_children(parent)) == spec_get_num_children(parent);
     }
 
     spec module {
+        /// TODO(wrwg): this should be replaced by a modifies clause
         apply NumChildrenRemainsSame to * except publish_child_vasp_credential;
 
         /// Returns the number of children under `parent`.
@@ -303,48 +288,11 @@ module VASP {
 
     /// ## Parent does not change
 
-    spec schema ParentRemainsSame {
-        ensures forall child_addr: address
-            where old(spec_is_child_vasp(child_addr)):
-                old(spec_parent_address(child_addr)) == spec_parent_address(child_addr);
-    }
-
     spec module {
-        apply ParentRemainsSame to *;
+        invariant update [global]
+            forall a: address where is_child(a): spec_parent_address(a) == old(spec_parent_address(a));
     }
 
-    /*
-
-    /// ## Aborts conditions shared between functions.
-
-    spec schema AbortsIfNotVASP {
-        addr: address;
-        aborts_if [export] !spec_is_vasp(addr);
-    }
-
-    spec module {
-        apply AbortsIfNotVASP to parent_address, num_children;
-    }
-
-    spec schema AbortsIfParentIsNotParentVASP {
-        addr: address;
-        aborts_if [export] !spec_is_parent_vasp(spec_parent_address(addr));
-    }
-
-    spec module {
-        apply AbortsIfParentIsNotParentVASP to num_children;
-    }
-
-    /// ## The VASPOperationsResource should be published under the LibraRoot address after genesis
-    spec module {
-        define spec_is_published(): bool {
-            exists<VASPOperationsResource>(CoreAddresses::SPEC_LIBRA_ROOT_ADDRESS())
-        }
-
-        invariant !LibraTimestamp::spec_is_genesis() ==> spec_is_published();
-    }
-
-    */
 }
 
 }

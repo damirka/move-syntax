@@ -129,14 +129,14 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#address_literal" },
-                { "include": "#as" },
+                { "include": "#as-import" },
                 {
                     "comment": "Module members",
                     "begin": "{",
                     "end": "}",
                     "patterns": [
                         { "include": "#comments" },
-                        { "include": "#as" },
+                        { "include": "#as-import" },
                         {
                             "comment": "Uppercase entities",
                             "match": "\\b(\\w+)\\b",
@@ -405,10 +405,15 @@
             "name": "keyword.control.move"
         },
 
+        "as-import": {
+            "comment": "Keyword as in import statement",
+            "match": "\\b(as)\\b"
+        },
+
         "as": {
             "comment": "Keyword as",
             "match": "\\b(as)\\b",
-            "name": "keyword.operator.as.move"
+            "name": "keyword.control.move"
         },
 
         "mut": {
