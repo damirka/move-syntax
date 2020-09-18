@@ -6,9 +6,6 @@ module AccountLimits {
     use 0x1::Roles;
     use 0x1::Signer;
 
-    spec module {
-        pragma verify;
-    }
     /// An operations capability that restricts callers of this module since
     /// the operations can mutate account states.
     resource struct AccountLimitMutationCapability { }
@@ -283,7 +280,7 @@ module AccountLimits {
     spec schema ResetWindowAbortsIf<CoinType> {
         window: Window<CoinType>;
         limits_definition: LimitsDefinition<CoinType>;
-        include LibraTimestamp::AbortsIfNoTime;
+        include LibraTimestamp::AbortsIfNotOperating;
         aborts_if window.window_start + limits_definition.time_period > max_u64();
     }
     spec schema ResetWindowEnsures<CoinType> {
@@ -496,7 +493,7 @@ module AccountLimits {
     }
 
     fun current_time(): u64 {
-        if (LibraTimestamp::is_not_initialized()) 0 else LibraTimestamp::now_microseconds()
+        if (LibraTimestamp::is_genesis()) 0 else LibraTimestamp::now_microseconds()
     }
 }
 }

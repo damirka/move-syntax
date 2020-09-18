@@ -61,7 +61,7 @@ module RegisteredCurrencies {
         include LibraConfig::SetAbortsIf<RegisteredCurrencies>{ account: lr_account };
         /// The same currency code can be only added once.
         aborts_if Vector::spec_contains(
-            LibraConfig::spec_get<RegisteredCurrencies>().currency_codes,
+            LibraConfig::get<RegisteredCurrencies>().currency_codes,
             currency_code
         ) with Errors::INVALID_ARGUMENT;
     }
@@ -75,11 +75,9 @@ module RegisteredCurrencies {
     // **************** Global Specification ****************
 
     spec module {
-        pragma verify = true;
-
         /// Helper to get the currency code vector.
         define get_currency_codes(): vector<vector<u8>> {
-            LibraConfig::spec_get<RegisteredCurrencies>().currency_codes
+            LibraConfig::get<RegisteredCurrencies>().currency_codes
         }
 
         /// Global invariant that currency config is always available after genesis.

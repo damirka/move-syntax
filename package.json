@@ -190,7 +190,7 @@
 		}
 	},
 	"move-executor": {
-		"version": "0.9.6",
+		"version": "0.9.5",
 		"repository": "dfinance/move-tools",
 		"binaries": {
 			"win32": "move-executor-win32.exe",
