@@ -2,6 +2,11 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.4.2 - Rollback executor cli to 0.9.5
+
+- rollback executor, keep mls to latest
+- Libra std update
+
 ## v0.4.1 - Fix duplicates in autocompletion
 
 - keyword `as` is highlighted in function body
