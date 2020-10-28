@@ -23,6 +23,8 @@ module SlidingNonce {
     const ENONCE_TOO_NEW: u64 = 2;
     /// The nonce was already recorded previously
     const ENONCE_ALREADY_RECORDED: u64 = 3;
+    /// The sliding nonce resource was already published
+    const ENONCE_ALREADY_PUBLISHED: u64 = 4;
 
     /// Size of SlidingNonce::nonce_mask in bits.
     const NONCE_MASK_SIZE: u64 = 128;
@@ -80,7 +82,6 @@ module SlidingNonce {
     }
 
     spec fun try_record_nonce {
-        /// > TODO: turn verify on when we are ready to specify this function.
         /// It is currently assumed that this function raises no arithmetic overflow/underflow.
         pragma opaque, verify = false;
         ensures result == spec_try_record_nonce(account, seq_nonce);
@@ -93,6 +94,7 @@ module SlidingNonce {
     /// Publishes nonce resource for `account`
     /// This is required before other functions in this module can be called for `account
     public fun publish(account: &signer) {
+        assert(!exists<SlidingNonce>(Signer::address_of(account)), Errors::invalid_argument(ENONCE_ALREADY_PUBLISHED));
         move_to(account, SlidingNonce {  min_nonce: 0, nonce_mask: 0 });
     }
 
@@ -107,7 +109,9 @@ module SlidingNonce {
             min_nonce: 0,
             nonce_mask: 0,
         };
-        move_to(account, new_resource)
+        assert(!exists<SlidingNonce>(Signer::address_of(account)),
+                Errors::invalid_argument(ENONCE_ALREADY_PUBLISHED));
+        move_to(account, new_resource);
     }
 
 }

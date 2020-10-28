@@ -1,5 +1,6 @@
 address 0x1 {
 
+/// Module managing dual attestation.
 module DualAttestation {
     use 0x1::CoreAddresses;
     use 0x1::Errors;
@@ -111,10 +112,13 @@ module DualAttestation {
         })
     }
     spec fun publish_credential {
-        /// The permission "RotateDualAttestationInfo" is granted to ParentVASP and DesignatedDealer [B25].
+        /// The permission "RotateDualAttestationInfo" is granted to ParentVASP and DesignatedDealer [[H15]][PERMISSION].
         include Roles::AbortsIfNotParentVaspOrDesignatedDealer{account: created};
         include Roles::AbortsIfNotTreasuryCompliance{account: creator};
-        aborts_if exists<Credential>(Signer::spec_address_of(created)) with Errors::ALREADY_PUBLISHED;
+        aborts_if spec_has_credential(Signer::spec_address_of(created)) with Errors::ALREADY_PUBLISHED;
+    }
+    spec define spec_has_credential(addr: address): bool {
+        exists<Credential>(addr)
     }
 
     /// Rotate the base URL for `account` to `new_url`
@@ -129,21 +133,31 @@ module DualAttestation {
         });
     }
     spec fun rotate_base_url {
+        include RotateBaseUrlAbortsIf;
+        include RotateBaseUrlEnsures;
+    }
+    spec schema RotateBaseUrlAbortsIf {
+        account: signer;
         let sender = Signer::spec_address_of(account);
 
-        /// Must abort if the account does not have the resource Credential [B25].
+        /// Must abort if the account does not have the resource Credential [[H15]][PERMISSION].
         include AbortsIfNoCredential{addr: sender};
 
         include LibraTimestamp::AbortsIfNotOperating;
-        ensures global<Credential>(sender).base_url == new_url;
-
-        /// The sender can only rotate its own base url [B25].
-        ensures forall addr:address where addr != sender:
-            global<Credential>(addr).base_url == old(global<Credential>(addr).base_url);
     }
     spec schema AbortsIfNoCredential {
         addr: address;
-        aborts_if !exists<Credential>(addr) with Errors::NOT_PUBLISHED;
+        aborts_if !spec_has_credential(addr) with Errors::NOT_PUBLISHED;
+    }
+    spec schema RotateBaseUrlEnsures {
+        account: signer;
+        new_url: vector<u8>;
+        let sender = Signer::spec_address_of(account);
+
+        ensures global<Credential>(sender).base_url == new_url;
+        /// The sender can only rotate its own base url [[H15]][PERMISSION].
+        ensures forall addr1:address where addr1 != sender:
+            global<Credential>(addr1).base_url == old(global<Credential>(addr1).base_url);
     }
 
     /// Rotate the compliance public key for `account` to `new_key`.
@@ -163,17 +177,29 @@ module DualAttestation {
 
     }
     spec fun rotate_compliance_public_key {
-        let sender = Signer::spec_address_of(account);
+        include RotateCompliancePublicKeyAbortsIf;
+        include RotateCompliancePublicKeyEnsures;
+    }
+    spec schema RotateCompliancePublicKeyAbortsIf {
+        account: signer;
+        new_key: vector<u8>;
 
-        /// Must abort if the account does not have the resource Credential [B25].
+        let sender = Signer::spec_address_of(account);
+        /// Must abort if the account does not have the resource Credential [[H15]][PERMISSION].
         include AbortsIfNoCredential{addr: sender};
 
         include LibraTimestamp::AbortsIfNotOperating;
         aborts_if !Signature::ed25519_validate_pubkey(new_key) with Errors::INVALID_ARGUMENT;
+    }
+    spec schema RotateCompliancePublicKeyEnsures {
+        account: signer;
+        new_key: vector<u8>;
+
+        let sender = Signer::spec_address_of(account);
         ensures global<Credential>(sender).compliance_public_key == new_key;
-        /// The sender only rotates its own compliance_public_key [B25].
-        ensures forall addr:address where addr != sender:
-            global<Credential>(addr).compliance_public_key == old(global<Credential>(addr).compliance_public_key);
+        /// The sender only rotates its own compliance_public_key [[H15]][PERMISSION].
+        ensures forall addr1: address where addr1 != sender:
+            global<Credential>(addr1).compliance_public_key == old(global<Credential>(addr1).compliance_public_key);
     }
 
     /// Return the human-readable name for the VASP account.
@@ -279,20 +305,18 @@ module DualAttestation {
         include Libra::ApproxLbrForValueAbortsIf<Token>{from_value: deposit_value};
         aborts_if !spec_is_published() with Errors::NOT_PUBLISHED;
     }
-    spec module {
-        define spec_is_inter_vasp(payer: address, payee: address): bool {
-            VASP::is_vasp(payer) && VASP::is_vasp(payee)
-                && VASP::spec_parent_address(payer) != VASP::spec_parent_address(payee)
-        }
-        /// Helper functions which simulates `Self::dual_attestation_required`.
-        define spec_dual_attestation_required<Token>(
-            payer: address, payee: address, deposit_value: u64
-        ): bool {
-            Libra::spec_approx_lbr_for_value<Token>(deposit_value)
+    spec define spec_is_inter_vasp(payer: address, payee: address): bool {
+        VASP::is_vasp(payer) && VASP::is_vasp(payee)
+            && VASP::spec_parent_address(payer) != VASP::spec_parent_address(payee)
+    }
+    /// Helper functions which simulates `Self::dual_attestation_required`.
+    spec define spec_dual_attestation_required<Token>(
+        payer: address, payee: address, deposit_value: u64
+    ): bool {
+        Libra::spec_approx_lbr_for_value<Token>(deposit_value)
                     >= spec_get_cur_microlibra_limit() &&
-            payer != payee &&
-            spec_is_inter_vasp(payer, payee)
-        }
+        payer != payee &&
+        spec_is_inter_vasp(payer, payee)
     }
 
     /// Helper to construct a message for dual attestation.
@@ -311,11 +335,12 @@ module DualAttestation {
         /// are difficult to reason about, so we avoid doing it. This is possible because the actual value of this
         /// message is not important for the verification problem, as long as the prover considers both
         /// messages which fail verification and which do not.
-        pragma opaque = true, verify = false;
+        pragma opaque;
         aborts_if false;
-        ensures result == spec_dual_attestation_message(payer, metadata, deposit_value);
+        ensures [abstract] result == spec_dual_attestation_message(payer, metadata, deposit_value);
     }
-    /// Uninterpreted function for `Self::dual_attestation_message`.
+    /// Uninterpreted function for `Self::dual_attestation_message`. The actual value does not matter for
+    /// the verification of callers.
     spec define spec_dual_attestation_message(payer: address, metadata: vector<u8>, deposit_value: u64): vector<u8>;
 
     /// Helper function to check validity of a signature when dual attestion is required.
@@ -354,7 +379,7 @@ module DualAttestation {
         metadata_signature: vector<u8>;
         metadata: vector<u8>;
         deposit_value: u64;
-        aborts_if !exists<Credential>(spec_credential_address(payee)) with Errors::NOT_PUBLISHED;
+        include AbortsIfNoCredential{addr: spec_credential_address(payee)};
         aborts_if Vector::is_empty(spec_compliance_public_key(spec_credential_address(payee))) with Errors::INVALID_STATE;
         aborts_if !spec_signature_is_valid(payer, payee, metadata_signature, metadata, deposit_value)
             with Errors::INVALID_ARGUMENT;
@@ -460,7 +485,7 @@ module DualAttestation {
         borrow_global_mut<Limit>(CoreAddresses::LIBRA_ROOT_ADDRESS()).micro_lbr_limit = micro_lbr_limit;
     }
     spec fun set_microlibra_limit {
-        /// Must abort if the signer does not have the TreasuryCompliance role [B15].
+        /// Must abort if the signer does not have the TreasuryCompliance role [[H5]][PERMISSION].
         /// The permission UpdateDualAttestationLimit is granted to TreasuryCompliance.
         include Roles::AbortsIfNotTreasuryCompliance{account: tc_account};
 
@@ -469,12 +494,16 @@ module DualAttestation {
     }
 
     // **************************** SPECIFICATION ********************************
+    spec module {} // switch documentation context back to module level
+
+    /// # Initialization
 
     /// The Limit resource should be published after genesis
     spec module {
         invariant [global] LibraTimestamp::is_operating() ==> spec_is_published();
     }
 
+    /// # Helper Functions
     spec module {
         /// Helper function to determine whether the Limit is published.
         define spec_is_published(): bool {
@@ -487,7 +516,35 @@ module DualAttestation {
         }
     }
 
-    /// Only set_microlibra_limit can change the limit [B15].
+    /// # Access Control
+
+    spec schema PreserveCredentialExistence {
+        /// The existence of Preburn is preserved.
+        ensures forall addr1: address:
+            old(spec_has_credential(addr1)) ==>
+                spec_has_credential(addr1);
+    }
+    spec schema PreserveCredentialAbsence {
+        /// The absence of Preburn is preserved.
+        ensures forall addr1: address:
+            old(!spec_has_credential(addr1)) ==>
+                !spec_has_credential(addr1);
+    }
+    spec module {
+        /// The permission "RotateDualAttestationInfo(addr)" is not transferred [[J15]][PERMISSION].
+        apply PreserveCredentialExistence to *;
+
+        /// The permission "RotateDualAttestationInfo(addr)" is only granted to ParentVASP or DD [[H15]][PERMISSION].
+        /// "Credential" resources are only published under ParentVASP or DD accounts.
+        apply PreserveCredentialAbsence to * except publish_credential;
+        apply Roles::AbortsIfNotParentVaspOrDesignatedDealer{account: created} to publish_credential;
+        invariant [global] forall addr1: address:
+            spec_has_credential(addr1) ==>
+                (Roles::spec_has_parent_VASP_role_addr(addr1) ||
+                Roles::spec_has_designated_dealer_role_addr(addr1));
+    }
+
+    /// Only set_microlibra_limit can change the limit [[H5]][PERMISSION].
     spec schema DualAttestationLimitRemainsSame {
         /// The DualAttestation limit stays constant.
         ensures old(spec_is_published())
@@ -497,20 +554,20 @@ module DualAttestation {
         apply DualAttestationLimitRemainsSame to * except set_microlibra_limit;
     }
 
-    /// Only rotate_compliance_public_key can rotate the compliance public key [B25].
+    /// Only rotate_compliance_public_key can rotate the compliance public key [[H15]][PERMISSION].
     spec schema CompliancePublicKeyRemainsSame {
         /// The compliance public key stays constant.
-        ensures forall addr1: address where old(exists<Credential>(addr1)):
+        ensures forall addr1: address where old(spec_has_credential(addr1)):
             global<Credential>(addr1).compliance_public_key == old(global<Credential>(addr1).compliance_public_key);
     }
     spec module {
         apply CompliancePublicKeyRemainsSame to * except rotate_compliance_public_key;
     }
 
-    /// Only rotate_base_url can rotate the base url [B25].
+    /// Only rotate_base_url can rotate the base url [[H15]][PERMISSION].
     spec schema BaseURLRemainsSame {
         /// The base url stays constant.
-        ensures forall addr1: address where old(exists<Credential>(addr1)):
+        ensures forall addr1: address where old(spec_has_credential(addr1)):
             global<Credential>(addr1).base_url == old(global<Credential>(addr1).base_url);
     }
     spec module {

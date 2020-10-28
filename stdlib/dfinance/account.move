@@ -129,6 +129,7 @@ module Account {
 
         // add event as sent into account
         Event::emit<SentPaymentEvent>(
+            sender,
             SentPaymentEvent {
                 amount, // u64 can be copied
                 payee,
@@ -152,6 +153,7 @@ module Account {
         Dfinance::deposit(&mut payee_balance.coin, to_deposit);
         // update payee's account with new event
         Event::emit<ReceivedPaymentEvent>(
+            sender,
             ReceivedPaymentEvent {
                 amount,
                 denom,

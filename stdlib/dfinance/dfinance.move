@@ -6,6 +6,7 @@ address 0x1 {
 module Dfinance {
 
     use 0x1::Signer;
+    use 0x1::Event;
 
     resource struct T<Coin> {
         value: u128
@@ -50,29 +51,9 @@ module Dfinance {
         T { value: amount }
     }
 
-
-    /// Work in progress. Make it public when register_token_info becomes native.
-    /// Made private on purpose not to make a hole in chain security, though :resource
-    /// constraint kinda-does the job and won't allow users to mint new 'real' coins
-    public fun tokenize<Token: resource>(account: &signer, total_supply: u128, decimals: u8, denom: vector<u8>): T<Token> {
-
-        let owner = Signer::address_of(account);
-
-        // check if this token has never been registered
-        assert(!exists<Info<Token>>(0x1), 1);
-
-        let info = Info {denom, decimals, owner, total_supply, is_token: true };
-        register_token_info<Token>(info);
-
-        T<Token> { value: total_supply }
-    }
-
-    /// Created Info resource must be attached to 0x1 address.
-    /// Keeping this public until native function is ready.
-    fun register_token_info<Coin: resource>(info: Info<Coin>) {
-        let sig = create_signer(0x1);
-        move_to<Info<Coin>>(&sig, info);
-        destroy_signer(sig);
+    public fun destroy_zero<Coin>(coin: T<Coin>) {
+        let T { value } = coin;
+        assert(value == 0, 11)
     }
 
     /// Working with CoinInfo - coin registration procedure, 0x1 account used
@@ -127,8 +108,72 @@ module Dfinance {
         assert(Signer::address_of(account) == 0x1, 1);
     }
 
-    native fun create_signer(addr: address): signer;
+    const DECIMALS_MIN : u8 = 0;
+    const DECIMALS_MAX : u8 = 18;
 
+    /// Token resource. Must be used with custom token type. Which means
+    /// that first token creator must deploy a token module which will have
+    /// empty type in it which should be then passed as type argument
+    /// into Token::initialize() method.
+    resource struct Token<Tok: copyable> {}
+
+    /// This is the event data for TokenCreated event which can only be fired
+    /// from this module, from Token::initialize() method.
+    struct TokenCreatedEvent<Tok> {
+        creator: address,
+        total_supply: u128,
+        denom: vector<u8>,
+        decimals: u8
+    }
+
+    /// Initialize token. For this method to work user must provide custom
+    /// resource type which he had previously created within his own module.
+    public fun create_token<Tok: copyable>(
+        account: &signer,
+        total_supply: u128,
+        decimals: u8,
+        denom: vector<u8>
+    ): T<Token<Tok>> {
+
+        // check if this token has never been registered
+        assert(!exists<Info<Token<Tok>>>(0x1), 1);
+
+        // no more than DECIMALS MAX is allowed
+        assert(decimals >= DECIMALS_MIN && decimals <= DECIMALS_MAX, 20);
+
+        let owner = Signer::address_of(account);
+
+        register_token_info<Token<Tok>>(Info {
+            denom: copy denom,
+            decimals,
+            owner,
+            total_supply,
+            is_token: true
+        });
+
+        // finally fire the TokenEmitted event
+        Event::emit<TokenCreatedEvent<Tok>>(
+            account,
+            TokenCreatedEvent {
+                creator: owner,
+                total_supply,
+                decimals,
+                denom
+            }
+        );
+
+        T<Token<Tok>> { value: total_supply }
+    }
+
+    /// Created Info resource must be attached to 0x1 address.
+    /// Keeping this public until native function is ready.
+    fun register_token_info<Coin: resource>(info: Info<Coin>) {
+        let sig = create_signer(0x1);
+        move_to<Info<Coin>>(&sig, info);
+        destroy_signer(sig);
+    }
+
+    native fun create_signer(addr: address): signer;
     native fun destroy_signer(sig: signer);
 }
 }

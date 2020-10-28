@@ -1,8 +1,7 @@
 address 0x1 {
 
-/// Move representation of the authenticator types used in Libra:
-/// - Ed25519 (single-sig)
-/// - MultiEd25519 (K-of-N multisig)
+/// Move representation of the authenticator types used in Libra. The supported types are Ed25519 (single-sig)
+/// and MultiEd25519 (K-of-N multisig).
 module Authenticator {
     use 0x1::Errors;
     use 0x1::Hash;
@@ -41,7 +40,7 @@ module Authenticator {
         public_keys: vector<vector<u8>>,
         threshold: u8
     ): MultiEd25519PublicKey {
-        // check theshold requirements
+        // check threshold requirements
         let len = Vector::length(&public_keys);
         assert(threshold != 0, Errors::invalid_argument(EZERO_THRESHOLD));
         assert(
@@ -62,6 +61,14 @@ module Authenticator {
         Vector::push_back(&mut public_key, SINGLE_ED25519_SCHEME_ID);
         Hash::sha3_256(public_key)
     }
+    spec fun ed25519_authentication_key {
+        pragma opaque = true;
+        aborts_if false;
+        ensures [abstract] result == spec_ed25519_authentication_key(public_key);
+    }
+    /// We use an uninterpreted function to represent the result of key construction. The actual value
+    /// does not matter for the verification of callers.
+    spec define spec_ed25519_authentication_key(public_key: vector<u8>): vector<u8>;
 
     /// Compute a multied25519 account authentication key for the policy `k`
     public fun multi_ed25519_authentication_key(k: &MultiEd25519PublicKey): vector<u8> {
@@ -81,6 +88,13 @@ module Authenticator {
         Vector::push_back(&mut authentication_key_preimage, MULTI_ED25519_SCHEME_ID);
         Hash::sha3_256(authentication_key_preimage)
     }
+    spec fun multi_ed25519_authentication_key {
+        aborts_if false;
+        ensures [abstract] result == spec_multi_ed25519_authentication_key(k);
+    }
+    /// We use an uninterpreted function to represent the result of key construction. The actual value
+    /// does not matter for the verification of callers.
+    spec define spec_multi_ed25519_authentication_key(k: MultiEd25519PublicKey): vector<u8>;
 
     /// Return the public keys involved in the multisig policy `k`
     public fun public_keys(k: &MultiEd25519PublicKey): &vector<vector<u8>> {

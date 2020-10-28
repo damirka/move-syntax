@@ -1,4 +1,6 @@
 address 0x1 {
+
+/// Module which manages freezing of accounts.
 module AccountFreezing {
     use 0x1::Event::{Self, EventHandle};
     use 0x1::Errors;
@@ -156,7 +158,46 @@ module AccountFreezing {
         aborts_if spec_account_is_frozen(account) with Errors::INVALID_STATE;
     }
 
+
+    // =================================================================
+    // Module Specification
+
+    spec module {} // Switch to module documentation context
+
+    /// # Initialization
     spec module {
+        /// `FreezeEventsHolder` always exists after genesis.
+        invariant [global] LibraTimestamp::is_operating() ==>
+            exists<FreezeEventsHolder>(CoreAddresses::LIBRA_ROOT_ADDRESS());
+    }
+
+    /// # Access Control
+    spec module {
+        /// The account of LibraRoot is not freezable [[F1]][ROLE].
+        /// After genesis, FreezingBit of LibraRoot is always false.
+        invariant [global] LibraTimestamp::is_operating() ==>
+            spec_account_is_not_frozen(CoreAddresses::LIBRA_ROOT_ADDRESS());
+
+        /// The account of TreasuryCompliance is not freezable [[F2]][ROLE].
+        /// After genesis, FreezingBit of TreasuryCompliance is always false.
+        invariant [global] LibraTimestamp::is_operating() ==>
+            spec_account_is_not_frozen(CoreAddresses::TREASURY_COMPLIANCE_ADDRESS());
+
+        /// The permission "{Freeze,Unfreeze}Account" is granted to TreasuryCompliance only [[H6]][PERMISSION].
+        apply Roles::AbortsIfNotTreasuryCompliance to freeze_account, unfreeze_account;
+
+        /// Only (un)freeze functions can change the freezing bits of accounts [[H6]][PERMISSION].
+        apply FreezingBitRemainsSame to * except freeze_account, unfreeze_account;
+    }
+
+    spec schema FreezingBitRemainsSame {
+        ensures forall a: address where old(exists<FreezingBit>(a)):
+            global<FreezingBit>(a).is_frozen == old(global<FreezingBit>(a).is_frozen);
+    }
+
+    /// # Helper Functions
+    spec module {
+
         define spec_account_is_frozen(addr: address): bool {
             exists<FreezingBit>(addr) && global<FreezingBit>(addr).is_frozen
         }
@@ -164,38 +205,7 @@ module AccountFreezing {
         define spec_account_is_not_frozen(addr: address): bool {
             exists<FreezingBit>(addr) && !global<FreezingBit>(addr).is_frozen
         }
-
-        /// FreezeEventsHolder always exists after genesis.
-        invariant [global] LibraTimestamp::is_operating() ==>
-            exists<FreezeEventsHolder>(CoreAddresses::LIBRA_ROOT_ADDRESS());
-
-        /// The account of LibraRoot is not freezable [G2].
-        /// After genesis, FreezingBit of LibraRoot is always false.
-        invariant [global] LibraTimestamp::is_operating() ==>
-            spec_account_is_not_frozen(CoreAddresses::LIBRA_ROOT_ADDRESS());
-
-        /// The account of TreasuryCompliance is not freezable [G3].
-        /// After genesis, FreezingBit of TreasuryCompliance is always false.
-        invariant [global] LibraTimestamp::is_operating() ==>
-            spec_account_is_not_frozen(CoreAddresses::TREASURY_COMPLIANCE_ADDRESS());
-
-        /// The permission "{Freeze,Unfreeze}Account" is granted to TreasuryCompliance [B16].
-        apply Roles::AbortsIfNotTreasuryCompliance to freeze_account, unfreeze_account;
-
-        // TODO: Need to decide the freezability of the roles such as Validator, ValidatorOperator, DesginatedDealer.
     }
-
-    spec schema FreezingBitRemainsSame {
-        /// The freezing bit stays constant.
-        ensures forall a: address where old(exists<FreezingBit>(a)):
-            global<FreezingBit>(a).is_frozen == old(global<FreezingBit>(a).is_frozen);
-    }
-
-    spec module {
-        /// only (un)freeze functions can change the freezing bits of accounts [B16].
-        apply FreezingBitRemainsSame to * except freeze_account, unfreeze_account;
-    }
-
 
 }
 }

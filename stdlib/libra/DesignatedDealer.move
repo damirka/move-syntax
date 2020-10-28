@@ -1,4 +1,6 @@
 address 0x1 {
+
+/// Module providing functionality for designated dealers.
 module DesignatedDealer {
     use 0x1::Errors;
     use 0x1::Libra;
@@ -8,7 +10,6 @@ module DesignatedDealer {
     use 0x1::Roles;
     use 0x1::Signer;
     use 0x1::Coin1::Coin1;
-    use 0x1::Coin2::Coin2;
 
     /// A `DesignatedDealer` always holds this `Dealer` resource regardless of the
     /// currencies it can hold. All `ReceivedMintEvent` events for all
@@ -35,13 +36,11 @@ module DesignatedDealer {
         tiers: vector<u64>,
     }
     spec struct TierInfo {
+        /// The number of tiers is limited.
         invariant len(tiers) <= MAX_NUM_TIERS;
-        invariant forall i in 0..len(tiers), j in 0..len(tiers) where i < j: tiers[i] < tiers[j];
-    }
 
-    spec schema AbortsIfNoTierInfo<CoinType> {
-        dd_addr: address;
-        aborts_if !exists<TierInfo<CoinType>>(dd_addr) with Errors::NOT_PUBLISHED;
+        /// Tiers are ordered.
+        invariant forall i in 0..len(tiers), j in 0..len(tiers) where i < j: tiers[i] < tiers[j];
     }
 
     /// Message for mint events
@@ -98,7 +97,6 @@ module DesignatedDealer {
         move_to(dd, Dealer { mint_event_handle: Event::new_event_handle<ReceivedMintEvent>(dd) });
         if (add_all_currencies) {
             add_currency<Coin1>(dd, tc_account);
-            add_currency<Coin2>(dd, tc_account);
         } else {
             add_currency<CoinType>(dd, tc_account);
         };
@@ -111,14 +109,13 @@ module DesignatedDealer {
         include Roles::AbortsIfNotTreasuryCompliance{account: tc_account};
         include Roles::AbortsIfNotDesignatedDealer{account: dd};
         aborts_if exists<Dealer>(dd_addr) with Errors::ALREADY_PUBLISHED;
-        include if (add_all_currencies)
-                    AddCurrencyAbortsIf<Coin1>{dd_addr: dd_addr} && AddCurrencyAbortsIf<Coin2>{dd_addr: dd_addr}
+        include if (add_all_currencies) AddCurrencyAbortsIf<Coin1>{dd_addr: dd_addr}
                 else AddCurrencyAbortsIf<CoinType>{dd_addr: dd_addr};
 
         modifies global<Dealer>(dd_addr);
         ensures exists<Dealer>(dd_addr);
-        modifies global<TierInfo<CoinType>>(dd_addr), global<TierInfo<Coin1>>(dd_addr), global<TierInfo<Coin2>>(dd_addr);
-        ensures if (add_all_currencies) exists<TierInfo<Coin1>>(dd_addr) && exists<TierInfo<Coin2>>(dd_addr) else exists<TierInfo<CoinType>>(dd_addr);
+        modifies global<TierInfo<CoinType>>(dd_addr), global<TierInfo<Coin1>>(dd_addr);
+        ensures if (add_all_currencies) exists<TierInfo<Coin1>>(dd_addr) else exists<TierInfo<CoinType>>(dd_addr);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -212,6 +209,11 @@ module DesignatedDealer {
                 tiers: concat_vector(old(global<TierInfo<CoinType>>(dd_addr)).tiers, singleton_vector(tier_upperbound)),
             };
     }
+    spec schema AbortsIfNoTierInfo<CoinType> {
+        dd_addr: address;
+        aborts_if !exists<TierInfo<CoinType>>(dd_addr) with Errors::NOT_PUBLISHED;
+    }
+
 
     public fun update_tier<CoinType>(
         tc_account: &signer,
@@ -368,6 +370,18 @@ module DesignatedDealer {
             tier_info.window_start = current_time;
             tier_info.window_inflow = 0;
         }
+    }
+    spec fun reset_window {
+        pragma opaque;
+        include LibraTimestamp::AbortsIfNotOperating;
+        let current_time = LibraTimestamp::spec_now_microseconds();
+        ensures
+            if (current_time > ONE_DAY && current_time - ONE_DAY > old(tier_info).window_start)
+                tier_info == update_field(update_field(old(tier_info),
+                    window_start, current_time),
+                    window_inflow, 0)
+            else
+                tier_info == old(tier_info);
     }
 }
 }

@@ -2,6 +2,12 @@
 
 Version history from v0.2.0 to this day.
 
+## v0.4.3 - Update dependencies and stdlib
+
+- latest Libra stdlib at the moment
+- newer version of Dfinance standard library
+- MLS upgraded to 0.9.8
+
 ## v0.4.2 - Rollback executor cli to 0.9.5
 
 - rollback executor, keep mls to latest

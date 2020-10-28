@@ -44,7 +44,7 @@ module LibraTransactionPublishingOption {
         );
     }
     spec fun initialize {
-        /// Must abort if the signer does not have the LibraRoot role [B20].
+        /// Must abort if the signer does not have the LibraRoot role [[H10]][PERMISSION].
         include Roles::AbortsIfNotLibraRoot{account: lr_account};
 
         include LibraTimestamp::AbortsIfNotGenesis;
@@ -63,12 +63,26 @@ module LibraTransactionPublishingOption {
             || Vector::contains(&publish_option.script_allow_list, hash)
             || Roles::has_libra_root_role(account)
     }
+    spec fun is_script_allowed {
+        include AbortsIfNoTransactionPublishingOption;
+    }
+    spec schema AbortsIfNoTransactionPublishingOption {
+        include LibraTimestamp::is_genesis() ==> LibraConfig::AbortsIfNotPublished<LibraTransactionPublishingOption>{};
+    }
+
+    spec module {
+        invariant [global] LibraTimestamp::is_operating() ==>
+            LibraConfig::spec_is_published<LibraTransactionPublishingOption>();
+    }
 
     // Check if a sender can publish a module
     public fun is_module_allowed(account: &signer): bool {
         let publish_option = LibraConfig::get<LibraTransactionPublishingOption>();
 
         publish_option.module_publishing_allowed || Roles::has_libra_root_role(account)
+    }
+    spec fun is_module_allowed{
+        include AbortsIfNoTransactionPublishingOption;
     }
 
     // Add `new_hash` to the list of script hashes that is allowed to be executed by the network.
@@ -87,7 +101,7 @@ module LibraTransactionPublishingOption {
     }
     spec fun add_to_script_allow_list {
         pragma aborts_if_is_partial = true;
-        /// Must abort if the signer does not have the LibraRoot role [B20].
+        /// Must abort if the signer does not have the LibraRoot role [[H10]][PERMISSION].
         include Roles::AbortsIfNotLibraRoot{account: lr_account};
 
         aborts_with Errors::INVALID_STATE, Errors::INVALID_ARGUMENT, Errors::REQUIRES_CAPABILITY, Errors::NOT_PUBLISHED;
@@ -104,7 +118,7 @@ module LibraTransactionPublishingOption {
     }
     spec fun set_open_script {
         pragma aborts_if_is_partial = true;
-        /// Must abort if the signer does not have the LibraRoot role [B20].
+        /// Must abort if the signer does not have the LibraRoot role [[H10]][PERMISSION].
         include Roles::AbortsIfNotLibraRoot{account: lr_account};
 
         aborts_with Errors::INVALID_STATE, Errors::INVALID_ARGUMENT, Errors::REQUIRES_CAPABILITY, Errors::NOT_PUBLISHED;
@@ -122,7 +136,7 @@ module LibraTransactionPublishingOption {
     }
     spec fun set_open_module {
         pragma aborts_if_is_partial = true;
-        /// Must abort if the signer does not have the LibraRoot role [B20].
+        /// Must abort if the signer does not have the LibraRoot role [[H10]][PERMISSION].
         include Roles::AbortsIfNotLibraRoot{account: lr_account};
 
         aborts_with Errors::INVALID_STATE, Errors::INVALID_ARGUMENT, Errors::REQUIRES_CAPABILITY, Errors::NOT_PUBLISHED;
@@ -130,7 +144,7 @@ module LibraTransactionPublishingOption {
     }
 
     /// Only add_to_script_allow_list, set_open_script, and set_open_module can modify the
-    /// LibraTransactionPublishingOption config [B20]
+    /// LibraTransactionPublishingOption config [[H10]][PERMISSION]
     spec schema LibraVersionRemainsSame {
         ensures old(LibraConfig::spec_is_published<LibraTransactionPublishingOption>()) ==>
             global<LibraConfig<LibraTransactionPublishingOption>>(CoreAddresses::LIBRA_ROOT_ADDRESS()) ==
@@ -138,6 +152,20 @@ module LibraTransactionPublishingOption {
     }
     spec module {
         apply LibraVersionRemainsSame to * except add_to_script_allow_list, set_open_script, set_open_module;
+    }
+
+    spec module {
+        define spec_is_script_allowed(account: signer, hash: vector<u8>): bool {
+            let publish_option = LibraConfig::spec_get_config<LibraTransactionPublishingOption>();
+            Vector::is_empty(publish_option.script_allow_list)
+                || Vector::spec_contains(publish_option.script_allow_list, hash)
+                || Roles::has_libra_root_role(account)
+        }
+
+        define spec_is_module_allowed(account: signer): bool {
+            let publish_option = LibraConfig::spec_get_config<LibraTransactionPublishingOption>();
+            publish_option.module_publishing_allowed || Roles::has_libra_root_role(account)
+        }
     }
 }
 }

@@ -1,16 +1,12 @@
 address 0x1 {
-/// This module describes two things:
-///
-/// 1. The relationship between roles, e.g. Role_A can creates accounts of Role_B
-/// It is important to note here that this module _does not_ describe the
-/// privileges that a specific role can have. This is a property of each of
-/// the modules that declares a privilege.
-///
-/// Roles are defined to be completely opaque outside of this module --
-/// all operations should be guarded by privilege checks, and not by role
-/// checks. Each role comes with a default privilege.
-///
 
+/// This module defines role-based access control for the Libra framework.
+///
+/// Roles are associated with accounts and govern what operations are permitted by those accounts. A role
+/// is typically asserted on function entry using a statement like `Self::assert_libra_root(account)`. This
+/// module provides multiple assertion functions like this one, as well as the functions to setup roles.
+///
+/// For a conceptual discussion of roles, see the [LIP-2 document][ACCESS_CONTROL].
 module Roles {
     use 0x1::Signer;
     use 0x1::CoreAddresses;
@@ -54,18 +50,16 @@ module Roles {
         role_id: u64,
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // ROLE GRANTING
-    ///////////////////////////////////////////////////////////////////////////
+    // =============
+    // Role Granting
 
-    /// Granted in genesis. So there cannot be any pre-existing privileges
-    /// and roles. This is _not_ called from within LibraAccount -- these
-    /// privileges need to be created before accounts can be made
-    /// (specifically, initialization of currency)
+    /// Publishes libra root role. Granted only in genesis.
     public fun grant_libra_root_role(
         lr_account: &signer,
     ) {
         LibraTimestamp::assert_genesis();
+        // Checks actual Libra root because Libra root role is not set
+        // until next line of code.
         CoreAddresses::assert_libra_root(lr_account);
         // Grant the role to the libra root account
         grant_role(lr_account, LIBRA_ROOT_ROLE_ID);
@@ -73,12 +67,10 @@ module Roles {
     spec fun grant_libra_root_role {
         include LibraTimestamp::AbortsIfNotGenesis;
         include CoreAddresses::AbortsIfNotLibraRoot{account: lr_account};
-        include GrantRole{account: lr_account, role_id: LIBRA_ROOT_ROLE_ID};
+        include GrantRole{addr: Signer::address_of(lr_account), role_id: LIBRA_ROOT_ROLE_ID};
     }
 
-    /// NB: currency-related privileges are defined in the `Libra` module.
-    /// Granted in genesis. So there cannot be any pre-existing privileges
-    /// and roles.
+    /// Publishes treasury compliance role. Granted only in genesis.
     public fun grant_treasury_compliance_role(
         treasury_compliance_account: &signer,
         lr_account: &signer,
@@ -93,16 +85,11 @@ module Roles {
         include LibraTimestamp::AbortsIfNotGenesis;
         include CoreAddresses::AbortsIfNotTreasuryCompliance{account: treasury_compliance_account};
         include AbortsIfNotLibraRoot{account: lr_account};
-        include GrantRole{account: treasury_compliance_account, role_id: TREASURY_COMPLIANCE_ROLE_ID};
+        include GrantRole{addr: Signer::address_of(treasury_compliance_account), role_id: TREASURY_COMPLIANCE_ROLE_ID};
     }
 
-    /// Generic new role creation (for role ids != LIBRA_ROOT_ROLE_ID
-    /// and TREASURY_COMPLIANCE_ROLE_ID).
-    ///
-    /// TODO: There is some common code here that can be factored out.
-    ///
-    /// Publish a DesignatedDealer `RoleId` under `new_account`.
-    /// The `creating_account` must be TreasuryCompliance
+    /// Publishes a DesignatedDealer `RoleId` under `new_account`.
+    /// The `creating_account` must be treasury compliance.
     public fun new_designated_dealer_role(
         creating_account: &signer,
         new_account: &signer,
@@ -112,11 +99,11 @@ module Roles {
     }
     spec fun new_designated_dealer_role {
         include AbortsIfNotTreasuryCompliance{account: creating_account};
-        include GrantRole{account: new_account, role_id: DESIGNATED_DEALER_ROLE_ID};
+        include GrantRole{addr: Signer::address_of(new_account), role_id: DESIGNATED_DEALER_ROLE_ID};
     }
 
     /// Publish a Validator `RoleId` under `new_account`.
-    /// The `creating_account` must be LibraRoot
+    /// The `creating_account` must be libra root.
     public fun new_validator_role(
         creating_account: &signer,
         new_account: &signer
@@ -126,7 +113,7 @@ module Roles {
     }
     spec fun new_validator_role {
         include AbortsIfNotLibraRoot{account: creating_account};
-        include GrantRole{account: new_account, role_id: VALIDATOR_ROLE_ID};
+        include GrantRole{addr: Signer::address_of(new_account), role_id: VALIDATOR_ROLE_ID};
     }
 
     /// Publish a ValidatorOperator `RoleId` under `new_account`.
@@ -140,7 +127,7 @@ module Roles {
     }
     spec fun new_validator_operator_role {
         include AbortsIfNotLibraRoot{account: creating_account};
-        include GrantRole{account: new_account, role_id: VALIDATOR_OPERATOR_ROLE_ID};
+        include GrantRole{addr: Signer::address_of(new_account), role_id: VALIDATOR_OPERATOR_ROLE_ID};
     }
 
     /// Publish a ParentVASP `RoleId` under `new_account`.
@@ -154,7 +141,7 @@ module Roles {
     }
     spec fun new_parent_vasp_role {
         include AbortsIfNotTreasuryCompliance{account: creating_account};
-        include GrantRole{account: new_account, role_id: PARENT_VASP_ROLE_ID};
+        include GrantRole{addr: Signer::address_of(new_account), role_id: PARENT_VASP_ROLE_ID};
     }
 
     /// Publish a ChildVASP `RoleId` under `new_account`.
@@ -168,7 +155,7 @@ module Roles {
     }
     spec fun new_child_vasp_role {
         include AbortsIfNotParentVasp{account: creating_account};
-        include GrantRole{account: new_account, role_id: CHILD_VASP_ROLE_ID};
+        include GrantRole{addr: Signer::address_of(new_account), role_id: CHILD_VASP_ROLE_ID};
     }
 
     /// Helper function to grant a role.
@@ -178,30 +165,23 @@ module Roles {
     }
     spec fun grant_role {
         pragma opaque;
-        include GrantRole;
-    }
-    spec schema GrantRole {
-        account: signer;
-        role_id: num;
+        include GrantRole{addr: Signer::address_of(account)};
         let addr = Signer::spec_address_of(account);
         // Requires to satisfy global invariants.
         requires role_id == LIBRA_ROOT_ROLE_ID ==> addr == CoreAddresses::LIBRA_ROOT_ADDRESS();
         requires role_id == TREASURY_COMPLIANCE_ROLE_ID ==> addr == CoreAddresses::TREASURY_COMPLIANCE_ADDRESS();
+    }
+    spec schema GrantRole {
+        addr: address;
+        role_id: num;
         aborts_if exists<RoleId>(addr) with Errors::ALREADY_PUBLISHED;
         ensures exists<RoleId>(addr);
         ensures global<RoleId>(addr).role_id == role_id;
         modifies global<RoleId>(addr);
     }
 
-    //  ## privilege-checking functions for roles ##
-
-    /// Naming conventions: Many of the "has_*_privilege" functions do have the same body
-    /// because the spreadsheet grants all such privileges to addresses (usually a single
-    /// address) with that role. In effect, having the privilege is equivalent to having the
-    /// role, but the function names document the specific privilege involved.  Also, modules
-    /// that use these functions as a privilege check can hide specific roles, so that a change
-    /// in the privilege/role relationship can be implemented by changing Roles and not the
-    /// module that uses it.
+    // =============
+    // Role Checking
 
     fun has_role(account: &signer, role_id: u64): bool acquires RoleId {
        let addr = Signer::address_of(account);
@@ -237,6 +217,11 @@ module Roles {
         has_role(account, CHILD_VASP_ROLE_ID)
     }
 
+    public fun get_role_id(a: address): u64 acquires RoleId {
+        assert(exists<RoleId>(a), Errors::not_published(EROLE_ID));
+        borrow_global<RoleId>(a).role_id
+    }
+
     /// Return true if `addr` is allowed to receive and send `Libra<T>` for any T
     public fun can_hold_balance(account: &signer): bool acquires RoleId {
         // VASP accounts and designated_dealers can hold balances.
@@ -247,13 +232,10 @@ module Roles {
         has_designated_dealer_role(account)
     }
 
-    //  ## role assertions ##
+    // ===============
+    // Role Assertions
+
     /// Assert that the account is libra root.
-    ///
-    /// TODO(wrwg): previously throughout the framework, we had functions which only check for the role, and
-    ///   functions which check both for role and address. This is now unified via this function to always
-    ///   check for both. However, the address check might be considered redundant, as we already have a global
-    ///   invariant that the role of libra root and TC can only be at a specific address.
     public fun assert_libra_root(account: &signer) acquires RoleId {
         CoreAddresses::assert_libra_root(account);
         let addr = Signer::address_of(account);
@@ -267,8 +249,6 @@ module Roles {
     }
 
     /// Assert that the account is treasury compliance.
-    ///
-    /// TODO(wrwg): see discussion for `assert_libra_root`
     public fun assert_treasury_compliance(account: &signer) acquires RoleId {
         CoreAddresses::assert_treasury_compliance(account);
         let addr = Signer::address_of(account);
@@ -312,31 +292,31 @@ module Roles {
     }
 
     /// Assert that the account has the validator role.
-    public fun assert_validator(account: &signer) acquires RoleId {
-        let addr = Signer::address_of(account);
-        assert(exists<RoleId>(addr), Errors::not_published(EROLE_ID));
+    public fun assert_validator(validator_account: &signer) acquires RoleId {
+        let validator_addr = Signer::address_of(validator_account);
+        assert(exists<RoleId>(validator_addr), Errors::not_published(EROLE_ID));
         assert(
-            borrow_global<RoleId>(addr).role_id == VALIDATOR_ROLE_ID,
+            borrow_global<RoleId>(validator_addr).role_id == VALIDATOR_ROLE_ID,
             Errors::requires_role(EVALIDATOR)
         )
     }
     spec fun assert_validator {
         pragma opaque;
-        include AbortsIfNotValidator;
+        include AbortsIfNotValidator{validator_addr: Signer::address_of(validator_account)};
     }
 
     /// Assert that the account has the validator operator role.
-    public fun assert_validator_operator(account: &signer) acquires RoleId {
-        let addr = Signer::address_of(account);
-        assert(exists<RoleId>(addr), Errors::not_published(EROLE_ID));
+    public fun assert_validator_operator(validator_operator_account: &signer) acquires RoleId {
+        let validator_operator_addr = Signer::address_of(validator_operator_account);
+        assert(exists<RoleId>(validator_operator_addr), Errors::not_published(EROLE_ID));
         assert(
-            borrow_global<RoleId>(addr).role_id == VALIDATOR_OPERATOR_ROLE_ID,
+            borrow_global<RoleId>(validator_operator_addr).role_id == VALIDATOR_OPERATOR_ROLE_ID,
             Errors::requires_role(EVALIDATOR_OPERATOR)
         )
     }
     spec fun assert_validator_operator {
         pragma opaque;
-        include AbortsIfNotValidatorOperator;
+        include AbortsIfNotValidatorOperator{validator_operator_addr: Signer::spec_address_of(validator_operator_account)};
     }
 
     /// Assert that the account has either the parent vasp or designated dealer role.
@@ -369,9 +349,110 @@ module Roles {
     }
 
 
-    //**************** Specifications ****************
+    //**************** Module Specification ****************
+    spec module {} // switch to module documentation context
 
-    /// ## Helper Functions and Schemas
+    /// # Persistence of Roles
+
+    /// Once an account at an address is granted a role it will remain an account role for all time.
+    spec module {
+        invariant update [global]
+            forall addr: address where old(exists<RoleId>(addr)):
+                exists<RoleId>(addr) && old(global<RoleId>(addr).role_id) == global<RoleId>(addr).role_id;
+    }
+
+    /// # Access Control
+
+    /// In this section, the conditions from the [requirements for access control][ACCESS_CONTROL] are systematically
+    /// applied to the functions in this module. While some of those conditions have already been
+    /// included in individual function specifications, listing them here again gives additional
+    /// assurance that that all requirements are covered.
+
+    spec module {
+        /// The LibraRoot role is only granted in genesis [[A1]][ROLE]. A new `RoleId` with `LIBRA_ROOT_ROLE_ID` is only
+        /// published through `grant_libra_root_role` which aborts if it is not invoked in genesis.
+        apply ThisRoleIsNotNewlyPublished{this: LIBRA_ROOT_ROLE_ID} to * except grant_libra_root_role, grant_role;
+        apply LibraTimestamp::AbortsIfNotGenesis to grant_libra_root_role;
+
+        /// TreasuryCompliance role is only granted in genesis [[A2]][ROLE]. A new `RoleId` with `TREASURY_COMPLIANCE_ROLE_ID` is only
+        /// published through `grant_treasury_compliance_role` which aborts if it is not invoked in genesis.
+        apply ThisRoleIsNotNewlyPublished{this: TREASURY_COMPLIANCE_ROLE_ID} to *
+            except grant_treasury_compliance_role, grant_role;
+        apply LibraTimestamp::AbortsIfNotGenesis to grant_treasury_compliance_role;
+
+        /// Validator roles are only granted by LibraRoot [[A3]][ROLE]. A new `RoleId` with `VALIDATOR_ROLE_ID` is only
+        /// published through `new_validator_role` which aborts if `creating_account` does not have the LibraRoot role.
+        apply ThisRoleIsNotNewlyPublished{this: VALIDATOR_ROLE_ID} to * except new_validator_role, grant_role;
+        apply AbortsIfNotLibraRoot{account: creating_account} to new_validator_role;
+
+        /// ValidatorOperator roles are only granted by LibraRoot [[A4]][ROLE]. A new `RoleId` with `VALIDATOR_OPERATOR_ROLE_ID` is only
+        /// published through `new_validator_operator_role` which aborts if `creating_account` does not have the LibraRoot role.
+        apply ThisRoleIsNotNewlyPublished{this: VALIDATOR_OPERATOR_ROLE_ID} to *
+            except new_validator_operator_role, grant_role;
+        apply AbortsIfNotLibraRoot{account: creating_account} to new_validator_operator_role;
+
+        /// DesignatedDealer roles are only granted by TreasuryCompliance [[A5]][ROLE]. A new `RoleId` with `DESIGNATED_DEALER_ROLE_ID()`
+        /// is only published through `new_designated_dealer_role` which aborts if `creating_account` does not have the
+        /// TreasuryCompliance role.
+        apply ThisRoleIsNotNewlyPublished{this: DESIGNATED_DEALER_ROLE_ID} to *
+            except new_designated_dealer_role, grant_role;
+        apply AbortsIfNotTreasuryCompliance{account: creating_account} to new_designated_dealer_role;
+
+        /// ParentVASP roles are only granted by LibraRoot [[A6]][ROLE]. A new `RoleId` with `PARENT_VASP_ROLE_ID()` is only
+        /// published through `new_parent_vasp_role` which aborts if `creating_account` does not have the TreasuryCompliance role.
+        apply ThisRoleIsNotNewlyPublished{this: PARENT_VASP_ROLE_ID} to * except new_parent_vasp_role, grant_role;
+        apply AbortsIfNotTreasuryCompliance{account: creating_account} to new_parent_vasp_role;
+
+        /// ChildVASP roles are only granted by ParentVASP [[A7]][ROLE]. A new `RoleId` with `CHILD_VASP_ROLE_ID` is only
+        /// published through `new_child_vasp_role` which aborts if `creating_account` does not have the ParentVASP role.
+        apply ThisRoleIsNotNewlyPublished{this: CHILD_VASP_ROLE_ID} to * except new_child_vasp_role, grant_role;
+        apply AbortsIfNotParentVasp{account: creating_account} to new_child_vasp_role;
+
+        /// The LibraRoot role is globally unique [[B1]][ROLE], and is published at LIBRA_ROOT_ADDRESS [[C1]][ROLE].
+        /// In other words, a `RoleId` with `LIBRA_ROOT_ROLE_ID` uniquely exists at `LIBRA_ROOT_ADDRESS`.
+        invariant [global, isolated] forall addr: address where spec_has_libra_root_role_addr(addr):
+          addr == CoreAddresses::LIBRA_ROOT_ADDRESS();
+        invariant [global, isolated]
+            LibraTimestamp::is_operating() ==> spec_has_libra_root_role_addr(CoreAddresses::LIBRA_ROOT_ADDRESS());
+
+        /// The TreasuryCompliance role is globally unique [[B2]][ROLE], and is published at TREASURY_COMPLIANCE_ADDRESS [[C2]][ROLE].
+        /// In other words, a `RoleId` with `TREASURY_COMPLIANCE_ROLE_ID` uniquely exists at `TREASURY_COMPLIANCE_ADDRESS`.
+        invariant [global, isolated] forall addr: address where spec_has_treasury_compliance_role_addr(addr):
+          addr == CoreAddresses::TREASURY_COMPLIANCE_ADDRESS();
+        invariant [global, isolated]
+            LibraTimestamp::is_operating() ==>
+                spec_has_treasury_compliance_role_addr(CoreAddresses::TREASURY_COMPLIANCE_ADDRESS());
+
+        /// LibraRoot cannot have balances [[D1]][ROLE].
+        invariant [global, isolated] forall addr: address where spec_has_libra_root_role_addr(addr):
+            !spec_can_hold_balance_addr(addr);
+
+        /// TreasuryCompliance cannot have balances [[D2]][ROLE].
+        invariant [global, isolated] forall addr: address where spec_has_treasury_compliance_role_addr(addr):
+            !spec_can_hold_balance_addr(addr);
+
+        /// Validator cannot have balances [[D3]][ROLE].
+        invariant [global, isolated] forall addr: address where spec_has_validator_role_addr(addr):
+            !spec_can_hold_balance_addr(addr);
+
+        /// ValidatorOperator cannot have balances [[D4]][ROLE].
+        invariant [global, isolated] forall addr: address where spec_has_validator_operator_role_addr(addr):
+            !spec_can_hold_balance_addr(addr);
+
+        /// DesignatedDealer have balances [[D5]][ROLE].
+        invariant [global, isolated] forall addr: address where spec_has_designated_dealer_role_addr(addr):
+            spec_can_hold_balance_addr(addr);
+
+        /// ParentVASP have balances [[D6]][ROLE].
+        invariant [global, isolated] forall addr: address where spec_has_parent_VASP_role_addr(addr):
+            spec_can_hold_balance_addr(addr);
+
+        /// ChildVASP have balances [[D7]][ROLE].
+        invariant [global, isolated] forall addr: address where spec_has_child_VASP_role_addr(addr):
+            spec_can_hold_balance_addr(addr);
+    }
+
+    /// # Helper Functions and Schemas
 
     spec module {
         define spec_get_role_id(account: signer): u64 {
@@ -426,7 +507,6 @@ module Roles {
 
     spec schema AbortsIfNotLibraRoot {
         account: signer;
-        // TODO(wrwg): potentially remove the address check, as it follows from invariant.
         include CoreAddresses::AbortsIfNotLibraRoot;
         let addr = Signer::spec_address_of(account);
         aborts_if !exists<RoleId>(addr) with Errors::NOT_PUBLISHED;
@@ -435,7 +515,6 @@ module Roles {
 
     spec schema AbortsIfNotTreasuryCompliance {
         account: signer;
-        // TODO(wrwg): potentially remove this address check, as it follows from invariant.
         include CoreAddresses::AbortsIfNotTreasuryCompliance;
         let addr = Signer::spec_address_of(account);
         aborts_if !exists<RoleId>(addr) with Errors::NOT_PUBLISHED;
@@ -475,128 +554,16 @@ module Roles {
     }
 
     spec schema AbortsIfNotValidator {
-        account: signer;
-        let addr = Signer::spec_address_of(account);
-        aborts_if !exists<RoleId>(addr) with Errors::NOT_PUBLISHED;
-        aborts_if global<RoleId>(addr).role_id != VALIDATOR_ROLE_ID with Errors::REQUIRES_ROLE;
+        validator_addr: address;
+        aborts_if !exists<RoleId>(validator_addr) with Errors::NOT_PUBLISHED;
+        aborts_if global<RoleId>(validator_addr).role_id != VALIDATOR_ROLE_ID with Errors::REQUIRES_ROLE;
     }
 
     spec schema AbortsIfNotValidatorOperator {
-        account: signer;
-        let addr = Signer::spec_address_of(account);
-        aborts_if !exists<RoleId>(addr) with Errors::NOT_PUBLISHED;
-        aborts_if global<RoleId>(addr).role_id != VALIDATOR_OPERATOR_ROLE_ID with Errors::REQUIRES_ROLE;
+        validator_operator_addr: address;
+        aborts_if !exists<RoleId>(validator_operator_addr) with Errors::NOT_PUBLISHED;
+        aborts_if global<RoleId>(validator_operator_addr).role_id != VALIDATOR_OPERATOR_ROLE_ID
+            with Errors::REQUIRES_ROLE;
     }
-
-
-    /// ## Persistence of Roles
-
-    /// **Informally:** Once an account at address `A` is granted a role `R` it
-    /// will remain an account with role `R` for all time.
-    spec module {
-        invariant update [global]
-            forall addr: address where old(exists<RoleId>(addr)):
-                exists<RoleId>(addr) && old(global<RoleId>(addr).role_id) == global<RoleId>(addr).role_id;
-    }
-
-    /// ## Conditions from Requirements
-
-    /// In this section, the conditions from the requirements for access control are systematically
-    /// applied to the functions in this module. While some of those conditions have already been
-    /// included in individual function specifications, listing them here again gives additional
-    /// assurance that that all requirements are covered.
-
-    /// TODO(wrwg): link to requirements
-
-    spec module {
-        /// The LibraRoot role is only granted in genesis [B2]. A new `RoleId` with `LIBRA_ROOT_ROLE_ID` is only
-        /// published through `grant_libra_root_role` which aborts if it is not invoked in genesis.
-        apply ThisRoleIsNotNewlyPublished{this: LIBRA_ROOT_ROLE_ID} to * except grant_libra_root_role, grant_role;
-        apply LibraTimestamp::AbortsIfNotGenesis to grant_libra_root_role;
-
-        /// TreasuryCompliance role is only granted in genesis [B3]. A new `RoleId` with `TREASURY_COMPLIANCE_ROLE_ID` is only
-        /// published through `grant_treasury_compliance_role` which aborts if it is not invoked in genesis.
-        apply ThisRoleIsNotNewlyPublished{this: TREASURY_COMPLIANCE_ROLE_ID} to * except grant_treasury_compliance_role, grant_role;
-        apply LibraTimestamp::AbortsIfNotGenesis to grant_treasury_compliance_role;
-
-        /// Validator roles are only granted by LibraRoot [B4]. A new `RoleId` with `VALIDATOR_ROLE_ID` is only
-        /// published through `new_validator_role` which aborts if `creating_account` does not have the LibraRoot role.
-        apply ThisRoleIsNotNewlyPublished{this: VALIDATOR_ROLE_ID} to * except new_validator_role, grant_role;
-        apply AbortsIfNotLibraRoot{account: creating_account} to new_validator_role;
-
-        /// ValidatorOperator roles are only granted by LibraRoot [B5]. A new `RoleId` with `VALIDATOR_OPERATOR_ROLE_ID` is only
-        /// published through `new_validator_operator_role` which aborts if `creating_account` does not have the LibraRoot role.
-        apply ThisRoleIsNotNewlyPublished{this: VALIDATOR_OPERATOR_ROLE_ID} to * except new_validator_operator_role, grant_role;
-        apply AbortsIfNotLibraRoot{account: creating_account} to new_validator_operator_role;
-
-        /// DesignatedDealer roles are only granted by TreasuryCompliance [B6]. A new `RoleId` with `DESIGNATED_DEALER_ROLE_ID()`
-        /// is only published through `new_designated_dealer_role` which aborts if `creating_account` does not have the
-        /// TreasuryCompliance role.
-        apply ThisRoleIsNotNewlyPublished{this: DESIGNATED_DEALER_ROLE_ID} to * except new_designated_dealer_role, grant_role;
-        apply AbortsIfNotTreasuryCompliance{account: creating_account} to new_designated_dealer_role;
-
-        /// ParentVASP roles are only granted by LibraRoot [B7]. A new `RoleId` with `PARENT_VASP_ROLE_ID()` is only
-        /// published through `new_parent_vasp_role` which aborts if `creating_account` does not have the TreasuryCompliance role.
-        apply ThisRoleIsNotNewlyPublished{this: PARENT_VASP_ROLE_ID} to * except new_parent_vasp_role, grant_role;
-        apply AbortsIfNotTreasuryCompliance{account: creating_account} to new_parent_vasp_role;
-
-        /// ChildVASP roles are only granted by ParentVASP [B8]. A new `RoleId` with `CHILD_VASP_ROLE_ID` is only
-        /// published through `new_child_vasp_role` which aborts if `creating_account` does not have the ParentVASP role.
-        apply ThisRoleIsNotNewlyPublished{this: CHILD_VASP_ROLE_ID} to * except new_child_vasp_role, grant_role;
-        apply AbortsIfNotParentVasp{account: creating_account} to new_child_vasp_role;
-
-        /// The LibraRoot role is globally unique [C2], and is published at LIBRA_ROOT_ADDRESS [D2].
-        /// In other words, a `RoleId` with `LIBRA_ROOT_ROLE_ID` uniquely exists at `LIBRA_ROOT_ADDRESS`.
-        invariant [global, isolated] forall addr: address where spec_has_libra_root_role_addr(addr):
-          addr == CoreAddresses::LIBRA_ROOT_ADDRESS();
-        invariant [global, isolated]
-            LibraTimestamp::is_operating() ==> spec_has_libra_root_role_addr(CoreAddresses::LIBRA_ROOT_ADDRESS());
-
-        /// The TreasuryCompliance role is globally unique [C3], and is published at TREASURY_COMPLIANCE_ADDRESS [D3].
-        /// In other words, a `RoleId` with `TREASURY_COMPLIANCE_ROLE_ID` uniquely exists at `TREASURY_COMPLIANCE_ADDRESS`.
-        invariant [global, isolated] forall addr: address where spec_has_treasury_compliance_role_addr(addr):
-          addr == CoreAddresses::TREASURY_COMPLIANCE_ADDRESS();
-        invariant [global, isolated]
-            LibraTimestamp::is_operating() ==>
-                spec_has_treasury_compliance_role_addr(CoreAddresses::TREASURY_COMPLIANCE_ADDRESS());
-
-        /// LibraRoot cannot have balances [E2].
-        invariant [global, isolated] forall addr: address where spec_has_libra_root_role_addr(addr):
-            !spec_can_hold_balance_addr(addr);
-
-        /// TreasuryCompliance cannot have balances [E3].
-        invariant [global, isolated] forall addr: address where spec_has_treasury_compliance_role_addr(addr):
-            !spec_can_hold_balance_addr(addr);
-
-        /// Validator cannot have balances [E4].
-        invariant [global, isolated] forall addr: address where spec_has_validator_role_addr(addr):
-            !spec_can_hold_balance_addr(addr);
-
-        /// ValidatorOperator cannot have balances [E5].
-        invariant [global, isolated] forall addr: address where spec_has_validator_operator_role_addr(addr):
-            !spec_can_hold_balance_addr(addr);
-
-        /// DesignatedDealer have balances [E6].
-        invariant [global, isolated] forall addr: address where spec_has_designated_dealer_role_addr(addr):
-            spec_can_hold_balance_addr(addr);
-
-        /// ParentVASP have balances [E7].
-        invariant [global, isolated] forall addr: address where spec_has_parent_VASP_role_addr(addr):
-            spec_can_hold_balance_addr(addr);
-
-        /// ChildVASP have balances [E8].
-        invariant [global, isolated] forall addr: address where spec_has_child_VASP_role_addr(addr):
-            spec_can_hold_balance_addr(addr);
-    }
-
-    // TODO: Role is supposed to be set by end of genesis?
-
-    // TODO: role-specific privileges persist, and role_ids never change?
-
-    // ## Capabilities
-    //
-    // TODO: Capability is stored a owner_address unless is_extract == true??
-    // TODO: Capability always returned to owner_address
-
 }
 }
