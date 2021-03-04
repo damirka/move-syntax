@@ -28,6 +28,7 @@
         },
 
         "comments": {
+            "name": "meta.comments.move",
             "patterns": [
                 { "include": "#line-comments" },
                 { "include": "#block-comments" }
@@ -44,6 +45,7 @@
             "patterns": [
                 { "include": "#comments" },
                 {
+                    "name": "meta.script_scope.move",
                     "comment": "Script scope",
                     "begin": "{",
                     "end": "}",
@@ -67,6 +69,7 @@
             "patterns": [
                 { "include": "#comments" },
                 {
+                    "name": "meta.module_address.move",
                     "comment": "Address literal",
                     "begin": "(?<=address)",
                     "end": "(?={)",
@@ -99,6 +102,7 @@
                     ]
                 },
                 {
+                    "name": "meta.module_scope.move",
                     "comment": "Module scope",
                     "begin": "{",
                     "end": "}",
@@ -111,6 +115,8 @@
                         { "include": "#public_fun" },
                         { "include": "#native_fun" },
                         { "include": "#fun" },
+
+                        
                         { "include": "#spec" },
 
                         { "include": "#block" }
@@ -181,6 +187,7 @@
             "patterns": [
                 { "include": "#comments" },
                 {
+                    "name": "meta.struct_def.move",
                     "comment": "Struct definition",
                     "begin": "(?<=struct)",
                     "end": "(?={)",
@@ -195,6 +202,7 @@
                     ]
                 },
                 {
+                    "name": "meta.struct_body.move",
                     "comment": "Struct body",
                     "begin": "{",
                     "end": "}",
@@ -222,6 +230,7 @@
         },
 
         "native_fun": {
+            "meta": "meta.native_fun.move",
             "comment": "Native function",
             "begin": "\\b(native)\\b",
             "beginCaptures": {
@@ -240,6 +249,7 @@
         },
 
         "public_fun": {
+            "name": "meta.public_fun.move",
             "comment": "Public function",
             "begin": "\\b(public)\\b",
             "beginCaptures": {
@@ -260,6 +270,7 @@
         },
 
         "fun_signature": {
+            "name": "meta.fun_signature.move",
             "comment": "Function signature",
             "begin": "\\b(fun)\\b",
             "beginCaptures": {
@@ -271,6 +282,7 @@
                 { "include": "#module_access" },
                 { "include": "#types" },
                 {
+                    "name": "meta.function_name.move",
                     "comment": "Function name",
                     "begin": "(?<=fun)",
                     "end": "(?=[<(])",
@@ -284,6 +296,7 @@
                 },
                 { "include": "#type_param" },
                 {
+                    "name": "meta.parentheses.move",
                     "comment": "Parentheses",
                     "begin": "[(]",
                     "end": "[)]",
@@ -304,6 +317,7 @@
         },
 
         "type_param": {
+            "name": "meta.generic_param.move",
             "comment": "Generic type param",
             "begin": "<",
             "end": ">",
@@ -319,6 +333,7 @@
         },
 
         "fun_body": {
+            "name": "meta.fun_body.move",
             "comment": "Function body",
             "begin": "{",
             "end": "}",
@@ -344,6 +359,7 @@
         },
 
         "fun_call": {
+            "name": "meta.fun_call.move",
             "comment": "Function call",
             "begin": "\\b(\\w+)\\s*(?:<[\\w\\s,]+>)?\\s*[(]",
             "beginCaptures": {
@@ -365,6 +381,7 @@
         },
 
         "block": {
+            "name": "meta.block.move",
             "comment": "Block expression or definition",
             "begin": "{",
             "end": "}",
@@ -406,6 +423,7 @@
         },
 
         "as-import": {
+            "name": "meta.import_as.move",
             "comment": "Keyword as in import statement",
             "match": "\\b(as)\\b"
         },
@@ -435,6 +453,7 @@
         },
 
         "self_access": {
+            "name": "meta.self_access.move",
             "comment": "Use of Self",
             "match": "\\b(Self)::(\\w+)\\b",
             "captures": {
@@ -444,6 +463,7 @@
         },
 
         "module_access": {
+            "name": "meta.module_access.move",
             "comment": "Use of module type or method",
             "match": "\\b(\\w+)::(\\w+)\\b",
             "captures": {
@@ -453,6 +473,7 @@
         },
 
         "types": {
+            "name": "meta.types.move",
             "comment": "Built-in types + vector",
             "patterns": [
                 { "include": "#primitives" },
@@ -461,6 +482,7 @@
         },
 
         "vector": {
+            "name": "meta.vector.move",
             "begin": "\\b(vector)<",
             "beginCaptures": {
                 "1": { "name": "support.type.vector.move" }
@@ -513,6 +535,7 @@
                     }
                 },
                 {
+                    "name": "meta.ascii_literal.move",
                     "comment": "ASCII Bytestring literal",
                     "match": "\\b(\"(.*)\")",
                     "captures": {
@@ -520,6 +543,7 @@
                     }
                 },
                 {
+                    "name": "meta.hex_literal.move",
                     "comment": "vector<u8> as hex literal: x",
                     "match": "x\"([A-F0-9a-f]+)\"",
                     "captures": {
@@ -537,6 +561,7 @@
 
         "spec_block": {
             "comment": "Spec block",
+            "name": "meta.spec_block.move",
             "begin": "{",
             "end": "}",
             "patterns": [
@@ -553,17 +578,18 @@
         },
 
         "spec_keywords": {
-            "match": "\\b(global|pack|unpack|pragma|native|include|ensures|requires|invariant|apply|aborts_if)\\b",
+            "match": "\\b(global|pack|unpack|pragma|native|include|ensures|requires|invariant|apply|aborts_if|modifies)\\b",
             "name": "keyword.control.move.spec"
         },
 
         "spec_define": {
             "comment": "Spec define keyword",
+            "name": "meta.spec_define.move",
             "begin": "\\b(define)\\b",
             "beginCaptures": {
                 "1": { "name": "keyword.control.move.spec" }
             },
-            "end": "(?=[{])",
+            "end": "(?=[;{])",
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#spec_types" },
@@ -590,16 +616,22 @@
         },
 
         "spec": {
+            "name": "meta.spec.move",
             "begin": "\\b(spec)\\b",
             "beginCaptures": {
                 "1": { "name": "storage.modifier.spec.move" }
             },
-            "end": "(?<=})",
+            "end": "(?<=[;}])",
             "patterns": [
                 {
                     "comment": "Spec target",
                     "match": "\\b(module|schema|struct|fun)",
                     "name": "storage.modifier.spec.target.move"
+                },
+                {
+                    "comment": "Spec define inline",
+                    "match": "\\b(define)",
+                    "name": "storage.modifier.spec.define.move"
                 },
                 {
                     "comment": "Target name",

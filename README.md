@@ -1,87 +1,29 @@
-# Move IDE for VSCode
+# Move Language syntax for VSCode
 
-Built by developer for developers, this extension will simplify your Move development and will make your first experience with Move less painful.
+This VSCode extension adds Move syntax support to VSCode (see [VSCode marketplace page](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax)).
+Originally started at dfinance, for previous code see [dfinance (pontem) repo](https://github.com/dfinance/vscode-move-ide).
 
-- [Jump to setup](#setup)
+If you want to know more about the language, see these resources:
+
 - [The Move Book](https://move-book.com)
-- [Move Whitepaper](https://developers.libra.org/docs/move-paper)
-- [Marketplace](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
+- [Diem Developers Website](https://developers.diem.com/docs/move/move-introduction/)
 
-**What's inside**:
+## Move IDE legacy
 
-- Move and Mvir syntax highlighting (always up to date) + spec support
-- Code Completion for imported modules and built-ins
-- [Move Language Server](https://github.com/dfinance/move-language-server) and syntax error check!
-- Move Executor - you can run your code in VSCode! Type `Move: Run Script`
-- `{{sender}}` pattern support for address in your modules and scripts
-- Built-in compiler Move (and Mvir) for Libra and Dfinance blockchains
+From-the-scratch, new version of Move IDE is in development.
+Previous versions of Move IDE are still available in VSCode marketplace, new one is not yet ready.
 
-Already want to try? [To the marketplace!](https://marketplace.visualstudio.com/items?itemName=damirka.move-ide)
+This extension was also created to separate syntax changes from IDE features and let other extension developers use same unified syntax without needing to install Move IDE.
 
-## Syntax highlighting
+## Highlighting examples
 
-Extension features best syntax highlighting you can get for Move or Mvir. Each language has its own grammar file so you won't be mistaken and syntaxes won't overlap.
-
-I've personally put much effort into making this syntax helpful (aka some keywords - like `acquires` won't be highlighted when misplaced).
-
-### Samples
-
-**Move** - brand new language now shines bright in your VSCode (the best with [Atom Light theme](https://marketplace.visualstudio.com/items?itemName=akamud.vscode-theme-onelight))
-
-![Move highlighting](https://raw.githubusercontent.com/damirka/vscode-move-ide/master/img/move.highlight.jpg)
-
-<a name="setup"></a>
-
-## IDE Setup
-
-### Recomended directory structure
-
-I highly recommend you using following directory structure:
-
-```text
-modules/       - here you'll put your modules (module.move)
-scripts/       - same here! scripts! (script.move)
-out/           - compiler output directory (module.mv or module.mv.json)
-
-.mvconfig.json - this file will help you keep setup within working directory (overrides vscode config)
-```
-
-### Config file: .mvconfig.json
-
-Not to mess up configurations and keep it simple I suggest you using config file inside your working directory.
-Sample here (put inside your working dir):
-
-Configuration for Libra:
-
-```json
-{
-    "network": "libra",
-    "sender": "0x....",
-    "compilerDir": "out"
-}
-```
-
-Configuration file for dfinance:
-
-```json
-{
-    "network": "dfinance",
-    "sender": "wallet1...",
-    "compilerDir": "out"
-}
-```
-
-**Comments:**
-
-- network: `libra` or `dfinance` (libra is default);
-- sender: account from which you're going to deploy/run scripts;
-- compilerDir: compiler output directory;
-
-**Additional configuration options:**
-
-- stdlibPath - custom path to stdlib folder - either relative to workspace or absolute or null;
-- modulesPath - custom path to modules folder (instead of default modules) - relative or absolute or null;
+![Move syntax highlighting](img/syntax_sample.png)
 
 ## Contribution
 
-Feel free to ask any questions or report bugs [by opening new issue](https://github.com/damirka/vscode-move-ide/issues).
+Feel free to ask any questions or report bugs [by opening new issue](https://github.com/damirka/vscode-move-syntax/issues).
+
+## License
+
+Originally licensed under Apache license (see [COPYING](COPYING)). 
+Sublicensed as [MIT](LICENSE).
