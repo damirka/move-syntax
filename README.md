@@ -17,7 +17,7 @@ This extension was also created to separate syntax changes from IDE features and
 
 ## Highlighting examples
 
-![Move syntax highlighting](img/move.highlight.jpg)
+![Move syntax highlighting](img/syntax_sample.png)
 
 ## Contribution
 
