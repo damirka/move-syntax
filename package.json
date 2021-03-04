@@ -1,28 +1,22 @@
 {
-	"name": "move-ide",
-	"version": "0.4.3",
-	"description": "Move/mvir IDE for VSCode",
+	"name": "move-syntax",
+	"version": "0.1.0",
+	"description": "Move syntax for VSCode",
 	"publisher": "damirka",
-	"displayName": "Move IDE",
+	"displayName": "Move syntax",
 	"categories": [
 		"Programming Languages",
 		"Snippets",
 		"Other"
 	],
-	"scripts": {
-		"vscode:prepublish": "rm bin/*; npm run compile",
-		"tree-sitter": "tree-sitter build-wasm ./node_modules/@movei/tree-sitter-move",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./"
-	},
+	"scripts": {},
 	"engines": {
 		"vscode": "^1.43.0"
 	},
 	"activationEvents": [
-		"onLanguage:mvir",
 		"onLanguage:move"
 	],
-	"main": "./dist/extension.js",
+	"main": "./extension.js",
 	"contributes": {
 		"languages": [
 			{
@@ -36,18 +30,6 @@
 					".move"
 				],
 				"configuration": "./language-configuration.json"
-			},
-			{
-				"id": "mvir",
-				"aliases": [
-					"MVIR",
-					"mvir",
-					"Move IR"
-				],
-				"extensions": [
-					".mvir"
-				],
-				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
@@ -55,87 +37,8 @@
 				"language": "move",
 				"scopeName": "source.move",
 				"path": "./syntaxes/move.tmLanguage.json"
-			},
-			{
-				"language": "mvir",
-				"scopeName": "source.mvir",
-				"path": "./syntaxes/mvir.tmLanguage.json"
 			}
-		],
-		"commands": [
-			{
-				"command": "move.compile",
-				"when": "resourceLangId == move",
-				"title": "Move: Compile"
-			},
-			{
-				"command": "move.run",
-				"when": "resourceLangId == move",
-				"title": "Move: Run Script"
-			}
-		],
-		"menus": {
-			"commandPalette": [
-				{
-					"command": "move.compile",
-					"when": "editorLangId == move"
-				},
-				{
-					"command": "move.run",
-					"when": "editorLangId == move"
-				}
-			]
-		},
-		"configuration": {
-			"title": "Move IDE",
-			"properties": {
-				"move.autocomplete": {
-					"type": "boolean",
-					"default": true,
-					"description": "Enable autocompletion feature"
-				},
-				"move.configPath": {
-					"type": "string",
-					"default": ".mvconfig.json",
-					"description": "When set and file is present, json configuration will be used instead of editor config"
-				},
-				"move.blockchain": {
-					"type": "string",
-					"enum": [
-						"libra",
-						"dfinance"
-					],
-					"default": "libra",
-					"description": "Move compiler and dialect to use: Dfinance or Libra",
-					"scope": "resource"
-				},
-				"move.compilerDir": {
-					"type": "string",
-					"default": "./out",
-					"description": "Relative path inside working directory to put compiled files into"
-				},
-				"move.account": {
-					"type": "string",
-					"default": "",
-					"description": "Default account to use when compiling. If not set prompt will be shown on compile command"
-				},
-				"move.showModal": {
-					"type": "boolean",
-					"description": "Show notifications in modal window",
-					"default": true
-				},
-				"move.languageServerPath": {
-					"type": "string",
-					"default": "",
-					"description": "Custom path to Move Language Server binary"
-				},
-				"move.moveExecutorPath": {
-					"type": "string",
-					"default": "",
-					"description": "Custom path to Move Executor binary"
-				}
-			}
-		}
+		]
 	},
 	"icon": "img/logo.256.png",
 	"galleryBanner": {
@@ -144,67 +47,21 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/damirka/vscode-move-ide.git"
+		"url": "https://github.com/damirka/vscode-move-syntax.git"
 	},
 	"keywords": [
 		"libra",
 		"move",
-		"dfinance",
 		"ide",
+		"move syntax",
 		"move ide",
 		"move-ide",
-		"libra-ide",
-		"dfinance-ide"
+		"libra-ide"
 	],
 	"author": "Damir Shamanaev <damirka.ru@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/damirka/vscode-move-ide/issues"
+		"url": "https://github.com/damirka/vscode-move-syntax/issues"
 	},
-	"homepage": "https://github.com/damirka/vscode-move-ide#readme",
-	"devDependencies": {
-		"@types/node": "^14.0.1",
-		"@types/vscode": "^1.43.0",
-		"typescript": "^3.8.3",
-		"tree-sitter-cli": "^0.16.9",
-		"@movei/tree-sitter-move": "github:move-hub/tree-sitter-move"
-	},
-	"__metadata": {
-		"id": "7a08f3ad-eba4-44de-bca1-e41d38b68a5c",
-		"publisherDisplayName": "Damir Shamanaev",
-		"publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6"
-	},
-	"dependencies": {
-		"vscode-languageclient": "^6.1.3",
-		"vscode-languageserver": "^6.1.1",
-		"vscode-languageserver-textdocument": "^1.0.1",
-		"web-tree-sitter": "^0.16.4"
-	},
-	"move-ls": {
-		"version": "0.9.8",
-		"repository": "dfinance/move-tools",
-		"binaries": {
-			"win32": "move-language-server-win32.exe",
-			"linux": "move-language-server-linux",
-			"darwin": "move-language-server-darwin"
-		}
-	},
-	"move-executor": {
-		"version": "0.9.8",
-		"repository": "dfinance/move-tools",
-		"binaries": {
-			"win32": "move-executor-win32.exe",
-			"linux": "move-executor-linux",
-			"darwin": "move-executor-darwin"
-		}
-	},
-	"move-build": {
-		"version": "15.09.20",
-		"repository": "dfinance/libra",
-		"binaries": {
-			"win32": null,
-			"linux": "movec-15.09.20-linux",
-			"darwin": "movec-15.09.20-darwin"
-		}
-	}
+	"homepage": "https://github.com/damirka/vscode-move-syntax#readme"
 }
