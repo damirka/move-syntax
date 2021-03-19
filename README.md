@@ -17,7 +17,7 @@ This extension was also created to separate syntax changes from IDE features and
 
 ## Highlighting examples
 
-![Move syntax highlighting](img/syntax_sample.png)
+![Move syntax highlighting](https://github.com/damirka/vscode-move-syntax/raw/master/img/syntax_sample.jpg)
 
 ## Contribution
 

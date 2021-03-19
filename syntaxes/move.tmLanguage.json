@@ -109,8 +109,8 @@
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#import" },
+                        { "include": "#friend" },
                         { "include": "#const" },
-                        { "include": "#resource" },
                         { "include": "#struct" },
                         { "include": "#public_fun" },
                         { "include": "#native_fun" },
@@ -158,6 +158,24 @@
             ]
         },
 
+        "friend": {
+            "name": "meta.friend.move",
+            "begin": "\\b(friend)\\b",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.type.move" }
+            },
+            "end": ";",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#address_literal" },
+                {
+                    "comment": "Name of the imported module",
+                    "match": "\\b(\\w+)\\b",
+                    "name": "entity.name.type.module.move"
+                }
+            ]
+        },
+
         "const": {
             "name": "meta.const.move",
             "begin": "\\b(const)\\b",
@@ -194,6 +212,16 @@
                     "patterns": [
                         { "include": "#comments" },
                         {
+                            "comment": "Has Abilities",
+                            "match": "\\b(has)\\b",
+                            "name": "keyword.control.ability.has.move"
+                        },
+                        {
+                            "comment": "Ability",
+                            "match": "\\b(store|key|drop|copy)\\b",
+                            "name": "entity.name.type.ability.move"
+                        },
+                        {
                             "comment": "Struct name",
                             "match": "\\b(\\w+)\\b",
                             "name": "entity.name.type.move"
@@ -213,19 +241,6 @@
                         { "include": "#types" }
                     ]
                 }
-            ]
-        },
-
-        "resource": {
-            "name": "meta.resource.move",
-            "comment": "Resource definition",
-            "begin": "\\b(resource)\\b",
-            "beginCaptures": {
-                "1": { "name": "storage.modifier.type.move" }
-            },
-            "end": "(?<=})",
-            "patterns": [
-                { "include": "#struct" }
             ]
         },
 
@@ -258,6 +273,19 @@
             "end": "(?<=})",
             "patterns": [
                 { "include": "#comments" },
+                { 
+                    "comment": "Script visibility",
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { 
+                            "comment": "Friend or Script visibility",
+                            "match": "\\b(script|friend)\\b",
+                            "name": "storage.modifier.public.script.move"
+                        }
+                    ]
+                },
                 { "include": "#fun" }
             ]
         },
@@ -326,7 +354,7 @@
                 { "include": "#module_access" },
                 {
                     "comment": "Trait-like condition",
-                    "match": "\\b(resource|copyable)\\b",
+                    "match": "\\b(store|drop|key|copy)\\b",
                     "name": "entity.name.type.kind.move"
                 }
             ]
