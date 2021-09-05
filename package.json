@@ -1,6 +1,6 @@
 {
 	"name": "move-syntax",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Move syntax for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move syntax",
@@ -66,7 +66,7 @@
 	"homepage": "https://github.com/damirka/vscode-move-syntax#readme",
 	"__metadata": {
 		"id": "079cf480-3f72-452f-b128-8b8038c252fb",
-		"publisherDisplayName": "Damir Shamanaev",
-		"publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6"
+		"publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6",
+		"publisherDisplayName": "Damir Shamanaev"
 	}
 }
