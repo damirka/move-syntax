@@ -2,6 +2,12 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.3.0 - Phantom type parameters 
+
+- follow Move 1.4 changes, add phantom keyword
+- adds support for named addresses
+- legacy mentiones of Libra are changed to Diem
+
 ## v0.2.0 - Visible Friends with Abilities
 
 - `friend <mod>;` statement support added

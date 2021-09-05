@@ -10,7 +10,7 @@
         },
 
         "block-comments": {
-            "comment": "Supported since https://github.com/libra/libra/pull/3714",
+            "comment": "Supported since https://github.com/diem/diem/pull/3714",
             "patterns": [
                 {
                     "comment": "Block documentation comment",
@@ -351,6 +351,7 @@
             "end": ">",
             "patterns": [
                 { "include": "#comments" },
+                { "include": "#phantom" },
                 { "include": "#module_access" },
                 {
                     "comment": "Trait-like condition",
@@ -430,6 +431,12 @@
 
                 { "include": "#block" }
             ]
+        },
+
+        "phantom": {
+            "comment": "Keyword phantom inside type parameters",
+            "match": "\\b(phantom)\\b",
+            "name": "keyword.control.phantom.move"
         },
 
         "let": {
@@ -533,12 +540,17 @@
                 {
                     "comment": "16-byte (or shorter) hex address in Libra",
                     "match": "\\b(0x[A-Fa-f0-9][A-Fa-f0-9]{,31})\\b",
-                    "name": "support.constant.libra.address.move"
+                    "name": "support.constant.diem.address.move"
                 },
                 {
-                    "comment": "Bech32 with wallet1 prefix",
+                    "comment": "Bech32 with wallet1 prefix - Dfinance format",
                     "match": "\\b(wallet1\\w{38})",
                     "name": "support.constant.dfinance.address.move"
+                },
+                {
+                    "comment": "Named address parameter (as build flag)",
+                    "match": "\\s([@]\\w+)\\b",
+                    "name": "support.constant.named.address.move"
                 }
             ]
         },

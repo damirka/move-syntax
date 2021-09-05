@@ -19,6 +19,17 @@ This extension was also created to separate syntax changes from IDE features and
 
 ![Move syntax highlighting](https://github.com/damirka/vscode-move-syntax/raw/master/img/syntax_sample.jpg)
 
+## Note for Extension Developers
+
+If you're building your own extension for Move, please consider using this one for syntax highlighting. To do so, simply add this extension
+to the list of dependencies of your extension in the `package.json` file, and it should do the job. Example:
+
+```json
+"extensionDependencies": [
+	"damirka.move-syntax"
+],
+```
+
 ## Contribution
 
 Feel free to ask any questions or report bugs [by opening new issue](https://github.com/damirka/vscode-move-syntax/issues).
