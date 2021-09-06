@@ -10,10 +10,10 @@ If you want to know more about the language, see these resources:
 
 ## Move IDE legacy
 
-From-the-scratch, new version of Move IDE is in development.
-Previous versions of Move IDE are still available in VSCode marketplace, new one is not yet ready.
+From-the-scratch, new version of the Move IDE is in development.
+Previous versions of the Move IDE are still available in VSCode marketplace, new one is not ready yet.
 
-This extension was also created to separate syntax changes from IDE features and let other extension developers use same unified syntax without needing to install Move IDE.
+This extension was also created to separate syntax changes from the IDE features and let other extension developers use the same unified syntax without needing to install the Move IDE.
 
 ## Highlighting examples
 
@@ -22,13 +22,17 @@ This extension was also created to separate syntax changes from IDE features and
 ## Note for Extension Developers
 
 If you're building your own extension for Move, please consider using this one for syntax highlighting. To do so, simply add this extension
-to the list of dependencies of your extension in the `package.json` file, and it should do the job. Example:
+to the list of dependencies of your extension's `package.json` file, and it should do the job. Example:
 
 ```json
 "extensionDependencies": [
 	"damirka.move-syntax"
 ],
 ```
+
+These extensions are already using this syntax highlighting:
+
+- [Starcoin IDE (marketplace)](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide) by Starcoin team;
 
 ## Contribution
 
