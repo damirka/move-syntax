@@ -2,13 +2,11 @@ on:
   push:
 name: Publish Package
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - run: npm install
-      - uses: lannonbr/vsce-action@master
-        with:
-          args: "publish -p $VSCE_TOKEN"
+      - run: npm run package $VSCE_TOKEN
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

@@ -9,7 +9,10 @@
 		"Snippets",
 		"Other"
 	],
-	"scripts": {},
+	"scripts": {
+		"package": "vsce package",
+		"publish": "vsce publish -p"
+	},
 	"engines": {
 		"vscode": "^1.43.0"
 	},
@@ -68,5 +71,8 @@
 		"id": "079cf480-3f72-452f-b128-8b8038c252fb",
 		"publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6",
 		"publisherDisplayName": "Damir Shamanaev"
+	},
+	"devDependencies": {
+		"vsce": "^1.97.0"
 	}
 }
