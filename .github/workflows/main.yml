@@ -1,18 +1,14 @@
 on:
   push:
-    tags:
-      - v*
+name: Publish Package
 jobs:
-  release:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-        - name: Get the version
-          id: get_version
-          run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-        - uses: actions/checkout@v2
-        - run: git fetch --depth=1 origin +refs/tags/${{ steps.get_version.outputs.VERSION }}:refs/tags/${{ steps.get_version.outputs.VERSION }}
-        - run: git for-each-ref --format="## %(subject) %0a%0a %(body)" refs/tags/${{ steps.get_version.outputs.VERSION }} > body.md
-        - uses: ncipollo/release-action@v1.6.1
-          with:
-            bodyFile: "body.md"
-            token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v2
+      - run: npm install
+      - uses: lannonbr/vsce-action@master
+        with:
+          args: "publish -p $VSCE_TOKEN"
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
