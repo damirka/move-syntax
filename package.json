@@ -1,6 +1,6 @@
 {
 	"name": "move-syntax",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "Move syntax for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move syntax",
@@ -22,9 +22,7 @@
 			{
 				"id": "move",
 				"aliases": [
-					"Move",
-					"LibraMove",
-					"Libra"
+					"Move"
 				],
 				"extensions": [
 					".move"
@@ -56,7 +54,10 @@
 		"move syntax",
 		"move ide",
 		"move-ide",
-		"libra-ide"
+		"libra-ide",
+		"diem",
+		"sui",
+		"starcoin"
 	],
 	"author": "Damir Shamanaev <damirka.ru@gmail.com>",
 	"license": "MIT",

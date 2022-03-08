@@ -35,6 +35,11 @@
             ]
         },
 
+        "macros": {
+            "name": "support.constant.macro.move",
+            "match": "#\\[(?:test_only|test)\\]"
+        },
+
         "script": {
             "name": "meta.script.move",
             "begin": "\\b(script)\\b",
@@ -59,29 +64,6 @@
             ]
         },
 
-        "address": {
-            "name": "meta.address.move",
-            "begin": "\\b(address)\\b",
-            "beginCaptures": {
-                "1": { "name": "storage.modifier.address.move" }
-            },
-            "end": "(?<=})",
-            "patterns": [
-                { "include": "#comments" },
-                {
-                    "name": "meta.module_address.move",
-                    "comment": "Address literal",
-                    "begin": "(?<=address)",
-                    "end": "(?={)",
-                    "patterns": [
-                        { "include": "#comments" },
-                        { "include": "#address_literal" }
-                    ]
-                },
-                { "include": "#module" }
-            ]
-        },
-
         "module": {
             "name": "meta.module.move",
             "comment": "Module definition",
@@ -96,9 +78,20 @@
                     "comment": "Module name",
                     "begin": "(?<=module)",
                     "end": "(?={)",
-                    "name": "entity.name.type.move",
                     "patterns": [
-                        { "include": "#comments" }
+                        { "include": "#comments" },
+                        {
+                            "comment": "Module namespace / address",
+                            "name": "constant.other.move",
+                            "begin": "(?<=module)",
+                            "end": "(?=::)"
+                        },
+                        {
+                            "comment": "Module name",
+                            "name": "entity.name.type.move",
+                            "begin": "(?<=::)",
+                            "end": "(?={)"
+                        }
                     ]
                 },
                 {
@@ -108,6 +101,7 @@
                     "end": "}",
                     "patterns": [
                         { "include": "#comments" },
+                        { "include": "#macros" },
                         { "include": "#import" },
                         { "include": "#friend" },
                         { "include": "#const" },
@@ -279,6 +273,11 @@
                     "end": "\\)",
                     "patterns": [
                         { "include": "#comments" },
+                        {
+                            "comment": "Public native fun",
+                            "match": "\\b(native)\\b",
+                            "name": "storage.modifier.public.move"
+                        },
                         { 
                             "comment": "Friend or Script visibility",
                             "match": "\\b(script|friend)\\b",
@@ -512,7 +511,17 @@
             "comment": "Built-in types + vector",
             "patterns": [
                 { "include": "#primitives" },
-                { "include": "#vector" }
+                { "include": "#vector" },
+                { 
+                    "comment": "Capitalized type names",
+                    "name": "entity.name.type",
+                    "match": "\\b([A-Z][A-Za-z_]+)\\b"
+                },
+                { 
+                    "comment": "All-uppercase const literal",
+                    "match": "\\b([A-Z_]+)\\b",
+                    "name": "constant.other.move"
+                }
             ]
         },
 
@@ -701,8 +710,8 @@
 
     "patterns": [
         { "include": "#comments" },
-        { "include": "#address" },
         { "include": "#module" },
-        { "include": "#script" }
+        { "include": "#script" },
+        { "include": "#macros" }
     ]
 }

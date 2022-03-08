@@ -6,7 +6,8 @@ Originally started at dfinance, for previous code see [dfinance (pontem) repo](h
 If you want to know more about the language, see these resources:
 
 - [The Move Book](https://move-book.com)
-- [Diem Developers Website](https://developers.diem.com/docs/move/move-introduction/)
+- [Diem Move Documentation](https://diem.github.io/move/)
+- [Awesome Move Page by MystenLabs](https://github.com/MystenLabs/awesome-move)
 
 ## Move IDE legacy
 
