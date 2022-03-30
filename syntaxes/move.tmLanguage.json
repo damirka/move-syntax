@@ -239,7 +239,7 @@
         },
 
         "native_fun": {
-            "meta": "meta.native_fun.move",
+            "name": "meta.native_fun.move",
             "comment": "Native function",
             "begin": "\\b(native)\\b",
             "beginCaptures": {
@@ -248,11 +248,6 @@
             "end": "(?<=[;])",
             "patterns": [
                 { "include": "#comments" },
-                {
-                    "comment": "Public native fun",
-                    "match": "\\b(public)\\b",
-                    "name": "storage.modifier.public.move"
-                },
                 { "include": "#fun_signature" }
             ]
         },
@@ -267,17 +262,17 @@
             "end": "(?<=})",
             "patterns": [
                 { "include": "#comments" },
+                {
+                    "comment": "Public native function",
+                    "match": "\\b(native)\\b",
+                    "name": "storage.modifier.public.move"
+                },
                 { 
                     "comment": "Script visibility",
                     "begin": "\\(",
                     "end": "\\)",
                     "patterns": [
                         { "include": "#comments" },
-                        {
-                            "comment": "Public native fun",
-                            "match": "\\b(native)\\b",
-                            "name": "storage.modifier.public.move"
-                        },
                         { 
                             "comment": "Friend or Script visibility",
                             "match": "\\b(script|friend)\\b",
@@ -308,6 +303,7 @@
                 { "include": "#comments" },
                 { "include": "#module_access" },
                 { "include": "#types" },
+                { "include": "#mut" },
                 {
                     "name": "meta.function_name.move",
                     "comment": "Function name",

@@ -2,6 +2,21 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.1 - Minor bug fixes
+
+Fixes highlighting for:
+
+- public native functions (native keyword)
+- mutable references in function return values: &mut 
+
+## v0.4.0 - Sui + HL improvements
+
+- allow #[test] and #[test_only] macros on functions and modules
+- add module namespaces highlights
+- allow "public native" function hl as well as "native public"
+- improve struct type hl in function signatures and structs
+- highlight all-uppercase symbols as consts (e.g. MY_CUSTOM_CONST)
+
 ## v0.3.0 - Phantom type parameters 
 
 - follow Move 1.4 changes, add phantom keyword

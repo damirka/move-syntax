@@ -1,5 +1,0 @@
-[*.ts]
-end_of_line = lf
-indent_style = space
-insert_final_newline = true
-indent_size = 4
