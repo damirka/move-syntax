@@ -106,13 +106,12 @@
                         { "include": "#friend" },
                         { "include": "#const" },
                         { "include": "#struct" },
+                        { "include": "#entry_fun" },
                         { "include": "#public_fun" },
                         { "include": "#native_fun" },
                         { "include": "#fun" },
 
-                        
                         { "include": "#spec" },
-
                         { "include": "#block" }
                     ]
                 }
@@ -248,6 +247,11 @@
             "end": "(?<=[;])",
             "patterns": [
                 { "include": "#comments" },
+                {
+                    "comment": "Native public function",
+                    "match": "\\b(public)\\b",
+                    "name": "storage.modifier.public.move"
+                },
                 { "include": "#fun_signature" }
             ]
         },
@@ -267,19 +271,33 @@
                     "match": "\\b(native)\\b",
                     "name": "storage.modifier.public.move"
                 },
-                { 
+                {
                     "comment": "Script visibility",
                     "begin": "\\(",
                     "end": "\\)",
                     "patterns": [
                         { "include": "#comments" },
-                        { 
+                        {
                             "comment": "Friend or Script visibility",
                             "match": "\\b(script|friend)\\b",
                             "name": "storage.modifier.public.script.move"
                         }
                     ]
                 },
+                { "include": "#fun" }
+            ]
+        },
+
+        "entry_fun": {
+            "name": "meta.entry_fun.move",
+            "comment": "entry fun name() {}",
+            "begin": "\\b(entry)\\b",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.entry.move" }
+            },
+            "end": "(?<=})",
+            "patterns": [
+                { "include": "#comments" },
                 { "include": "#fun" }
             ]
         },
@@ -363,7 +381,7 @@
             "end": "}",
             "patterns": [
                 { "include": "#comments" },
-
+                { "include": "#import" },
                 { "include": "#as" },
                 { "include": "#mut" },
                 { "include": "#let" },
@@ -508,12 +526,12 @@
             "patterns": [
                 { "include": "#primitives" },
                 { "include": "#vector" },
-                { 
+                {
                     "comment": "Capitalized type names",
                     "name": "entity.name.type",
                     "match": "\\b([A-Z][A-Za-z_]+)\\b"
                 },
-                { 
+                {
                     "comment": "All-uppercase const literal",
                     "match": "\\b([A-Z_]+)\\b",
                     "name": "constant.other.move"
