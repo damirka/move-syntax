@@ -37,7 +37,7 @@
 
         "macros": {
             "name": "support.constant.macro.move",
-            "match": "#\\[(?:test_only|test)\\]"
+            "match": "#\\[(?:[\\w0-9=_\\(\\)\\s\"]+)\\]"
         },
 
         "script": {
@@ -248,9 +248,14 @@
             "patterns": [
                 { "include": "#comments" },
                 {
-                    "comment": "Native public function",
+                    "comment": "native public function",
                     "match": "\\b(public)\\b",
                     "name": "storage.modifier.public.move"
+                },
+                {
+                    "comment": "native entry function",
+                    "match": "\\b(entry)\\b",
+                    "name": "storage.modifier.entry.move"
                 },
                 { "include": "#fun_signature" }
             ]
@@ -270,6 +275,11 @@
                     "comment": "Public native function",
                     "match": "\\b(native)\\b",
                     "name": "storage.modifier.public.move"
+                },
+                {
+                    "comment": "Public entry function",
+                    "match": "\\b(entry)\\b",
+                    "name": "storage.modifier.entry.move"
                 },
                 {
                     "comment": "Script visibility",
@@ -298,6 +308,16 @@
             "end": "(?<=})",
             "patterns": [
                 { "include": "#comments" },
+                {
+                    "comment": "entry native function",
+                    "match": "\\b(native)\\b",
+                    "name": "storage.modifier.native.move"
+                },
+                {
+                    "comment": "entry public function",
+                    "match": "\\b(public)\\b",
+                    "name": "storage.modifier.public.move"
+                },
                 { "include": "#fun" }
             ]
         },

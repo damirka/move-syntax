@@ -2,6 +2,11 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.3 - Minor improvements
+
+- allows highlighting `public(friend) native entry fun name();`
+- extends macros, allowing any text inside
+
 ## v0.4.2 - Entry functions
 
 - adds `entry` functions

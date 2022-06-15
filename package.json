@@ -1,6 +1,6 @@
 {
 	"name": "move-syntax",
-	"version": "0.4.2",
+	"version": "0.4.3",
 	"description": "Move syntax for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move syntax",
