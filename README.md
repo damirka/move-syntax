@@ -5,8 +5,8 @@ Originally started at dfinance, for previous code see [dfinance (pontem) repo](h
 
 If you want to know more about the language, see these resources:
 
-- [The Move Book](https://move-book.com)
-- [Diem Move Documentation](https://diem.github.io/move/)
+- [Move Language Documentation](https://move-language.github.io/move/)
+- [The Move Book (Old)](https://move-book.com)
 - [Awesome Move Page by MystenLabs](https://github.com/MystenLabs/awesome-move)
 
 ## Move IDE legacy
@@ -41,5 +41,5 @@ Feel free to ask any questions or report bugs [by opening new issue](https://git
 
 ## License
 
-Originally licensed under Apache license (see [COPYING](COPYING)). 
+Originally licensed under Apache license (see [COPYING](COPYING)).
 Sublicensed as [MIT](LICENSE).
