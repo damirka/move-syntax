@@ -1,20 +1,12 @@
 # Move Language syntax for VSCode
 
 This VSCode extension adds Move syntax support to VSCode (see [VSCode marketplace page](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax)).
-Originally started at dfinance, for previous code see [dfinance (pontem) repo](https://github.com/dfinance/vscode-move-ide).
 
 If you want to know more about the language, see these resources:
 
 - [Move Language Documentation](https://move-language.github.io/move/)
 - [The Move Book (Old)](https://move-book.com)
 - [Awesome Move Page by MystenLabs](https://github.com/MystenLabs/awesome-move)
-
-## Move IDE legacy
-
-From-the-scratch, new version of the Move IDE is in development.
-Previous versions of the Move IDE are still available in VSCode marketplace, new one is not ready yet.
-
-This extension was also created to separate syntax changes from the IDE features and let other extension developers use the same unified syntax without needing to install the Move IDE.
 
 ## Highlighting examples
 
