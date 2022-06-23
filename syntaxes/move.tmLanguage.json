@@ -107,8 +107,8 @@
                         { "include": "#const" },
                         { "include": "#struct" },
                         { "include": "#entry_fun" },
-                        { "include": "#public_fun" },
                         { "include": "#native_fun" },
+                        { "include": "#public_fun" },
                         { "include": "#fun" },
 
                         { "include": "#spec" },
@@ -244,7 +244,7 @@
             "beginCaptures": {
                 "1": { "name": "storage.modifier.native.move" }
             },
-            "end": "(?<=[;])",
+            "end": "(?<=[;}])",
             "patterns": [
                 { "include": "#comments" },
                 {
@@ -268,13 +268,13 @@
             "beginCaptures": {
                 "1": { "name": "storage.modifier.public.move" }
             },
-            "end": "(?<=})",
+            "end": "(?<=[;}])",
             "patterns": [
                 { "include": "#comments" },
                 {
                     "comment": "Public native function",
                     "match": "\\b(native)\\b",
-                    "name": "storage.modifier.public.move"
+                    "name": "storage.modifier.native.move"
                 },
                 {
                     "comment": "Public entry function",
