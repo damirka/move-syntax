@@ -64,6 +64,35 @@
             ]
         },
 
+        "address": {
+            "name": "meta.address_block.move",
+            "comment": "Address block",
+            "begin": "\\b(address)\\b",
+            "end": "(?<=})",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.type.address.keyword.move" }
+            },
+            "patterns": [
+                { "include": "#comments" },
+                {
+                    "name": "meta.address.definition.move",
+                    "comment": "Address value/const",
+                    "begin": "(?<=address)",
+                    "end": "(?=[{])",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#address_literal" },
+                        {
+                            "comment": "Named Address",
+                            "name": "entity.name.type.move",
+                            "match": "\\b(\\w+)\\b"
+                        }
+                    ]
+                },
+                { "include": "#module" }
+            ]
+        },
+
         "module": {
             "name": "meta.module.move",
             "comment": "Module definition",
@@ -84,13 +113,13 @@
                             "comment": "Module namespace / address",
                             "name": "constant.other.move",
                             "begin": "(?<=module)",
-                            "end": "(?=::)"
+                            "end": "(?=[(::){])"
                         },
                         {
                             "comment": "Module name",
                             "name": "entity.name.type.move",
                             "begin": "(?<=::)",
-                            "end": "(?={)"
+                            "end": "(?=[\\s{])"
                         }
                     ]
                 },
@@ -743,6 +772,7 @@
     },
 
     "patterns": [
+        { "include": "#address" },
         { "include": "#comments" },
         { "include": "#module" },
         { "include": "#script" },

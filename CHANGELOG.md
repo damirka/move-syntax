@@ -2,6 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.5 - Adds back support for address block
+
+- adds back `address <name> {}` block
+
 ## v0.4.4 - Minor impromevents
 
 - finally fixed the bug with 'public native' functions
