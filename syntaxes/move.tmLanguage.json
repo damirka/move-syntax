@@ -159,6 +159,11 @@
                 { "include": "#address_literal" },
                 { "include": "#as-import" },
                 {
+                    "comment": "Uppercase entities",
+                    "match": "\\b([A-Z]\\w*)\\b",
+                    "name": "entity.name.type.move"
+                },
+                {
                     "comment": "Module members",
                     "begin": "{",
                     "end": "}",
@@ -167,7 +172,7 @@
                         { "include": "#as-import" },
                         {
                             "comment": "Uppercase entities",
-                            "match": "\\b(\\w+)\\b",
+                            "match": "\\b([A-Z]\\w*)\\b",
                             "name": "entity.name.type.move"
                         }
                     ]
@@ -175,7 +180,7 @@
                 {
                     "comment": "Name of the imported module",
                     "match": "\\b(\\w+)\\b",
-                    "name": "entity.name.type.module.move"
+                    "name": "meta.entity.name.type.module.move"
                 }
             ]
         },
@@ -564,7 +569,7 @@
             "comment": "Use of module type or method",
             "match": "\\b(\\w+)::(\\w+)\\b",
             "captures": {
-                "1": { "name": "entity.name.type.module.move" },
+                "1": { "name": "meta.entity.name.type.accessed.module.move" },
                 "2": { "name": "entity.name.function.call.move" }
             }
         },

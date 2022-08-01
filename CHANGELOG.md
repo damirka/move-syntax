@@ -2,6 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.6 - Removes highlights of imports
+
+- Lessens the amount of hl in `use` statement
+
 ## v0.4.5 - Adds back support for address block
 
 - adds back `address <name> {}` block
