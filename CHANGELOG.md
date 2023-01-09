@@ -2,6 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.7 - New integer types
+
+- Adds support for u16, u32 and u256
+
 ## v0.4.6 - Removes highlights of imports
 
 - Lessens the amount of hl in `use` statement
