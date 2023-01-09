@@ -654,10 +654,25 @@
                 {
                     "name": "meta.ascii_literal.move",
                     "comment": "ASCII Bytestring literal",
-                    "match": "\\b(\"(.*)\")",
-                    "captures": {
-                        "1": { "name": "string.quoted.double.raw.byte.move"}
-                    }
+                    "begin": "\\bb\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "comment": "Special symbol escape",
+                            "name": "constant.character.escape.move",
+                            "match": "\\\\[nrt\\0\"]"
+                        },
+                        {
+                            "comment": "HEX Escape",
+                            "name": "constant.character.escape.hex.move",
+                            "match": "\\\\x[a-fA-F0-9][A-Fa-f0-9]"
+                        },
+                        {
+                            "comment": "ASCII Character",
+                            "name": "string.quoted.double.raw.move",
+                            "match": "[\\x00-\\x7F]"
+                        }
+                    ]
                 },
                 {
                     "name": "meta.hex_literal.move",

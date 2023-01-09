@@ -2,6 +2,11 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.8 - Better support for character escapes
+
+- Now escaped characters are highlighted correctly
+- ASCII literal no longer consumes all line
+
 ## v0.4.7 - New integer types
 
 - Adds support for u16, u32 and u256
