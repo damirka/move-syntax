@@ -11,10 +11,10 @@ If you want to know more about the language, see these resources:
 ## Highlighting examples
 
 With dark theme:
-![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_dark.jpg)
+![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_dark.png)
 
 With light theme:
-![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_light.jpg)
+![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_light.png)
 
 ## Note for Extension Developers
 
