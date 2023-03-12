@@ -2,6 +2,11 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.9 - Minor patches + to the future
+
+- Fixes issue with the colon breaking hl in test attributes
+- Adds back the `self` first argument name highlighting
+
 ## v0.4.8 - Better support for character escapes
 
 - Now escaped characters are highlighted correctly

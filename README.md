@@ -10,7 +10,11 @@ If you want to know more about the language, see these resources:
 
 ## Highlighting examples
 
-![Move syntax highlighting](https://github.com/damirka/vscode-move-syntax/raw/master/img/syntax_sample.jpg)
+With dark theme:
+![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_dark.jpg)
+
+With light theme:
+![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_light.jpg)
 
 ## Note for Extension Developers
 
@@ -25,11 +29,12 @@ to the list of dependencies of your extension's `package.json` file, and it shou
 
 These extensions are already using this syntax highlighting:
 
+- [Move Analyzer (marketplace)](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer)
 - [Starcoin IDE (marketplace)](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide) by Starcoin team;
 
 ## Contribution
 
-Feel free to ask any questions or report bugs [by opening new issue](https://github.com/damirka/vscode-move-syntax/issues).
+Feel free to ask any questions or report bugs [by opening new issue](https://github.com/damirka/move-syntax/issues).
 
 ## License
 
