@@ -1,4 +1,4 @@
-# Move Language syntax for VSCode
+# Move Language Syntax package
 
 This VSCode extension adds Move syntax support to VSCode (see [VSCode marketplace page](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax)).
 
