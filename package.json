@@ -14,6 +14,9 @@
 		"vscode": "^1.43.0"
 	},
 	"main": "./extension.js",
+	"activationEvents": [
+		"onLanguage:move"
+	],
 	"contributes": {
 		"languages": [
 			{
