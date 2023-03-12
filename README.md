@@ -1,8 +1,8 @@
 # Move Language Syntax package
 
-This VSCode extension adds Move syntax support to VSCode (see [VSCode marketplace page](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax)).
+This VSCode extension adds Move syntax support to VSCode (see [VSCode marketplace page](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax)). As well as defines the TextMate grammar for Move Language to use in other environments.
 
-If you want to know more about the language, see these resources:
+To learn more about the language, see these resources:
 
 - [Move Language Documentation](https://move-language.github.io/move/)
 - [Awesome Move Page by MystenLabs](https://github.com/MystenLabs/awesome-move)
@@ -10,10 +10,10 @@ If you want to know more about the language, see these resources:
 
 ## Highlighting examples
 
-With dark theme:
+With a dark theme:
 ![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_dark.png)
 
-With light theme:
+With a light theme:
 ![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_light.png)
 
 ## Note for Extension Developers
