@@ -1,6 +1,6 @@
 {
 	"name": "move-syntax",
-	"version": "0.4.9",
+	"version": "0.4.10",
 	"description": "Move syntax for VSCode",
 	"publisher": "damirka",
 	"displayName": "Move syntax",
@@ -14,6 +14,9 @@
 		"vscode": "^1.43.0"
 	},
 	"main": "./extension.js",
+	"activationEvents": [
+		"onLanguage:move"
+	],
 	"contributes": {
 		"languages": [
 			{
