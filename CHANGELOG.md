@@ -2,10 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
-## v0.4.9 - Minor patches + to the future
+## v0.4.9 - Minor patches
 
-- Fixes issue with the colon breaking hl in test attributes
-- Adds back the `self` first argument name highlighting
+- Fixes language configuration for brackets and removes angles from the setting
+- Adds typed literal hl for `1u256`, `100u16` and `300u32`
 
 ## v0.4.8 - Better support for character escapes
 
