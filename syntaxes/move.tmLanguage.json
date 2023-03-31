@@ -37,7 +37,7 @@
 
         "macros": {
             "name": "support.constant.macro.move",
-            "match": "#\\[(?:[\\w0-9=_\\(\\)\\s\"]+)\\]"
+            "match": "#\\[(?:[\\w0-9=_\\(\\)\\s\"\\:]+)\\]"
         },
 
         "script": {

@@ -2,6 +2,18 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.10 - Macros patches
+
+- Colon `:` used to break macro highlighting
+
+```move
+module example::test {
+    #[test]
+    #[expected_failure(abort_code = sui::kiosk::ENotOwner)]
+    fun test_borrow_fail_not_owner() {}
+}
+```
+
 ## v0.4.9 - Minor patches
 
 - Fixes language configuration for brackets and removes angles from the setting
