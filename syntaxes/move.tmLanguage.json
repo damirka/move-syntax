@@ -96,7 +96,7 @@
         "module": {
             "name": "meta.module.move",
             "comment": "Module definition",
-            "begin": "\\b(module)\\b",
+            "begin": "\\b(module|spec)\\b",
             "end": "(?<=})",
             "beginCaptures": {
                 "1": { "name": "storage.modifier.type.move" }
@@ -105,14 +105,14 @@
                 { "include": "#comments" },
                 {
                     "comment": "Module name",
-                    "begin": "(?<=module)",
+                    "begin": "(?<=(module|spec))",
                     "end": "(?={)",
                     "patterns": [
                         { "include": "#comments" },
                         {
                             "comment": "Module namespace / address",
                             "name": "constant.other.move",
-                            "begin": "(?<=module)",
+                            "begin": "(?<=(module|spec))",
                             "end": "(?=[(::){])"
                         },
                         {
