@@ -1,73 +1,74 @@
 {
-	"name": "move-syntax",
-	"version": "0.4.10",
-	"description": "Move syntax for VSCode",
-	"publisher": "damirka",
-	"displayName": "Move syntax",
-	"categories": [
-		"Programming Languages",
-		"Snippets",
-		"Other"
-	],
-	"scripts": {},
-	"engines": {
-		"vscode": "^1.43.0"
-	},
-	"main": "./extension.js",
-	"activationEvents": [
-		"onLanguage:move"
-	],
-	"contributes": {
-		"languages": [
-			{
-				"id": "move",
-				"aliases": [
-					"Move"
-				],
-				"extensions": [
-					".move"
-				],
-				"configuration": "./language-configuration.json"
-			}
-		],
-		"grammars": [
-			{
-				"language": "move",
-				"scopeName": "source.move",
-				"path": "./syntaxes/move.tmLanguage.json"
-			}
-		]
-	},
-	"icon": "img/logo.256.png",
-	"galleryBanner": {
-		"color": "#FFFFFF",
-		"theme": "light"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/damirka/vscode-move-syntax.git"
-	},
-	"keywords": [
-		"libra",
-		"move",
-		"ide",
-		"move syntax",
-		"move ide",
-		"move-ide",
-		"libra-ide",
-		"diem",
-		"sui",
-		"starcoin"
-	],
-	"author": "Damir Shamanaev <damirka.ru@gmail.com>",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/damirka/vscode-move-syntax/issues"
-	},
-	"homepage": "https://github.com/damirka/vscode-move-syntax#readme",
-	"__metadata": {
-		"id": "079cf480-3f72-452f-b128-8b8038c252fb",
-		"publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6",
-		"publisherDisplayName": "Damir Shamanaev"
-	}
+  "name": "move-syntax",
+  "version": "0.4.11",
+  "description": "Move syntax for VSCode",
+  "publisher": "damirka",
+  "displayName": "Move syntax",
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "engines": {
+    "vscode": "^1.43.0"
+  },
+  "main": "./extension.js",
+  "browser": "./extension.js",
+  "activationEvents": [
+    "onLanguage:move"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "move",
+        "aliases": [
+          "Move"
+        ],
+        "extensions": [
+          ".move"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "move",
+        "scopeName": "source.move",
+        "path": "./syntaxes/move.tmLanguage.json"
+      }
+    ]
+  },
+  "icon": "img/logo.256.png",
+  "galleryBanner": {
+    "color": "#FFFFFF",
+    "theme": "light"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/damirka/vscode-move-syntax.git"
+  },
+  "keywords": [
+    "libra",
+    "move",
+    "ide",
+    "move syntax",
+    "move ide",
+    "move-ide",
+    "libra-ide",
+    "diem",
+    "sui",
+    "starcoin",
+    "aptos"
+  ],
+  "author": "Damir Shamanaev <damirka.ru@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/damirka/vscode-move-syntax/issues"
+  },
+  "homepage": "https://github.com/damirka/vscode-move-syntax#readme",
+  "__metadata": {
+    "id": "079cf480-3f72-452f-b128-8b8038c252fb",
+    "publisherId": "a21ee11b-2c64-42b1-a3d1-78e5ee8191a6",
+    "publisherDisplayName": "Damir Shamanaev"
+  }
 }

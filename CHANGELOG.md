@@ -2,6 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.11 - GitHub support
+
+- Adds "browser" configuration to `package.json` to enable extension in the browser
+
 ## v0.4.10 - Macros patches
 
 - Colon `:` used to break macro highlighting
