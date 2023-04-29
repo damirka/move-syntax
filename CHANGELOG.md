@@ -5,6 +5,16 @@ Version history from v0.1.0 to this day.
 ## v0.4.11 - GitHub support
 
 - Adds "browser" configuration to `package.json` to enable extension in the browser
+- Fixes issue with macros - extends a set of symbols in the macro to hl expected_failure
+```move
+module example::test {
+    #[test]
+    #[expected_failure(abort_code = 0)]
+    function test() {
+        abort 0
+    }
+}
+```
 
 ## v0.4.10 - Macros patches
 
