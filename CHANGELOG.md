@@ -2,7 +2,19 @@
 
 Version history from v0.1.0 to this day.
 
-## v0.4.11 - GitHub support
+## v0.4.12 - Small patch in Macros
+
+- Highlights "`,`" comma separator in macros.
+```
+module example::test {
+    #[test, expected_failure(abort_code = sui::kiosk::ENotOwner)]
+    fun test_borrow() {
+        // ...
+    }
+}
+```
+
+## v0.4.11 - GitHub Web-editor support
 
 - Adds "browser" configuration to `package.json` to enable extension in the browser
 - Fixes issue with macros - extends a set of symbols in the macro to hl expected_failure
