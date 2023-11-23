@@ -1,6 +1,6 @@
 {
   "name": "move-syntax",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "description": "Move syntax for VSCode",
   "publisher": "damirka",
   "displayName": "Move syntax",
@@ -28,6 +28,9 @@
           ".move"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "move-markdown-injection"
       }
     ],
     "grammars": [
@@ -35,6 +38,17 @@
         "language": "move",
         "scopeName": "source.move",
         "path": "./syntaxes/move.tmLanguage.json"
+      },
+      {
+        "language": "move-markdown-injection",
+        "scopeName": "markdown.move.codeblock",
+        "path": "./syntaxes/move-markdown-injection.json",
+        "injectTo": [
+            "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+            "meta.embedded.block.move": "move"
+        }
       }
     ]
   },

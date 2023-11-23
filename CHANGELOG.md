@@ -2,6 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.13 - Adds Markdown support in VSCode
+
+- Adds support for "move" in markdown codeblocks in VSCode
+
 ## v0.4.12 - Small patch in Macros
 
 - Highlights "`,`" comma separator in macros.
