@@ -31,6 +31,9 @@
       },
       {
         "id": "move-markdown-injection"
+      },
+      {
+        "id": "move-mdx-injection"
       }
     ],
     "grammars": [
@@ -48,6 +51,17 @@
         ],
         "embeddedLanguages": {
             "meta.embedded.block.move": "move"
+        }
+      },
+      {
+        "language": "move-mdx-injection",
+        "scopeName": "mdx.move.codeblock",
+        "path": "./syntaxes/move-mdx-injection.json",
+        "injectTo": [
+          "source.mdx"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.move": "move"
         }
       }
     ]

@@ -1,0 +1,42 @@
+{
+    "fileTypes": [],
+    "injectionSelector": "L:source.mdx",
+    "patterns": [
+        {
+            "include": "#LANGUAGE-code-block"
+        }
+    ],
+    "repository": {
+        "LANGUAGE-code-block": {
+            "begin": "(^|\\G)(\\s*)(\\`{3,}|~{3,})\\s*(?i:(LANGUAGE)",
+            "name": "markup.code.other.mdx",
+            "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$",
+            "beginCaptures": {
+                "3": {
+                    "name": "string.other.begin.code.fenced.mdx"
+                },
+                "4": {
+                    "name": "entity.name.function.mdx"
+                }
+            },
+            "endCaptures": {
+                "3": {
+                    "name": "string.other.end.code.fenced.mdx"
+                }
+            },
+            "patterns": [
+                {
+                    "begin": "(^|\\G)(\\s*)(.*)",
+                    "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
+                    "contentName": "meta.embedded.block.LANGUAGE",
+                    "patterns": [
+                        {
+                            "include": "source.LANGUAGE"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "scopeName": "mdx.LANGUAGE.codeblock"
+}

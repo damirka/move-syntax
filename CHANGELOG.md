@@ -2,6 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.14 - Adds MDX support in VSCode
+
+- Adds support for "move" in codeblocks in VSCode (given that MDX extension is installed)
+
 ## v0.4.13 - Adds Markdown support in VSCode
 
 - Adds support for "move" in markdown codeblocks in VSCode
