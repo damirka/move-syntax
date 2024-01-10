@@ -17,7 +17,8 @@ Version history from v0.1.0 to this day.
 ## v0.4.12 - Small patch in Macros
 
 - Highlights "`,`" comma separator in macros.
-```
+
+```move
 module example::test {
     #[test, expected_failure(abort_code = sui::kiosk::ENotOwner)]
     fun test_borrow() {
@@ -34,7 +35,7 @@ module example::test {
 module example::test {
     #[test]
     #[expected_failure(abort_code = 0)]
-    function test() {
+    fun test() {
         abort 0
     }
 }
@@ -117,7 +118,8 @@ Fixes highlighting for:
 - no more resources, only abilities, this also affects generic constraints:
 
 Examples:
-```
+
+```move
 use 0x1::A;
 friend A;
 struct Token has store, key, copy, drop { /* ... */ }
