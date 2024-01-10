@@ -2,6 +2,10 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.4.15 - Simplified Markdown support in VSCode
+
+- Module is no longer a top-level requirement, codeblocks now support expressions and state
+
 ## v0.4.14 - Adds MDX support in VSCode
 
 - Adds support for "move" in codeblocks in VSCode (given that MDX extension is installed)

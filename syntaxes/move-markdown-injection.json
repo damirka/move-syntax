@@ -33,9 +33,34 @@
                     "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
                     "contentName": "meta.embedded.block.move",
                     "patterns": [
-                        {
-                            "include": "source.move"
-                        }
+                        { "include": "source.move#comments" },
+                        { "include": "source.move#address" },
+                        { "include": "source.move#comments" },
+                        { "include": "source.move#module" },
+                        { "include": "source.move#script" },
+                        { "include": "source.move#macros" },
+                        { "include": "source.move#import" },
+                        { "include": "source.move#friend" },
+                        { "include": "source.move#const" },
+                        { "include": "source.move#struct" },
+                        { "include": "source.move#entry_fun" },
+                        { "include": "source.move#native_fun" },
+                        { "include": "source.move#public_fun" },
+                        { "include": "source.move#fun" },
+                        { "include": "source.move#spec" },
+                        { "include": "source.move#as" },
+                        { "include": "source.move#mut" },
+                        { "include": "source.move#let" },
+                        { "include": "source.move#types" },
+                        { "include": "source.move#assert" },
+                        { "include": "source.move#literals" },
+                        { "include": "source.move#control" },
+                        { "include": "source.move#move_copy" },
+                        { "include": "source.move#resource_methods" },
+                        { "include": "source.move#self_access" },
+                        { "include": "source.move#module_access" },
+                        { "include": "source.move#fun_call" },
+                        { "include": "source.move#block" }
                     ]
                 }
             ]
