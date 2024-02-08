@@ -2,6 +2,14 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.5.0 - Move 2024 Edition support
+
+- Loosens visibility modifiers to allow for `public` struct
+- Adds support for backtick escaped identifiers
+- Generalized `mut` to a keyword that can be used in any position
+- Adds support for `mut` in function signatures
+- Receiver syntax aliases via `use fun` are now supported
+
 ## v0.4.15 - Simplified Markdown support in VSCode
 
 - Module is no longer a top-level requirement, codeblocks now support expressions and state
