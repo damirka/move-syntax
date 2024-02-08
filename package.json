@@ -10,7 +10,7 @@
     "Other"
   ],
   "engines": {
-    "vscode": "^1.43.0"
+    "vscode": "^1.63.0"
   },
   "main": "./extension.js",
   "browser": "./extension.js",
