@@ -158,7 +158,7 @@
             "end": "(?=;)",
             "patterns": [
                 { "include": "#comments" },
-                { "include": "#as" },
+                { "include": "#as-import" },
                 {
                     "comment": "Self keyword",
                     "match": "\\b(Self)\\b",
@@ -271,7 +271,6 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#primitives" },
-                { "include": "#vector" },
                 { "include": "#literals" },
                 {
                     "match": "\\b([\\w_]+)\\b",
@@ -409,46 +408,21 @@
             "begin": "{",
             "end": "}",
             "patterns": [
-                { "include": "#comments" },
-                { "include": "#escaped_identifier" },
-                { "include": "#import" },
-                { "include": "#as" },
-                { "include": "#mut" },
-                { "include": "#let" },
-                { "include": "#types" },
-                { "include": "#assert" },
-                { "include": "#literals" },
-                { "include": "#control" },
-                { "include": "#move_copy" },
-                { "include": "#resource_methods" },
-                { "include": "#self_access" },
-                { "include": "#module_access" },
-                { "include": "#fun_call" },
-                { "include": "#label" },
-                { "include": "#block" }
-
+                { "include": "#expr" }
             ]
         },
 
-        "fun_call": {
-            "name": "meta.fun_call.move",
-            "comment": "Function call",
-            "begin": "\\b(\\w+)\\s*(?:<[\\w\\s,]+>)?\\s*[(]",
-            "beginCaptures": {
-                "1": { "name": "entity.name.function.call.move" }
-            },
-            "end": "[)]",
+        "ident": {
+            "name": "meta.identifier.move",
+            "match": "\\b([a-zA-Z][A-Z_a-z0-9]*)\\b"
+        },
+
+        "paren": {
+            "name": "meta.paren.move",
+            "begin": "\\(",
+            "end": "\\)",
             "patterns": [
-                { "include": "#comments" },
-                { "include": "#resource_methods" },
-                { "include": "#self_access" },
-                { "include": "#module_access" },
-                { "include": "#move_copy" },
-                { "include": "#literals" },
-                { "include": "#fun_call" },
-                { "include": "#block" },
-                { "include": "#mut" },
-                { "include": "#as" }
+                { "include": "#expr" }
             ]
         },
 
@@ -465,21 +439,7 @@
             "begin": "{",
             "end": "}",
             "patterns": [
-                { "include": "#comments" },
-                { "include": "#escaped_identifier" },
-                { "include": "#as" },
-                { "include": "#mut" },
-                { "include": "#let" },
-                { "include": "#types" },
-                { "include": "#assert" },
-                { "include": "#literals" },
-                { "include": "#control" },
-                { "include": "#move_copy" },
-                { "include": "#resource_methods" },
-                { "include": "#module_access" },
-                { "include": "#fun_call" },
-                { "include": "#label" },
-                { "include": "#block" }
+                { "include": "#expr" }
             ]
         },
 
@@ -508,15 +468,15 @@
         },
 
         "as-import": {
-            "name": "meta.import_as.move",
-            "comment": "Keyword as in import statement",
+            "comment": "Keyword as in import statement; not highlighted",
+            "name": "meta.import.as.move",
             "match": "\\b(as)\\b"
         },
 
         "as": {
-            "comment": "Keyword as",
+            "comment": "Keyword as (highlighted)",
             "match": "\\b(as)\\b",
-            "name": "keyword.control.move"
+            "name": "keyword.control.as.move"
         },
 
         "mut": {
@@ -542,6 +502,12 @@
             "comment": "Assert built-in",
             "match": "\\b(assert)\\b",
             "name": "support.function.assert.move"
+        },
+
+        "vector": {
+            "comment": "vector type",
+            "match": "\\b(vector)\\b",
+            "name": "support.type.vector.move"
         },
 
         "self_access": {
@@ -573,7 +539,7 @@
                 {
                     "comment": "Capitalized type names",
                     "name": "entity.name.type",
-                    "match": "\\b([A-Z][A-Za-z_]+)\\b"
+                    "match": "\\b([A-Z][A-Za-z_]*)\\b"
                 },
                 {
                     "comment": "All-uppercase const literal",
@@ -583,16 +549,13 @@
             ]
         },
 
-        "vector": {
-            "name": "meta.vector.move",
-            "begin": "\\b(vector)<",
-            "beginCaptures": {
-                "1": { "name": "support.type.vector.move" }
-            },
-            "end": ">",
+        "struct_pack": {
+            "comment": "Struct { field: value... }; identified as generic / ident followed by curly's",
+            "name": "meta.struct.pack.move",
+            "begin": "(?<=[A-Za-z0-9_>])\\s*{",
+            "end": "}",
             "patterns": [
-                { "include": "#primitives" },
-                { "include": "#vector" }
+                { "include": "#comments" }
             ]
         },
 
@@ -602,22 +565,57 @@
             "name": "support.type.primitives.move"
         },
 
-        "address_literal": {
+        "path_access": {
+            "comment": "<expr>.[ident] access",
+            "name": "meta.path.access.move",
+            "match": "\\.[a-z][_a-z0-9]*\\b"
+        },
+
+        "expr_generic": {
+            "comment": "< angle brackets >",
+            "name": "meta.expression.generic.type.move",
+            "begin": "<",
+            "end": ">",
             "patterns": [
-                {
-                    "comment": "Named address parameter",
-                    "match": "\\s([@]\\w+)\\b",
-                    "name": "support.constant.named.address.move"
-                }
+                { "include": "#comments" },
+                { "include": "#types" },
+                { "include": "#expr_generic" }
             ]
         },
 
+        "method_call": {
+            "comment": "<expr>.[ident]<>?() call",
+            "name": "meta.path.call.move",
+            "match": "\\.([a-z][_a-z0-9]*)(?=[<\\(])",
+            "captures": {
+                "1": { "name": "entity.name.function.call.path.move" }
+            }
+        },
+
+        "local_call": {
+            "comment": "call to a local / imported fun",
+            "name": "entity.name.function.call.local.move",
+            "match": "\\b([a-z][_a-z0-9]*)(?=[<\\(])"
+        },
+
         "literals": {
+            "comment": "Literals supported in Move",
+            "name": "meta.literal.move",
             "patterns": [
                 {
-                    "comment": "Hex literal (still to find out)",
+                    "comment": "base16 address literal",
+                    "match": "@0x[A-F0-9a-f]+",
+                    "name": "support.constant.address.base16.move"
+                },
+                {
+                    "comment": "named address literal @[ident]",
+                    "match": "@[a-zA-Z][a-zA-Z_0-9]*",
+                    "name": "support.constant.address.name.move"
+                },
+                {
+                    "comment": "Hex literal",
                     "name": "constant.numeric.hex.move",
-                    "match": "0x[_a-fA-F0-9]+(?:[iu](?:8|16|32|64|size))?"
+                    "match": "0x[_a-fA-F0-9]+(?:u(?:8|16|32|64|128|256))?"
                 },
                 {
                     "comment": "Numeric literal",
@@ -625,15 +623,8 @@
                     "match": "(?<!(?:\\w|(?:(?<!\\.)\\.)))[0-9][_0-9]*(?:\\.(?!\\.)(?:[0-9][_0-9]*)?)?(?:[eE][+\\-]?[_0-9]+)?(?:[u](?:8|16|32|64|128|256))?"
                 },
                 {
-                    "comment": "Bytearray hex literal",
-                    "match": "\\b(?:h)(\"[a-fA-F0-9]+\")",
-                    "captures": {
-                        "1": { "name": "constant.character.move" }
-                    }
-                },
-                {
-                    "name": "meta.ascii_literal.move",
-                    "comment": "ASCII Bytestring literal",
+                    "comment": "vector ascii bytestring literal",
+                    "name": "meta.vector.literal.ascii.move",
                     "begin": "\\bb\"",
                     "end": "\"",
                     "patterns": [
@@ -655,21 +646,96 @@
                     ]
                 },
                 {
-                    "name": "meta.hex_literal.move",
-                    "comment": "vector<u8> as hex literal: x",
-                    "match": "x\"([A-F0-9a-f]+)\"",
-                    "captures": {
-                        "1": { "name": "constant.numeric.hex.move" }
-                    }
+                    "comment": "vector hex literal",
+                    "name": "meta.vector.literal.hex.move",
+                    "begin": "x\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "comment": "vector hex literal",
+                            "name": "constant.character.move",
+                            "match": "[A-Fa-f0-9]+"
+                        }
+                    ]
                 },
                 {
-                    "comment": "Booleans",
+                    "comment": "bool literal",
                     "name": "constant.language.boolean.move",
                     "match": "\\b(?:true|false)\\b"
                 },
-                { "include": "#address_literal" }
+                {
+                    "comment": "vector literal (macro?)",
+                    "name": "meta.vector.literal.macro.move",
+                    "begin": "vector",
+                    "end": "\\]",
+                    "patterns": [
+                        { "include": "#expr" }
+                    ]
+                }
             ]
         },
+
+        "expr": {
+            "comment": "Aggregate Expression",
+            "name": "meta.expression.move",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#escaped_identifier" },
+                { "include": "#expr_generic" },
+
+                {
+                    "name": "constant.language.error.move",
+                    "match": "\\b(E[A-Z][A-Za-z_]*)\\b"
+                },
+
+                { "include": "#import" },
+                { "include": "#as" },
+                { "include": "#mut" },
+                { "include": "#let" },
+
+                { "include": "#assert" },
+                { "include": "#literals" },
+                { "include": "#control" },
+                { "include": "#move_copy" },
+                { "include": "#resource_methods" },
+                { "include": "#self_access" },
+                { "include": "#module_access" },
+                { "include": "#label" },
+
+                { "include": "#local_call" },
+                { "include": "#method_call" },
+                { "include": "#path_access" },
+
+                { "include": "#paren" },
+                { "include": "#block" }
+            ]
+        },
+
+
+        "=== DEPRECATED_BELOW ===": {},
+
+        "fun_call": {
+            "name": "meta.fun_call.move",
+            "comment": "Function call",
+            "begin": "\\b(\\w+)\\s*(?:<[\\w\\s,]+>)?\\s*[(]",
+            "beginCaptures": {
+                "1": { "name": "entity.name.function.call.move" }
+            },
+            "end": "[)]",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#resource_methods" },
+                { "include": "#self_access" },
+                { "include": "#module_access" },
+                { "include": "#move_copy" },
+                { "include": "#literals" },
+                { "include": "#fun_call" },
+                { "include": "#block" },
+                { "include": "#mut" },
+                { "include": "#as" }
+            ]
+        },
+
 
         "spec_block": {
             "comment": "Spec block",
