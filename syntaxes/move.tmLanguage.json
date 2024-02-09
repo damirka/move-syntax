@@ -574,7 +574,7 @@
         "expr_generic": {
             "comment": "< angle brackets >",
             "name": "meta.expression.generic.type.move",
-            "begin": "<",
+            "begin": "<(?=([\\sa-z_,0-9A-Z<>]+>))",
             "end": ">",
             "patterns": [
                 { "include": "#comments" },
