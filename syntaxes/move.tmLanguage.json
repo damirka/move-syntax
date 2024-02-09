@@ -173,9 +173,17 @@
         },
 
         "public-scope": {
-            "comment": "Public Friend/Script/Package",
-            "match": "\\b(public)\\s*\\(\\w+\\)",
-            "name": "storage.modifier.visibility.public.scope.move"
+            "comment": "public (friend/script/package)",
+            "name": "meta.public.scoped.move",
+            "begin": "(?<=(public))\\s*\\(",
+            "end": "\\)",
+            "patterns": [
+                { "include": "#comments" },
+                {
+                    "match": "\\b(friend|script|package)\\b",
+                    "name": "keyword.control.public.scope.move"
+                }
+            ]
         },
 
         "public": {
