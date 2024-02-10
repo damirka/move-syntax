@@ -139,8 +139,8 @@
                         { "include": "#import" },
                         { "include": "#friend" },
                         { "include": "#const" },
-                        { "include": "#enum" },
                         { "include": "#struct" },
+                        { "include": "#enum" },
                         { "include": "#macro" },
                         { "include": "#fun" },
                         { "include": "#spec" },
@@ -291,29 +291,45 @@
             "patterns": [
                 { "include": "#comments" },
                 {
-                    "name": "meta.struct_def.move",
+                    "name": "meta.struct.definition.move",
                     "comment": "Struct definition",
                     "begin": "(?<=struct)",
                     "end": "(?=[;{])",
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#escaped_identifier" },
-                        {
-                            "comment": "Has Abilities",
-                            "match": "\\b(has)\\b",
-                            "name": "keyword.control.ability.has.move"
-                        },
+                        { "include": "#has" },
                         { "include": "#abilities" },
                         {
                             "comment": "Struct name (ident)",
                             "match": "\\b[A-Z][a-zA-Z_0-9]*\\b",
                             "name": "entity.name.type.struct.move"
                         },
+                        {
+                            "name": "meta.struct.paren.move",
+                            "comment": "Simple struct",
+                            "begin": "\\(",
+                            "end": "\\)",
+                            "patterns": [
+                                { "include": "#comments" },
+                                { "include": "#types" }
+                            ]
+                        },
                         { "include": "#type_param" }
                     ]
                 },
                 {
-                    "name": "meta.struct_body.move",
+                    "name": "meta.struct.paren.move",
+                    "comment": "Simple struct",
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#types" }
+                    ]
+                },
+                {
+                    "name": "meta.struct.body.move",
                     "comment": "Struct body",
                     "begin": "{",
                     "end": "}",
@@ -344,11 +360,7 @@
                     "match": "\\b[A-Z][a-zA-Z_0-9]*\\b",
                     "name": "entity.name.type.enum.move"
                 },
-                {
-                    "comment": "Has Abilities",
-                    "match": "\\b(has)\\b",
-                    "name": "keyword.control.ability.has.move"
-                },
+                { "include": "#has" },
                 { "include": "#abilities" },
                 {
                     "name": "meta.enum.definition.move",
@@ -378,6 +390,12 @@
                     ]
                 }
             ]
+        },
+
+        "has": {
+            "comment": "Has Abilities",
+            "match": "\\b(has)\\b",
+            "name": "keyword.control.ability.has.move"
         },
 
         "macro": {
@@ -564,16 +582,13 @@
             "name": "support.function.typed.move"
         },
 
-        "assert": {
-            "comment": "Assert built-in",
-            "match": "\\b(assert)\\b",
-            "name": "support.function.assert.move"
-        },
-
         "macro_call": {
+            "name": "meta.macro.call",
             "comment": "Macro fun call",
-            "match": "\\b[a-z][A-Za-z0-9_]*!",
-            "name": "support.function.macro.move"
+            "match": "(\\b|\\.)([a-z][A-Za-z0-9_]*)!",
+            "captures": {
+                "2": { "name": "support.function.macro.move" }
+            }
         },
 
         "vector": {
@@ -774,7 +789,6 @@
                 { "include": "#mut" },
                 { "include": "#let" },
 
-                { "include": "#assert" },
                 { "include": "#literals" },
                 { "include": "#control" },
                 { "include": "#move_copy" },
