@@ -139,6 +139,7 @@
                         { "include": "#import" },
                         { "include": "#friend" },
                         { "include": "#const" },
+                        { "include": "#enum" },
                         { "include": "#struct" },
                         { "include": "#fun" },
                         { "include": "#spec" },
@@ -285,7 +286,7 @@
             "beginCaptures": {
                 "1": { "name": "storage.modifier.type.move" }
             },
-            "end": "(?<=})",
+            "end": "(?<=[};])",
             "patterns": [
                 { "include": "#comments" },
                 {
@@ -301,15 +302,11 @@
                             "match": "\\b(has)\\b",
                             "name": "keyword.control.ability.has.move"
                         },
+                        { "include": "#abilities" },
                         {
-                            "comment": "Ability",
-                            "match": "\\b(store|key|drop|copy)\\b",
-                            "name": "entity.name.type.ability.move"
-                        },
-                        {
-                            "comment": "Struct name",
-                            "match": "\\b(\\w+)\\b",
-                            "name": "entity.name.type.move"
+                            "comment": "Struct name (ident)",
+                            "match": "\\b[A-Z][a-zA-Z_0-9]*\\b",
+                            "name": "entity.name.type.struct.move"
                         },
                         { "include": "#type_param" }
                     ]
@@ -324,6 +321,59 @@
                         { "include": "#self_access" },
                         { "include": "#module_access" },
                         { "include": "#types" }
+                    ]
+                }
+            ]
+        },
+
+        "enum": {
+            "comment": "Enum syntax",
+            "name": "meta.enum.move",
+            "begin": "\\b(enum)\\b",
+            "beginCaptures": {
+                "0": { "name": "keyword.control.enum.move" }
+            },
+            "end": "(?<=})",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#escaped_identifier" },
+                { "include": "#type_param" },
+                {
+                    "comment": "Enum name (ident)",
+                    "match": "\\b[A-Z][a-zA-Z_0-9]*\\b",
+                    "name": "entity.name.type.enum.move"
+                },
+                {
+                    "comment": "Has Abilities",
+                    "match": "\\b(has)\\b",
+                    "name": "keyword.control.ability.has.move"
+                },
+                { "include": "#abilities" },
+                {
+                    "name": "meta.enum.definition.move",
+                    "begin": "{",
+                    "end": "}",
+                    "patterns": [
+                        { "include": "#comments" },
+                        {
+                            "name": "meta.enum.tuple.move",
+                            "begin": "\\(",
+                            "end": "\\)",
+                            "patterns": [
+                                { "include": "#comments" },
+                                { "include": "#types" }
+                            ]
+                        },
+                        {
+                            "name": "meta.enum.struct.move",
+                            "begin": "{",
+                            "end": "}",
+                            "patterns": [
+                                { "include": "#comments" },
+                                { "include": "#escaped_identifier" },
+                                { "include": "#types" }
+                            ]
+                        }
                     ]
                 }
             ]
@@ -394,12 +444,14 @@
                 { "include": "#comments" },
                 { "include": "#phantom" },
                 { "include": "#module_access" },
-                {
-                    "comment": "Trait-like condition",
-                    "match": "\\b(store|drop|key|copy)\\b",
-                    "name": "entity.name.type.kind.move"
-                }
+                { "include": "#abilities" }
             ]
+        },
+
+        "abilities": {
+            "comment": "Ability",
+            "match": "\\b(store|key|drop|copy)\\b",
+            "name": "entity.name.type.ability.move"
         },
 
         "fun_body": {
@@ -428,8 +480,7 @@
 
         "label": {
             "comment": "Label",
-            "begin": "'",
-            "end": "'",
+            "match": "'[a-z][a-z_0-9]*",
             "name": "string.quoted.single.label.move"
         },
 
@@ -530,6 +581,11 @@
             }
         },
 
+        "error_const": {
+            "name": "variable.language.error.move",
+            "match": "\\b(E[A-Z][A-Za-z_]*)\\b"
+        },
+
         "types": {
             "name": "meta.types.move",
             "comment": "Built-in types + vector",
@@ -569,6 +625,12 @@
             "comment": "<expr>.[ident] access",
             "name": "meta.path.access.move",
             "match": "\\.[a-z][_a-z0-9]*\\b"
+        },
+
+        "packed_field": {
+            "comment": "[ident]: ",
+            "name": "meta.struct.field.move",
+            "match": "[a-z][a-z0-9_]+\\s*:\\s[^:]"
         },
 
         "expr_generic": {
@@ -683,10 +745,8 @@
                 { "include": "#escaped_identifier" },
                 { "include": "#expr_generic" },
 
-                {
-                    "name": "constant.language.error.move",
-                    "match": "\\b(E[A-Z][A-Za-z_]*)\\b"
-                },
+                { "include": "#error_const" },
+                { "include": "#packed_field" },
 
                 { "include": "#import" },
                 { "include": "#as" },
