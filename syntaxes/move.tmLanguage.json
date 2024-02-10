@@ -141,6 +141,7 @@
                         { "include": "#const" },
                         { "include": "#enum" },
                         { "include": "#struct" },
+                        { "include": "#macro" },
                         { "include": "#fun" },
                         { "include": "#spec" },
                         { "include": "#block" }
@@ -331,7 +332,7 @@
             "name": "meta.enum.move",
             "begin": "\\b(enum)\\b",
             "beginCaptures": {
-                "0": { "name": "keyword.control.enum.move" }
+                "1": { "name": "keyword.control.enum.move" }
             },
             "end": "(?<=})",
             "patterns": [
@@ -379,10 +380,24 @@
             ]
         },
 
+        "macro": {
+            "comment": "macro fun [ident] {}",
+            "name": "meta.macro.move",
+            "begin": "\\b(macro)\\b",
+            "end": "(?<=})",
+            "beginCaptures": {
+                "1": { "name": "keyword.control.macro.move" }
+            },
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#fun" }
+            ]
+        },
+
         "fun": {
             "patterns": [
                 { "include": "#fun_signature" },
-                { "include": "#fun_body" }
+                { "include": "#block" }
             ]
         },
 
@@ -458,7 +473,7 @@
             "name": "meta.fun_body.move",
             "comment": "Function body",
             "begin": "{",
-            "end": "}",
+            "end": "(?<=})",
             "patterns": [
                 { "include": "#expr" }
             ]
@@ -553,6 +568,12 @@
             "comment": "Assert built-in",
             "match": "\\b(assert)\\b",
             "name": "support.function.assert.move"
+        },
+
+        "macro_call": {
+            "comment": "Macro fun call",
+            "match": "\\b[a-z][A-Za-z0-9_]*!",
+            "name": "support.function.macro.move"
         },
 
         "vector": {
@@ -762,6 +783,7 @@
                 { "include": "#module_access" },
                 { "include": "#label" },
 
+                { "include": "#macro_call" },
                 { "include": "#local_call" },
                 { "include": "#method_call" },
                 { "include": "#path_access" },
