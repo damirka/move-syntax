@@ -802,6 +802,15 @@
                 { "include": "#method_call" },
                 { "include": "#path_access" },
 
+                {
+                    "name": "keyword.operator.macro.dollar.move",
+                    "match": "\\$(?=[a-z])"
+                },
+                {
+                    "name": "variable.other.meta.move",
+                    "match": "(?<=[$])[a-z][A-Z_0-9a-z]*"
+                },
+
                 { "include": "#paren" },
                 { "include": "#block" }
             ]
