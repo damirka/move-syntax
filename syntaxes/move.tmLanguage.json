@@ -764,7 +764,7 @@
                 {
                     "comment": "vector literal (macro?)",
                     "name": "meta.vector.literal.macro.move",
-                    "begin": "vector",
+                    "begin": "vector\\[",
                     "end": "\\]",
                     "patterns": [
                         { "include": "#expr" }
