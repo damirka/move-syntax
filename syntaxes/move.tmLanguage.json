@@ -160,7 +160,11 @@
             "end": "(?=;)",
             "patterns": [
                 { "include": "#comments" },
-                { "include": "#as-import" },
+                {
+                    "comment": "as keyword",
+                    "match": "\\b(as)\\b",
+                    "name": "keyword.control.as.move"
+                },
                 {
                     "comment": "Self keyword",
                     "match": "\\b(Self)\\b",
@@ -169,8 +173,10 @@
                 {
                     "comment": "Function name",
                     "name": "entity.name.function.use.move",
-                    "match": "\\b([a-z][a-z_0-9]+)\\b"
-                }
+                    "match": "\\b(_______[a-z][a-z_0-9]+)\\b"
+                },
+                { "include": "#types" },
+                { "include": "#capitalized" }
             ]
         },
 
@@ -312,6 +318,7 @@
                             "end": "\\)",
                             "patterns": [
                                 { "include": "#comments" },
+                                { "include": "#capitalized" },
                                 { "include": "#types" }
                             ]
                         },
@@ -336,7 +343,9 @@
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#self_access" },
+                        { "include": "#escaped_identifier" },
                         { "include": "#module_access" },
+                        { "include": "#capitalized" },
                         { "include": "#types" }
                     ]
                 }
@@ -455,7 +464,9 @@
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#self_access" },
+                        { "include": "#escaped_identifier" },
                         { "include": "#module_access" },
+                        { "include": "#capitalized" },
                         { "include": "#types" },
                         { "include": "#mut" }
                     ]
@@ -484,7 +495,7 @@
         "abilities": {
             "comment": "Ability",
             "match": "\\b(store|key|drop|copy)\\b",
-            "name": "entity.name.type.ability.move"
+            "name": "support.type.ability.move"
         },
 
         "fun_body": {
@@ -622,6 +633,12 @@
             "match": "\\b(E[A-Z][A-Za-z_]*)\\b"
         },
 
+        "capitalized": {
+            "comment": "MyType - capitalized type name",
+            "name": "entity.name.type.use.move",
+            "match": "\\b([A-Z][a-zA-Z_0-9]*)\\b"
+        },
+
         "types": {
             "name": "meta.types.move",
             "comment": "Built-in types + vector",
@@ -631,12 +648,7 @@
                 {
                     "comment": "Capitalized type names",
                     "name": "entity.name.type",
-                    "match": "\\b([A-Z][A-Za-z_]*)\\b"
-                },
-                {
-                    "comment": "All-uppercase const literal",
-                    "match": "\\b([A-Z_]+)\\b",
-                    "name": "constant.other.move"
+                    "match": "_____\\b([A-Z][A-Za-z_]*)\\b"
                 }
             ]
         },
@@ -666,7 +678,7 @@
         "packed_field": {
             "comment": "[ident]: ",
             "name": "meta.struct.field.move",
-            "match": "[a-z][a-z0-9_]+\\s*:\\s[^:]"
+            "match": "[a-z][a-z0-9_]+\\s*:\\s*(?=\\s)"
         },
 
         "expr_generic": {
@@ -809,6 +821,18 @@
                 {
                     "name": "variable.other.meta.move",
                     "match": "(?<=[$])[a-z][A-Z_0-9a-z]*"
+                },
+
+                {
+                    "comment": "ALL_CONST_CAPS",
+                    "name": "constant.other.move",
+                    "match": "\\b([A-Z][A-Z_]+)\\b"
+                },
+
+                {
+                    "comment": "CustomType",
+                    "name": "entity.name.type.move",
+                    "match": "\\b([A-Z][a-zA-Z_0-9]*)\\b"
                 },
 
                 { "include": "#paren" },

@@ -41,6 +41,7 @@
                         { "include": "source.move#entry" },
                         { "include": "source.move#public-scope" },
                         { "include": "source.move#public" },
+                        { "include": "source.move#macro" },
                         { "include": "source.move#native" },
                         { "include": "source.move#import" },
                         { "include": "source.move#friend" },
