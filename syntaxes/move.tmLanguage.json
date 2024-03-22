@@ -345,6 +345,7 @@
                         { "include": "#self_access" },
                         { "include": "#escaped_identifier" },
                         { "include": "#module_access" },
+                        { "include": "#expr_generic" },
                         { "include": "#capitalized" },
                         { "include": "#types" }
                     ]
@@ -439,6 +440,7 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#module_access" },
+                { "include": "#capitalized" },
                 { "include": "#types" },
                 { "include": "#mut" },
                 {
@@ -464,6 +466,7 @@
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#self_access" },
+                        { "include": "#expr_generic" },
                         { "include": "#escaped_identifier" },
                         { "include": "#module_access" },
                         { "include": "#capitalized" },
@@ -487,6 +490,7 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#phantom" },
+                { "include": "#capitalized" },
                 { "include": "#module_access" },
                 { "include": "#abilities" }
             ]
@@ -644,12 +648,7 @@
             "comment": "Built-in types + vector",
             "patterns": [
                 { "include": "#primitives" },
-                { "include": "#vector" },
-                {
-                    "comment": "Capitalized type names",
-                    "name": "entity.name.type",
-                    "match": "_____\\b([A-Z][A-Za-z_]*)\\b"
-                }
+                { "include": "#vector" }
             ]
         },
 
@@ -689,6 +688,7 @@
             "patterns": [
                 { "include": "#comments" },
                 { "include": "#types" },
+                { "include": "#capitalized" },
                 { "include": "#expr_generic" }
             ]
         },
