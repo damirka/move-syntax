@@ -176,6 +176,7 @@
                     "match": "\\b(_______[a-z][a-z_0-9]+)\\b"
                 },
                 { "include": "#types" },
+                { "include": "#escaped_identifier" },
                 { "include": "#capitalized" }
             ]
         },

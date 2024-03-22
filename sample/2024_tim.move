@@ -28,7 +28,7 @@ module foo::bar {
 
     public struct NewPost<T: key + copy + store> has key {}
 
-    public struct NewPoster<T: key + copy + store> (u64) has key, store;
+    public struct NewPoster<T: key + copy + store>(u64) has key, store;
 
     public struct None {}
 
