@@ -2,6 +2,17 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.6.0 - Extended Support for Move 2024
+
+- Adds support for `macro!` calls in function blocks
+- Better highlighting in generics and type parameters
+- Supports `macro` keyword
+- Adds `public(package)`
+- New struct syntax
+- Support for `enum`
+- `use fun` aliases are now supported
+
+
 ## v0.5.0 - Move 2024 Edition support
 
 - Loosens visibility modifiers to allow for `public` struct
