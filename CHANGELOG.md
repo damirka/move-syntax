@@ -2,6 +2,14 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.6.1 - Positional structs!
+
+- Adds support for positional structs
+- Fixes issue with abilities defined before struct fields in positionals
+- Adds support for positional structs without abilities
+- Fixes issue with function name ending with `_fun` breaking the syntax highlighting
+- Same applies for a named address ending with `_module` in the module declaration
+
 ## v0.6.0 - Extended Support for Move 2024
 
 - Adds support for `macro!` calls in function blocks

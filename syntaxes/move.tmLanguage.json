@@ -113,7 +113,7 @@
                         {
                             "comment": "Module namespace / address",
                             "name": "constant.other.move",
-                            "begin": "(?<=(module|spec))",
+                            "begin": "(?<=\\b(module|spec))",
                             "end": "(?=[(::){])"
                         },
                         {
@@ -139,12 +139,14 @@
                         { "include": "#import" },
                         { "include": "#friend" },
                         { "include": "#const" },
+
                         { "include": "#struct" },
+                        { "include": "#has_ability" },
+
                         { "include": "#enum" },
                         { "include": "#macro" },
                         { "include": "#fun" },
-                        { "include": "#spec" },
-                        { "include": "#block" }
+                        { "include": "#spec" }
                     ]
                 }
             ]
@@ -184,7 +186,7 @@
         "public-scope": {
             "comment": "public (friend/script/package)",
             "name": "meta.public.scoped.move",
-            "begin": "(?<=(public))\\s*\\(",
+            "begin": "(?<=\\b(public))\\s*\\(",
             "end": "\\)",
             "patterns": [
                 { "include": "#comments" },
@@ -288,23 +290,30 @@
             ]
         },
 
+        "has_ability": {
+            "name": "meta.has.ability.move",
+            "begin": "(?<=[})])\\s+(has)\\b",
+            "end": ";",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.type.move" }
+            },
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#abilities" }
+            ]
+        },
+
         "struct": {
             "name": "meta.struct.move",
             "begin": "\\b(struct)\\b",
             "beginCaptures": {
                 "1": { "name": "storage.modifier.type.move" }
             },
-            "end": "(?<=[};])",
+            "end": "(?<=[};\\)])",
             "patterns": [
                 { "include": "#comments" },
-                {
-                    "name": "meta.struct.definition.move",
-                    "comment": "Struct definition",
-                    "begin": "(?<=struct)",
-                    "end": "(?=[;{])",
-                    "patterns": [
-                        { "include": "#comments" },
-                        { "include": "#escaped_identifier" },
+                { "include": "#escaped_identifier" },
+
                         { "include": "#has" },
                         { "include": "#abilities" },
                         {
@@ -314,7 +323,7 @@
                         },
                         {
                             "name": "meta.struct.paren.move",
-                            "comment": "Simple struct",
+                            "comment": "Positional fields",
                             "begin": "\\(",
                             "end": "\\)",
                             "patterns": [
@@ -323,14 +332,12 @@
                                 { "include": "#types" }
                             ]
                         },
-                        { "include": "#type_param" }
-                    ]
-                },
+                        { "include": "#type_param" },
                 {
                     "name": "meta.struct.paren.move",
                     "comment": "Simple struct",
                     "begin": "\\(",
-                    "end": "\\)",
+                    "end": "(?<=[)])",
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#types" }
@@ -350,7 +357,8 @@
                         { "include": "#capitalized" },
                         { "include": "#types" }
                     ]
-                }
+                },
+                { "include": "#has_ability" }
             ]
         },
 
@@ -447,7 +455,7 @@
                 {
                     "name": "meta.function_name.move",
                     "comment": "Function name",
-                    "begin": "(?<=fun)",
+                    "begin": "(?<=\\bfun)",
                     "end": "(?=[<(])",
                     "patterns": [
                         { "include": "#comments" },
@@ -801,6 +809,7 @@
                 { "include": "#as" },
                 { "include": "#mut" },
                 { "include": "#let" },
+                { "include": "#types" },
 
                 { "include": "#literals" },
                 { "include": "#control" },
@@ -904,7 +913,7 @@
                 { "include": "#types" },
                 {
                     "comment": "Function name",
-                    "begin": "(?<=define)",
+                    "begin": "(?<=\\bdefine)",
                     "end": "(?=[(])",
                     "patterns": [
                         { "include": "#comments" },
@@ -972,6 +981,12 @@
         { "include": "#comments" },
         { "include": "#module" },
         { "include": "#script" },
-        { "include": "#attributes" }
+        { "include": "#attributes" },
+        {
+            "comment": "While experiment",
+            "name": "keyword.control.while.whaaat.move",
+            "begin": "\\b(while)\\b",
+            "while": "[a-z]"
+        }
     ]
 }
