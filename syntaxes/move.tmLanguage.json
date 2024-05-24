@@ -8,7 +8,7 @@
             "end": "$",
             "patterns": [
                 {
-                    "comment": "Escaped doc link",
+                    "comment": "Escaped member / link",
                     "match": "`(\\w+)`",
                     "captures": {
                         "1": { "name": "markup.underline.link.move" }
