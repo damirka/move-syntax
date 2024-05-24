@@ -2,6 +2,11 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.6.2 - Broken character escapes
+
+- Fixes bytestring special character escapes `b"\\"`
+- Adds underline for \`-escaped members in doc comments
+
 ## v0.6.1 - Positional structs!
 
 - Adds support for positional structs

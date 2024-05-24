@@ -1,14 +1,27 @@
 {
     "scopeName": "source.move",
     "repository": {
-
+        "doc-comments": {
+            "comment": "Documentation comment",
+            "name": "comment.block.documentation.move",
+            "begin": "///",
+            "end": "$",
+            "patterns": [
+                {
+                    "comment": "Escaped doc link",
+                    "match": "`(\\w+)`",
+                    "captures": {
+                        "1": { "name": "markup.underline.link.move" }
+                    }
+                }
+            ]
+        },
         "line-comments": {
             "comment": "Single-line comment",
             "name": "comment.line.double-slash.move",
             "begin": "//",
             "end": "$"
         },
-
         "block-comments": {
             "comment": "Supported since https://github.com/diem/diem/pull/3714",
             "patterns": [
@@ -26,10 +39,10 @@
                 }
             ]
         },
-
         "comments": {
             "name": "meta.comments.move",
             "patterns": [
+                { "include": "#doc-comments" },
                 { "include": "#line-comments" },
                 { "include": "#block-comments" }
             ]
@@ -747,6 +760,11 @@
                     "begin": "\\bb\"",
                     "end": "\"",
                     "patterns": [
+                        {
+                            "comment": "character escape",
+                            "name": "constant.character.escape.move",
+                            "match": "\\\\."
+                        },
                         {
                             "comment": "Special symbol escape",
                             "name": "constant.character.escape.move",
