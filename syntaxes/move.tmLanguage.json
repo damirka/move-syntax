@@ -48,9 +48,26 @@
             ]
         },
 
-        "attributes": {
-            "name": "support.constant.attribute.move",
-            "match": "#\\[(?:[\\w0-9=,_\\(\\)\\s\"\\:=]+)\\]"
+        "annotation": {
+            "name": "support.constant.annotation.move",
+            "begin": "#\\[",
+            "end": "\\]",
+            "patterns": [
+                {
+                    "comment": "Annotation name",
+                    "name": "meta.annotation.name.move",
+                    "match": "\\b(\\w+)\\s*(?=\\=)"
+                },
+                {
+                    "comment": "Annotation value",
+                    "name": "meta.annotation.value.move",
+                    "begin": "=",
+                    "end": "(?=[,\\]])",
+                    "patterns": [
+                        { "include": "#literals" }
+                    ]
+                }
+            ]
         },
 
         "script": {
@@ -144,7 +161,7 @@
                     "end": "}",
                     "patterns": [
                         { "include": "#comments" },
-                        { "include": "#attributes" },
+                        { "include": "#annotation" },
                         { "include": "#entry" },
                         { "include": "#public-scope" },
                         { "include": "#public" },
@@ -327,25 +344,25 @@
                 { "include": "#comments" },
                 { "include": "#escaped_identifier" },
 
-                        { "include": "#has" },
-                        { "include": "#abilities" },
-                        {
-                            "comment": "Struct name (ident)",
-                            "match": "\\b[A-Z][a-zA-Z_0-9]*\\b",
-                            "name": "entity.name.type.struct.move"
-                        },
-                        {
-                            "name": "meta.struct.paren.move",
-                            "comment": "Positional fields",
-                            "begin": "\\(",
-                            "end": "\\)",
-                            "patterns": [
-                                { "include": "#comments" },
-                                { "include": "#capitalized" },
-                                { "include": "#types" }
-                            ]
-                        },
-                        { "include": "#type_param" },
+                { "include": "#has" },
+                { "include": "#abilities" },
+                {
+                    "comment": "Struct name (ident)",
+                    "match": "\\b[A-Z][a-zA-Z_0-9]*\\b",
+                    "name": "entity.name.type.struct.move"
+                },
+                {
+                    "name": "meta.struct.paren.move",
+                    "comment": "Positional fields",
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "patterns": [
+                        { "include": "#comments" },
+                        { "include": "#capitalized" },
+                        { "include": "#types" }
+                    ]
+                },
+                { "include": "#type_param" },
                 {
                     "name": "meta.struct.paren.move",
                     "comment": "Simple struct",
@@ -438,10 +455,7 @@
             "beginCaptures": {
                 "1": { "name": "keyword.control.macro.move" }
             },
-            "patterns": [
-                { "include": "#comments" },
-                { "include": "#fun" }
-            ]
+            "patterns": [{ "include": "#comments" }, { "include": "#fun" }]
         },
 
         "fun": {
@@ -529,9 +543,7 @@
             "comment": "Function body",
             "begin": "{",
             "end": "(?<=})",
-            "patterns": [
-                { "include": "#expr" }
-            ]
+            "patterns": [{ "include": "#expr" }]
         },
 
         "ident": {
@@ -543,9 +555,7 @@
             "name": "meta.paren.move",
             "begin": "\\(",
             "end": "\\)",
-            "patterns": [
-                { "include": "#expr" }
-            ]
+            "patterns": [{ "include": "#expr" }]
         },
 
         "label": {
@@ -559,9 +569,7 @@
             "comment": "Block expression or definition",
             "begin": "{",
             "end": "}",
-            "patterns": [
-                { "include": "#expr" }
-            ]
+            "patterns": [{ "include": "#expr" }]
         },
 
         "phantom": {
@@ -668,10 +676,7 @@
         "types": {
             "name": "meta.types.move",
             "comment": "Built-in types + vector",
-            "patterns": [
-                { "include": "#primitives" },
-                { "include": "#vector" }
-            ]
+            "patterns": [{ "include": "#primitives" }, { "include": "#vector" }]
         },
 
         "struct_pack": {
@@ -679,9 +684,7 @@
             "name": "meta.struct.pack.move",
             "begin": "(?<=[A-Za-z0-9_>])\\s*{",
             "end": "}",
-            "patterns": [
-                { "include": "#comments" }
-            ]
+            "patterns": [{ "include": "#comments" }]
         },
 
         "primitives": {
@@ -805,9 +808,7 @@
                     "name": "meta.vector.literal.macro.move",
                     "begin": "vector\\[",
                     "end": "\\]",
-                    "patterns": [
-                        { "include": "#expr" }
-                    ]
+                    "patterns": [{ "include": "#expr" }]
                 }
             ]
         },
@@ -868,7 +869,6 @@
             ]
         },
 
-
         "=== DEPRECATED_BELOW ===": {},
 
         "fun_call": {
@@ -893,7 +893,6 @@
             ]
         },
 
-
         "spec_block": {
             "comment": "Spec block",
             "name": "meta.spec_block.move",
@@ -908,7 +907,6 @@
                 { "include": "#control" },
                 { "include": "#types" },
                 { "include": "#let" }
-
             ]
         },
 
@@ -999,12 +997,29 @@
         { "include": "#comments" },
         { "include": "#module" },
         { "include": "#script" },
-        { "include": "#attributes" },
+        { "include": "#annotation" },
         {
             "comment": "While experiment",
             "name": "keyword.control.while.whaaat.move",
             "begin": "\\b(while)\\b",
             "while": "[a-z]"
-        }
+        },
+        { "include": "#comments" },
+        { "include": "#annotation" },
+        { "include": "#entry" },
+        { "include": "#public-scope" },
+        { "include": "#public" },
+        { "include": "#native" },
+        { "include": "#import" },
+        { "include": "#friend" },
+        { "include": "#const" },
+
+        { "include": "#struct" },
+        { "include": "#has_ability" },
+
+        { "include": "#enum" },
+        { "include": "#macro" },
+        { "include": "#fun" },
+        { "include": "#spec" }
     ]
 }

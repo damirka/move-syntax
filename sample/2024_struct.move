@@ -20,17 +20,17 @@ module foo::bar {
 
     // Types
 
-    public struct X {  }
+    public struct X {}
 
     public struct Old<T: key + copy + store> has key {
         x: u64
     }
 
-    public struct NewPost<T: key + copy + store> has key {}
+    public struct NewPost<T: key + copy + store> has key (u64 vector(), u64)
 
     public struct NewPoster<T: key + copy + store>(u64) has key, store;
 
-    public struct None {}
+    public struct None()
 
     public enum NewEnum {
         V(),
@@ -72,7 +72,7 @@ module foo::bar {
             return 'a x;
             break 'a x;
             return'a x.foo!();
-            break 'a { x = x + 1; x };
+            break'a { x = x + 1; x };
             continue 'a;
         };
         'a: loop { };

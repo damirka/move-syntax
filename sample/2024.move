@@ -1,5 +1,8 @@
 module 0x0::2024 {
 
+    #[deprecated(note = say_hello, haha = b"hahaaaha")]
+    #[test, test_only]
+    #[test, allow(unused_function)]
     public(package) fun haha<T: key + store>(
         mut self: &mut Republic<T>,
         a: u64
@@ -49,7 +52,7 @@ module 0x0::2024 {
 
 
         self.column.heep;
-        self.simple_call<aa>().aaa<>();
+        self.simple_call<aa>().aaa<AAA>();
         self.chained()
             .call<  >( ( { { (  ) } } ) );
 

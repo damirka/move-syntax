@@ -2,6 +2,11 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.6.3 - Literal support in annotations
+
+- Adds support for literals in annotations `#[test = 1]`
+- Allows any module member to exist outside of the module block
+
 ## v0.6.2 - Broken character escapes
 
 - Fixes bytestring special character escapes `b"\\"`
@@ -24,7 +29,6 @@ Version history from v0.1.0 to this day.
 - New struct syntax
 - Support for `enum`
 - `use fun` aliases are now supported
-
 
 ## v0.5.0 - Move 2024 Edition support
 
