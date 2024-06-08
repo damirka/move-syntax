@@ -2,6 +2,17 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.6.4 - Adds support for module labels
+
+- Adds support for module labels `module <addr>::<name>;`
+- Minor qol improvements
+
+```move
+module book::example;
+
+public fun say_hello() {}
+```
+
 ## v0.6.3 - Literal support in annotations
 
 - Adds support for literals in annotations `#[test = 1]`

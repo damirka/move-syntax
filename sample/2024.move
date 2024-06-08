@@ -1,64 +1,63 @@
-module 0x0::2024 {
+module 0x0::2024;
 
-    #[deprecated(note = say_hello, haha = b"hahaaaha")]
-    #[test, test_only]
-    #[test, allow(unused_function)]
-    public(package) fun haha<T: key + store>(
-        mut self: &mut Republic<T>,
-        a: u64
-    ) {
-        use std::vector::push_back as veckie;
+#[deprecated(note = say_hello, haha = b"hahaaaha")]
+#[test, test_only]
+#[test, allow(unused_function)]
+public(package) fun haha<T: key + store>(
+    mut self: &mut Republic<T>,
+    a: u64
+) {
+    use std::vector::push_back as veckie;
 
-        @alice
-        self.field + 200;
-        @alice
+    @alice
+    self.field + 200;
+    @alice
 
-        break 'loop'
+    break 'loop'
 
-        let beep = (
-            a.call< u8 >(
-                { @alice },
-                if (100 > true) { },
-            vector<u8>[
-                100u8
-            ]
-        } ) as u8);
-
-        vector<vector<u8>>[
-            expr<u8>()
+    let beep = (
+        a.call< u8 >(
+            { @alice },
+            if (100 > true) { },
+        vector<u8>[
+            100u8
         ]
+    } ) as u8);
+
+    vector<vector<u8>>[
+        expr<u8>()
+    ]
 
 
-        vector<vector<u8>> [
+    vector<vector<u8>> [
 
-            vector<u64>[
-                10u64,
-                1000u128
-            ], {
-                if ( haha.inner.a().path(  ) ) () else {
-                    hehe.aaaa.beep()
-                }
+        vector<u64>[
+            10u64,
+            1000u128
+        ], {
+            if ( haha.inner.a().path(  ) ) () else {
+                hehe.aaaa.beep()
             }
-        ];
-
-
-        assert!()
-
-        damir<u8>();
-
-        <u8> {
-            id: ,
         }
+    ];
 
 
-        self.column.heep;
-        self.simple_call<aa>().aaa<AAA>();
-        self.chained()
-            .call<  >( ( { { (  ) } } ) );
+    assert!()
 
-        x"0222aaa"
-        b"aaaa"
+    damir<u8>();
 
-        0x2 @0xAAAA
+    <u8> {
+        id: ,
     }
+
+
+    self.column.heep;
+    self.simple_call<aa>().aaa<AAA>();
+    self.chained()
+        .call<  >( ( { { (  ) } } ) );
+
+    x"0222aaa"
+    b"aaaa"
+
+    0x2 @0xAAAA
 }

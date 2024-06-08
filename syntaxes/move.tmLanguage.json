@@ -23,7 +23,6 @@
             "end": "$"
         },
         "block-comments": {
-            "comment": "Supported since https://github.com/diem/diem/pull/3714",
             "patterns": [
                 {
                     "comment": "Block documentation comment",
@@ -63,9 +62,7 @@
                     "name": "meta.annotation.value.move",
                     "begin": "=",
                     "end": "(?=[,\\]])",
-                    "patterns": [
-                        { "include": "#literals" }
-                    ]
+                    "patterns": [{ "include": "#literals" }]
                 }
             ]
         },
@@ -123,11 +120,34 @@
             ]
         },
 
+        "module_label": {
+            "name": "meta.module.label.move",
+            "comment": "Module label, inline module definition",
+            "begin": "^\\s*(module)\\b",
+            "end": ";\\s*$",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#escaped_identifier" },
+                {
+                    "comment": "Module namespace / address",
+                    "name": "constant.other.move",
+                    "begin": "(?<=\\b(module|spec))",
+                    "end": "(?=[(::){])"
+                },
+                {
+                    "comment": "Module name",
+                    "name": "entity.name.type.move",
+                    "begin": "(?<=::)",
+                    "end": "(?=[\\s{])"
+                }
+            ]
+        },
+
         "module": {
             "name": "meta.module.move",
             "comment": "Module definition",
             "begin": "\\b(module|spec)\\b",
-            "end": "(?<=})",
+            "end": "(?<=[;}])",
             "beginCaptures": {
                 "1": { "name": "storage.modifier.type.move" }
             },
@@ -136,7 +156,7 @@
                 {
                     "comment": "Module name",
                     "begin": "(?<=(module|spec))",
-                    "end": "(?={)",
+                    "end": "(?=[;{])",
                     "patterns": [
                         { "include": "#comments" },
                         { "include": "#escaped_identifier" },
@@ -144,13 +164,21 @@
                             "comment": "Module namespace / address",
                             "name": "constant.other.move",
                             "begin": "(?<=\\b(module|spec))",
-                            "end": "(?=[(::){])"
+                            "end": "(?=[(::){])",
+                            "patterns": [
+                                { "include": "#comments" },
+                                { "include": "#escaped_identifier" }
+                            ]
                         },
                         {
                             "comment": "Module name",
                             "name": "entity.name.type.move",
                             "begin": "(?<=::)",
-                            "end": "(?=[\\s{])"
+                            "end": "(?=[\\s;{])",
+                            "patterns": [
+                                { "include": "#comments" },
+                                { "include": "#escaped_identifier" }
+                            ]
                         }
                     ]
                 },

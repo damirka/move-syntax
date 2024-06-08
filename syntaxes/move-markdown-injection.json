@@ -37,7 +37,7 @@
                         { "include": "source.move#comments" },
                         { "include": "source.move#module" },
                         { "include": "source.move#script" },
-                        { "include": "source.move#attributes" },
+                        { "include": "source.move#annotation" },
                         { "include": "source.move#entry" },
                         { "include": "source.move#public-scope" },
                         { "include": "source.move#public" },

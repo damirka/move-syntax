@@ -4,9 +4,9 @@ This VSCode extension adds Move syntax support to VSCode (see [VSCode marketplac
 
 To learn more about the language, see these resources:
 
-- [Move Language Documentation](https://move-language.github.io/move/)
-- [Awesome Move Page by MystenLabs](https://github.com/MystenLabs/awesome-move)
-- [The Move Book](https://move-book.com)
+-   [Move Language Documentation](https://move-language.github.io/move/)
+-   [Awesome Move Page by MystenLabs](https://github.com/MystenLabs/awesome-move)
+-   [The Move Book](https://move-book.com)
 
 ## Highlighting examples
 
@@ -23,14 +23,15 @@ to the list of dependencies of your extension's `package.json` file, and it shou
 
 ```json
 "extensionDependencies": [
-	"damirka.move-syntax"
+    "damirka.move-syntax"
 ],
 ```
 
 These extensions are already using this syntax highlighting:
 
-- [Move Analyzer (marketplace)](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer)
-- [Starcoin IDE (marketplace)](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide) by Starcoin team;
+-   [Move (marketplace)](https://marketplace.visualstudio.com/items?itemName=mysten.move)
+-   [Move Analyzer (marketplace)](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer)
+-   [Starcoin IDE (marketplace)](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide) by Starcoin team;
 
 ## Contribution
 
