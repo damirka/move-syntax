@@ -1,42 +1,55 @@
 {
     "fileTypes": [],
+    "scopeName": "mdx.move.codeblock",
     "injectionSelector": "L:source.mdx",
     "patterns": [
         {
-            "include": "#LANGUAGE-code-block"
-        }
-    ],
-    "repository": {
-        "LANGUAGE-code-block": {
-            "begin": "(^|\\G)(\\s*)(\\`{3,}|~{3,})\\s*(?i:(LANGUAGE)",
-            "name": "markup.code.other.mdx",
-            "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$",
+            "begin": "(?:^|\\G)[\\t ]*(`{3,})(?:[\\t ]*((?i:(?:.*\\.)?move))(?:[\\t ]+((?:[^\\n\\r`])+))?)(?:[\\t ]*$)",
             "beginCaptures": {
-                "3": {
+                "1": {
                     "name": "string.other.begin.code.fenced.mdx"
                 },
-                "4": {
+                "2": {
                     "name": "entity.name.function.mdx"
                 }
             },
+            "contentName": "meta.embedded.move",
+            "end": "(\\1)(?:[\\t ]*$)",
             "endCaptures": {
-                "3": {
+                "1": {
                     "name": "string.other.end.code.fenced.mdx"
                 }
             },
+            "name": "markup.code.move.mdx",
             "patterns": [
                 {
-                    "begin": "(^|\\G)(\\s*)(.*)",
-                    "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
-                    "contentName": "meta.embedded.block.LANGUAGE",
-                    "patterns": [
-                        {
-                            "include": "source.LANGUAGE"
-                        }
-                    ]
+                    "include": "source.move"
+                }
+            ]
+        },
+        {
+            "begin": "(?:^|\\G)[\\t ]*(~{3,})(?:[\\t ]*((?i:(?:.*\\.)?move))(?:[\\t ]+((?:[^\\n\\r])+))?)(?:[\\t ]*$)",
+            "beginCaptures": {
+                "1": {
+                    "name": "string.other.begin.code.fenced.mdx"
+                },
+                "2": {
+                    "name": "entity.name.function.mdx"
+                }
+            },
+            "contentName": "meta.embedded.move",
+            "end": "(\\1)(?:[\\t ]*$)",
+            "endCaptures": {
+                "1": {
+                    "name": "string.other.end.code.fenced.mdx"
+                }
+            },
+            "name": "markup.code.move.mdx",
+            "patterns": [
+                {
+                    "include": "source.move"
                 }
             ]
         }
-    },
-    "scopeName": "mdx.LANGUAGE.codeblock"
+    ]
 }

@@ -28,12 +28,6 @@
           ".move"
         ],
         "configuration": "./language-configuration.json"
-      },
-      {
-        "id": "move-markdown-injection"
-      },
-      {
-        "id": "move-mdx-injection"
       }
     ],
     "grammars": [
@@ -43,7 +37,6 @@
         "path": "./syntaxes/move.tmLanguage.json"
       },
       {
-        "language": "move-markdown-injection",
         "scopeName": "markdown.move.codeblock",
         "path": "./syntaxes/move-markdown-injection.json",
         "injectTo": [
@@ -54,7 +47,6 @@
         }
       },
       {
-        "language": "move-mdx-injection",
         "scopeName": "mdx.move.codeblock",
         "path": "./syntaxes/move-mdx-injection.json",
         "injectTo": [
