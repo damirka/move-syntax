@@ -2,6 +2,26 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.6.5 - Adds support for `match` expression
+
+- Adds support for `match` expression
+
+```move
+module example::test_enum {
+    public enum Sound {
+        Beep,
+        Boop,
+    }
+
+    public fun play_sound(sound: Sound) {
+        match sound {
+            Sound::Beep => {}
+            Sound::Boop => {}
+        }
+    }
+}
+```
+
 ## v0.6.4 - Adds support for module labels
 
 - Adds support for module labels `module <addr>::<name>;`

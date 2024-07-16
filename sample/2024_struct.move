@@ -61,6 +61,13 @@ module foo::bar {
         let NewPoster<T>(mut y, z, i) = x.new();
         let NewPoster::Variant<T>(mut y, z, i) = x.new();
 
+        let x = match x {
+            NewEnum::V() => 0,
+            NewEnum::V1(a, b) => {},
+            NewEnum::V2 { x, y } => x,
+            NewEnum::V3 => 0,
+        };
+
         x.foreach!(|y| { x = y; });
         assert!(x == 1, 6);
         x

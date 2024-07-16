@@ -746,6 +746,36 @@
             ]
         },
 
+        "match_expression": {
+            "comment": "enum pattern matching",
+            "name": "meta.match.move",
+            "begin": "\\b(match)\\b",
+            "beginCaptures": {
+                "1": { "name": "keyword.control.match.move" }
+            },
+            "end": "(?<=})",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#escaped_identifier" },
+                { "include": "#types" },
+                {
+                    "name": "meta.match.block.move",
+                    "comment": "Block expression or definition",
+                    "begin": "{",
+                    "end": "}",
+                    "patterns": [
+                        {
+                            "comment": "arrow operator",
+                            "match": "\\b(=>)\\b",
+                            "name": "operator.match.move"
+                        },
+                        { "include": "#expr" }
+                    ]
+                },
+                { "include": "#expr" }
+            ]
+        },
+
         "method_call": {
             "comment": "<expr>.[ident]<>?() call",
             "name": "meta.path.call.move",
@@ -870,6 +900,7 @@
                 { "include": "#local_call" },
                 { "include": "#method_call" },
                 { "include": "#path_access" },
+                { "include": "#match_expression" },
 
                 {
                     "name": "keyword.operator.macro.dollar.move",
