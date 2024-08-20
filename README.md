@@ -2,24 +2,24 @@
 
 This VSCode extension adds Move syntax support to VSCode (see [VSCode marketplace page](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax)). As well as defines the TextMate grammar for Move Language to use in other environments.
 
-To learn more about the language, see these resources:
+For full-featured IDE experience, use the [Move Extension](https://marketplace.visualstudio.com/items?itemName=mysten.move).
 
--   [Move Language Documentation](https://move-language.github.io/move/)
--   [Awesome Move Page by MystenLabs](https://github.com/MystenLabs/awesome-move)
--   [The Move Book](https://move-book.com)
+To learn more about the language:
+
+- [The Move Book](https://move-book.com/)
+- [The Move Reference](https://move-book.com/reference)
 
 ## Highlighting examples
 
 With a dark theme:
-![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_dark.png)
+![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_dark.jpg)
 
 With a light theme:
-![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_light.png)
+![Move syntax highlighting](https://github.com/damirka/move-syntax/raw/main/img/sample_light.jpg)
 
 ## Note for Extension Developers
 
-If you're building your own extension for Move, please consider using this one for syntax highlighting. To do so, simply add this extension
-to the list of dependencies of your extension's `package.json` file, and it should do the job. Example:
+If you're building your own extension for Move, consider using this one for syntax highlighting. To do so, simply add this extension to the list of dependencies of your extension's `package.json` file:
 
 ```json
 "extensionDependencies": [
@@ -29,9 +29,7 @@ to the list of dependencies of your extension's `package.json` file, and it shou
 
 These extensions are already using this syntax highlighting:
 
--   [Move (marketplace)](https://marketplace.visualstudio.com/items?itemName=mysten.move)
--   [Move Analyzer (marketplace)](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer)
--   [Starcoin IDE (marketplace)](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide) by Starcoin team;
+- [Move (marketplace)](https://marketplace.visualstudio.com/items?itemName=mysten.move)
 
 ## Contribution
 
@@ -39,5 +37,4 @@ Feel free to ask any questions or report bugs [by opening new issue](https://git
 
 ## License
 
-Originally licensed under Apache license (see [COPYING](COPYING)).
-Sublicensed as [MIT](LICENSE).
+[MIT](LICENSE).
