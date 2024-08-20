@@ -155,7 +155,7 @@
                 { "include": "#comments" },
                 {
                     "comment": "Module name",
-                    "begin": "(?<=(module|spec))",
+                    "begin": "(?<=\\b(module|spec)\\b)",
                     "end": "(?=[;{])",
                     "patterns": [
                         { "include": "#comments" },

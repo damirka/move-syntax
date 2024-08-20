@@ -2,6 +2,16 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.6.6 - Minor patch
+
+Fixes incorrect syntax in case of `_module` suffixed module name in module label.
+
+```move
+module example_module::test_module;
+
+public fun say_hello() {}
+```
+
 ## v0.6.5 - Adds support for `match` expression
 
 - Adds support for `match` expression
