@@ -131,7 +131,7 @@
                 {
                     "comment": "Module namespace / address",
                     "name": "constant.other.move",
-                    "begin": "(?<=\\b(module|spec))",
+                    "begin": "(?<=\\bmodule\\b)",
                     "end": "(?=[(::){])"
                 },
                 {
@@ -146,7 +146,7 @@
         "module": {
             "name": "meta.module.move",
             "comment": "Module definition",
-            "begin": "\\b(module|spec)\\b",
+            "begin": "\\b(module)\\b",
             "end": "(?<=[;}])",
             "beginCaptures": {
                 "1": { "name": "storage.modifier.type.move" }
@@ -155,7 +155,7 @@
                 { "include": "#comments" },
                 {
                     "comment": "Module name",
-                    "begin": "(?<=\\b(module|spec)\\b)",
+                    "begin": "(?<=\\b(module)\\b)",
                     "end": "(?=[;{])",
                     "patterns": [
                         { "include": "#comments" },
@@ -163,7 +163,7 @@
                         {
                             "comment": "Module namespace / address",
                             "name": "constant.other.move",
-                            "begin": "(?<=\\b(module|spec))",
+                            "begin": "(?<=\\b(module))",
                             "end": "(?=[(::){])",
                             "patterns": [
                                 { "include": "#comments" },
