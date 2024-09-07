@@ -273,6 +273,12 @@
             "name": "storage.modifier.visibility.native.move"
         },
 
+        "inline": {
+            "comment": "inline",
+            "match": "\\b(inline)\\b",
+            "name": "storage.modifier.visibility.inline.move"
+        },
+
         "import": {
             "name": "meta.import.move",
             "begin": "\\b(use)\\b",
@@ -446,11 +452,21 @@
                     "patterns": [
                         { "include": "#comments" },
                         {
+                            "name": "entity.name.function.enum.move",
+                            "match": "\\b([A-Z][A-Za-z_0-9]*)\\b(?=\\s*\\()"
+                        },
+                        {
+                            "name": "entity.name.type.enum.move",
+                            "match": "\\b([A-Z][A-Za-z_0-9]*)\\b"
+                        },
+                        {
                             "name": "meta.enum.tuple.move",
                             "begin": "\\(",
                             "end": "\\)",
                             "patterns": [
                                 { "include": "#comments" },
+                                { "include": "#expr_generic" },
+                                { "include": "#capitalized" },
                                 { "include": "#types" }
                             ]
                         },
@@ -461,6 +477,8 @@
                             "patterns": [
                                 { "include": "#comments" },
                                 { "include": "#escaped_identifier" },
+                                { "include": "#expr_generic" },
+                                { "include": "#capitalized" },
                                 { "include": "#types" }
                             ]
                         }
@@ -1057,12 +1075,6 @@
         { "include": "#module" },
         { "include": "#script" },
         { "include": "#annotation" },
-        {
-            "comment": "While experiment",
-            "name": "keyword.control.while.whaaat.move",
-            "begin": "\\b(while)\\b",
-            "while": "[a-z]"
-        },
         { "include": "#comments" },
         { "include": "#annotation" },
         { "include": "#entry" },
