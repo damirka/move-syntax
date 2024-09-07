@@ -347,10 +347,12 @@
                 { "include": "#comments" },
                 { "include": "#primitives" },
                 { "include": "#literals" },
+                { "include": "#types" },
                 {
-                    "match": "\\b([\\w_]+)\\b",
+                    "match": "\\b([A-Z_]+)\\b",
                     "name": "constant.other.move"
-                }
+                },
+                { "include": "#error_const" }
             ]
         },
 
@@ -709,7 +711,7 @@
         },
 
         "error_const": {
-            "name": "variable.language.error.move",
+            "name": "variable.other.error.const.move",
             "match": "\\b(E[A-Z][A-Za-z_]*)\\b"
         },
 
@@ -897,7 +899,6 @@
                 { "include": "#escaped_identifier" },
                 { "include": "#expr_generic" },
 
-                { "include": "#error_const" },
                 { "include": "#packed_field" },
 
                 { "include": "#import" },
@@ -934,6 +935,8 @@
                     "name": "constant.other.move",
                     "match": "\\b([A-Z][A-Z_]+)\\b"
                 },
+
+                { "include": "#error_const" },
 
                 {
                     "comment": "CustomType",
