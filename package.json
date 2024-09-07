@@ -10,13 +10,10 @@
     "Other"
   ],
   "engines": {
-    "vscode": "^1.63.0"
+    "vscode": "^1.75.0"
   },
   "main": "./extension.js",
   "browser": "./extension.js",
-  "activationEvents": [
-    "onLanguage:move"
-  ],
   "contributes": {
     "languages": [
       {

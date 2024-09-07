@@ -273,6 +273,12 @@
             "name": "storage.modifier.visibility.native.move"
         },
 
+        "inline": {
+            "comment": "inline",
+            "match": "\\b(inline)\\b",
+            "name": "storage.modifier.visibility.inline.move"
+        },
+
         "import": {
             "name": "meta.import.move",
             "begin": "\\b(use)\\b",
@@ -341,10 +347,12 @@
                 { "include": "#comments" },
                 { "include": "#primitives" },
                 { "include": "#literals" },
+                { "include": "#types" },
                 {
-                    "match": "\\b([\\w_]+)\\b",
+                    "match": "\\b([A-Z_]+)\\b",
                     "name": "constant.other.move"
-                }
+                },
+                { "include": "#error_const" }
             ]
         },
 
@@ -446,11 +454,21 @@
                     "patterns": [
                         { "include": "#comments" },
                         {
+                            "name": "entity.name.function.enum.move",
+                            "match": "\\b([A-Z][A-Za-z_0-9]*)\\b(?=\\s*\\()"
+                        },
+                        {
+                            "name": "entity.name.type.enum.move",
+                            "match": "\\b([A-Z][A-Za-z_0-9]*)\\b"
+                        },
+                        {
                             "name": "meta.enum.tuple.move",
                             "begin": "\\(",
                             "end": "\\)",
                             "patterns": [
                                 { "include": "#comments" },
+                                { "include": "#expr_generic" },
+                                { "include": "#capitalized" },
                                 { "include": "#types" }
                             ]
                         },
@@ -461,6 +479,8 @@
                             "patterns": [
                                 { "include": "#comments" },
                                 { "include": "#escaped_identifier" },
+                                { "include": "#expr_generic" },
+                                { "include": "#capitalized" },
                                 { "include": "#types" }
                             ]
                         }
@@ -691,7 +711,7 @@
         },
 
         "error_const": {
-            "name": "variable.language.error.move",
+            "name": "variable.other.error.const.move",
             "match": "\\b(E[A-Z][A-Za-z_]*)\\b"
         },
 
@@ -879,7 +899,6 @@
                 { "include": "#escaped_identifier" },
                 { "include": "#expr_generic" },
 
-                { "include": "#error_const" },
                 { "include": "#packed_field" },
 
                 { "include": "#import" },
@@ -916,6 +935,8 @@
                     "name": "constant.other.move",
                     "match": "\\b([A-Z][A-Z_]+)\\b"
                 },
+
+                { "include": "#error_const" },
 
                 {
                     "comment": "CustomType",
@@ -1057,12 +1078,6 @@
         { "include": "#module" },
         { "include": "#script" },
         { "include": "#annotation" },
-        {
-            "comment": "While experiment",
-            "name": "keyword.control.while.whaaat.move",
-            "begin": "\\b(while)\\b",
-            "while": "[a-z]"
-        },
         { "include": "#comments" },
         { "include": "#annotation" },
         { "include": "#entry" },
