@@ -47,6 +47,7 @@
                         { "include": "source.move#friend" },
                         { "include": "source.move#const" },
                         { "include": "source.move#struct" },
+                        { "include": "source.move#enum" },
                         { "include": "source.move#fun" },
                         { "include": "source.move#spec" },
                         { "include": "source.move#as" },

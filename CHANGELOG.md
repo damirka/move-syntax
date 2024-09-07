@@ -2,6 +2,19 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.7.0 - Better enums
+
+- Adds proper, Rust-like support for enums
+
+```move
+public enum MyEnum {
+    First,
+    MyVariant(u8),
+    AnotherVariant(u8, u8),
+    YetAnotherVariant { a: u8, b: u8 },
+}
+```
+
 ## v0.6.6 - Minor patch
 
 Fixes incorrect syntax in case of `_module` suffixed module name in module label.
