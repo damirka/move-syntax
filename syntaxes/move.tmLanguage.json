@@ -349,7 +349,7 @@
                 { "include": "#literals" },
                 { "include": "#types" },
                 {
-                    "match": "\\b([A-Z_]+)\\b",
+                    "match": "\\b([A-Z][A-Z_0-9]+)\\b",
                     "name": "constant.other.move"
                 },
                 { "include": "#error_const" }
@@ -712,7 +712,7 @@
 
         "error_const": {
             "name": "variable.other.error.const.move",
-            "match": "\\b(E[A-Z][A-Za-z_]*)\\b"
+            "match": "\\b(E[A-Z][A-Za-z0-9_]*)\\b"
         },
 
         "capitalized": {

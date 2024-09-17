@@ -2,6 +2,15 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.7.1 - Fix: constants allow digits
+
+- Fixes issue with constants not allowing digits
+
+```move
+const MY_CONST_100: u8 = 1;
+const EMyError100: u64 = 2;
+```
+
 ## v0.7.0 - Better enums
 
 - Adds proper, Rust-like support for enums
