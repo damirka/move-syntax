@@ -932,7 +932,7 @@
 
                 {
                     "comment": "ALL_CONST_CAPS",
-                    "name": "constant.other.move",
+                    "name": "variable.other.constant.move",
                     "match": "\\b([A-Z][A-Z_]+)\\b"
                 },
 
