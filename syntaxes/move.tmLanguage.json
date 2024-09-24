@@ -1065,7 +1065,8 @@
                         { "include": "#fun_call" },
                         { "include": "#literals" },
                         { "include": "#types" },
-                        { "include": "#let" }
+                        { "include": "#let" },
+                        { "include": "#fun" }
                     ]
                 }
             ]
