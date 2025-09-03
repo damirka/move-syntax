@@ -2,6 +2,20 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.7.2 - Fix: vector literal in consts, return type generics
+
+- Fixes issue with vector literal not being highlighted in `const` declaration
+
+```move
+const VEC_CONST: vector<u8> = vector[1, 2, 3, 4];
+```
+
+- Fixes issue with native types not getting highlighted in return type generics
+
+```move
+fun mul_ret(): MyType<vector<u8>> {}
+```
+
 ## v0.7.1 - Fix: constants allow digits
 
 - Fixes issue with constants not allowing digits

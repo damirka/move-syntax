@@ -541,7 +541,7 @@
                         }
                     ]
                 },
-                { "include": "#type_param" },
+                { "include": "#fun_type_param" },
                 {
                     "name": "meta.parentheses.move",
                     "comment": "Parentheses",
@@ -573,6 +573,21 @@
             "end": ">",
             "patterns": [
                 { "include": "#comments" },
+                { "include": "#phantom" },
+                { "include": "#capitalized" },
+                { "include": "#module_access" },
+                { "include": "#abilities" }
+            ]
+        },
+
+        "fun_type_param": {
+            "name": "meta.fun_generic_param.move",
+            "comment": "Generic type param for functions (before the parens)",
+            "begin": "<",
+            "end": ">",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#types" },
                 { "include": "#phantom" },
                 { "include": "#capitalized" },
                 { "include": "#module_access" },
@@ -882,10 +897,13 @@
                     "match": "\\b(?:true|false)\\b"
                 },
                 {
-                    "comment": "vector literal (macro?)",
-                    "name": "meta.vector.literal.macro.move",
-                    "begin": "vector\\[",
+                    "comment": "vector literal",
+                    "name": "meta.vector.literal.move",
+                    "begin": "(\\bvector\\b)\\[",
                     "end": "\\]",
+                    "captures": {
+                        "1": { "name": "support.type.vector.move" }
+                    },
                     "patterns": [{ "include": "#expr" }]
                 }
             ]
