@@ -9,6 +9,7 @@ Version history from v0.1.0 to this day.
 - Fixes `!` highlight in macro calls - no longer highlighted
 
 ```move
+#[mode(/* only for test */ test)]
 extend module pkg::mod;
 
 #[

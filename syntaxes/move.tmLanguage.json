@@ -121,39 +121,6 @@
             ]
         },
 
-        "extend_module_label": {
-            "name": "meta.extend_module_label.move",
-            "begin": "\\b(extend)\\b",
-            "end": ";\\s*$",
-            "patterns": [
-                { "include": "#comments" },
-                { "include": "#module" }
-            ]
-        },
-
-        "module_label": {
-            "name": "meta.module.label.move",
-            "comment": "Module label, inline module definition",
-            "begin": "^\\s*(module)\\b",
-            "end": ";\\s*$",
-            "patterns": [
-                { "include": "#comments" },
-                { "include": "#escaped_identifier" },
-                {
-                    "comment": "Module namespace / address",
-                    "name": "constant.other.move",
-                    "begin": "(?<=\\bmodule\\b)",
-                    "end": "(?=[(::){])"
-                },
-                {
-                    "comment": "Module name",
-                    "name": "entity.name.type.move",
-                    "begin": "(?<=::)",
-                    "end": "(?=[\\s{])"
-                }
-            ]
-        },
-
         "extend_module": {
             "name": "meta.extend_module.move",
             "begin": "\\b(extend)\\b",
