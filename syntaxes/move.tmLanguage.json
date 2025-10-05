@@ -687,7 +687,7 @@
             "match": "(\\b|\\.)([a-z][A-Za-z0-9_]*)(!)",
             "captures": {
                 "2": { "name": "support.function.macro.move" },
-                "3": { "name": "meta.excl.macro.move" }
+                "3": { "name": "meta.operator.macro.move" }
             }
         },
 
