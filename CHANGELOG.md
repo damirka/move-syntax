@@ -6,7 +6,7 @@ Version history from v0.1.0 to this day.
 
 - Adds support for `extend module` definition
 - Fixes issue with comments not getting highlighted correctly in annotations
-- New `meta.` annotation on `!` in macro calls
+- Fixes highlighting of `!` mark in macro call expression
 
 ```move
 #[mode(/* only for test */ test)]
