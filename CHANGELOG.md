@@ -21,6 +21,13 @@ fun a() {
 }
 ```
 
+```move
+extend module pkg::mod2 {
+    #[mode(fuzzing, test) /* quite a mode, huh? */]
+    public fun b() {}
+}
+```
+
 ## v0.7.2 - Fix: vector literal in consts, return type generics
 
 - Fixes issue with vector literal not being highlighted in `const` declaration
