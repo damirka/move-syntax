@@ -52,6 +52,7 @@
             "begin": "#\\[",
             "end": "\\]",
             "patterns": [
+                { "include": "#comments" },
                 {
                     "comment": "Annotation name",
                     "name": "meta.annotation.name.move",
@@ -120,6 +121,16 @@
             ]
         },
 
+        "extend_module_label": {
+            "name": "meta.extend_module_label.move",
+            "begin": "\\b(extend)\\b",
+            "end": ";\\s*$",
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#module" }
+            ]
+        },
+
         "module_label": {
             "name": "meta.module.label.move",
             "comment": "Module label, inline module definition",
@@ -140,6 +151,19 @@
                     "begin": "(?<=::)",
                     "end": "(?=[\\s{])"
                 }
+            ]
+        },
+
+        "extend_module": {
+            "name": "meta.extend_module.move",
+            "begin": "\\b(extend)\\b",
+            "end": "(?<=[;}])",
+            "beginCaptures": {
+                "1": { "name": "storage.modifier.type.extend.move" }
+            },
+            "patterns": [
+                { "include": "#comments" },
+                { "include": "#module" }
             ]
         },
 
@@ -693,9 +717,10 @@
         "macro_call": {
             "name": "meta.macro.call",
             "comment": "Macro fun call",
-            "match": "(\\b|\\.)([a-z][A-Za-z0-9_]*)!",
+            "match": "(\\b|\\.)([a-z][A-Za-z0-9_]*)(!)",
             "captures": {
-                "2": { "name": "support.function.macro.move" }
+                "2": { "name": "support.function.macro.move" },
+                "3": { "name": "meta.excl.macro.move" }
             }
         },
 
@@ -1093,11 +1118,11 @@
     "patterns": [
         { "include": "#address" },
         { "include": "#comments" },
+        { "include": "#extend_module" },
         { "include": "#module" },
         { "include": "#script" },
         { "include": "#annotation" },
         { "include": "#comments" },
-        { "include": "#annotation" },
         { "include": "#entry" },
         { "include": "#public-scope" },
         { "include": "#public" },
