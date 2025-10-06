@@ -34,6 +34,7 @@
                     "contentName": "meta.embedded.block.move",
                     "patterns": [
                         { "include": "source.move#comments" },
+                        { "include": "source.move#extend_module" },
                         { "include": "source.move#module" },
                         { "include": "source.move#script" },
                         { "include": "source.move#annotation" },

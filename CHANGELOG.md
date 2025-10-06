@@ -2,6 +2,32 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.7.3 - New `extend` keyword; Fix: comments in annotations
+
+- Adds support for `extend module` definition
+- Fixes issue with comments not getting highlighted correctly in annotations
+- Fixes highlighting of `!` mark in macro call expression
+
+```move
+#[mode(/* only for test */ test)]
+extend module pkg::mod;
+
+#[
+    error // annotation comment
+    /* and another comment */
+]
+fun a() {
+    assert!(true); // no more `!` highlighting
+}
+```
+
+```move
+extend module pkg::mod2 {
+    #[mode(fuzzing, test) /* quite a mode, huh? */]
+    public fun b() {}
+}
+```
+
 ## v0.7.2 - Fix: vector literal in consts, return type generics
 
 - Fixes issue with vector literal not being highlighted in `const` declaration
