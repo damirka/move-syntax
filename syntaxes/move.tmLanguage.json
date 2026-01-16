@@ -859,11 +859,6 @@
                             "match": "\\\\."
                         },
                         {
-                            "comment": "Special symbol escape",
-                            "name": "constant.character.escape.move",
-                            "match": "\\\\[nrt\\0\"]"
-                        },
-                        {
                             "comment": "Any symbol",
                             "name": "string.quoted.double.raw.move",
                             "match": "."
@@ -885,11 +880,6 @@
                             "comment": "character escape",
                             "name": "constant.character.escape.move",
                             "match": "\\\\."
-                        },
-                        {
-                            "comment": "Special symbol escape",
-                            "name": "constant.character.escape.move",
-                            "match": "\\\\[nrt\\0\"]"
                         },
                         {
                             "comment": "Any symbol",
