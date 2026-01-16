@@ -2,6 +2,17 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.7.4 - Adds support for string literals, better escaped characters highlighting
+
+- Adds support for string literals
+- Better highlighting of escaped characters in bytestring and string literals
+
+```move
+"string literal" // basic literal
+"\x00 escape \"" // hex escape highlights both symbols
+b"bytestring \x00 escape \" \x" // byte string escape highlights both symbols
+```
+
 ## v0.7.3 - New `extend` keyword; Fix: comments in annotations
 
 - Adds support for `extend module` definition
