@@ -92,6 +92,12 @@
             ]
         },
 
+        "address_literal": {
+            "comment": "Hex address literal (0x1, 0xCAFE, etc.)",
+            "match": "\\b0x[A-Fa-f0-9]+\\b",
+            "name": "support.constant.address.base16.move"
+        },
+
         "address": {
             "name": "meta.address_block.move",
             "comment": "Address block",
@@ -223,8 +229,8 @@
                 },
                 {
                     "comment": "Function name",
-                    "name": "entity.name.function.use.move",
-                    "match": "\\b(_______[a-z][a-z_0-9]+)\\b"
+                    "name": "meta.entity.name.function.use.move",
+                    "match": "\\b([a-z][a-z_0-9]*)\\b"
                 },
                 { "include": "#types" },
                 { "include": "#escaped_identifier" },
@@ -262,12 +268,6 @@
             "comment": "native",
             "match": "\\b(native)\\b",
             "name": "storage.modifier.visibility.native.move"
-        },
-
-        "inline": {
-            "comment": "inline",
-            "match": "\\b(inline)\\b",
-            "name": "storage.modifier.visibility.inline.move"
         },
 
         "import": {
@@ -787,7 +787,7 @@
                     "patterns": [
                         {
                             "comment": "arrow operator",
-                            "match": "\\b(=>)\\b",
+                            "match": "=>",
                             "name": "operator.match.move"
                         },
                         { "include": "#expr" }
