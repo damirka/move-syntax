@@ -2,6 +2,32 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.8.0 - Deprecate resource functions, add support for signed integer types
+
+- Deprecates resource functions
+- Adds support for signed integer types (i8, i16, i32, i64, i128, i256)
+- Adds Rust-like highlighting for types in hex and decimal literals
+
+```move
+let i1: i8 = 0x0i8 - 1i8;
+let i2: i16 = 0x0i16 - 1i16;
+let i3: i32 = 0x0i32 - 1i32;
+let i4: i64 = 0x0i64 - 1i64;
+let i5: i128 = 0x0i128 - 1i128;
+let i6: i256 = 0x0i256 - 2i256;
+
+let u1: u8 = 0x0u8 + 1u8;
+let u2: u16 = 0x0u16 + 1u16;
+let u3: u32 = 0x0u32 + 1u32;
+let u4: u64 = 0x0u64 + 1u64;
+let u5: u128 = 0x0u128 + 1u128;
+let u6: u256 = 0x0u256 + 1u256;
+
+exists<T>();
+borrow_global<T>();
+borrow_global_mut<T>();
+```
+
 ## v0.7.4 - Adds support for string literals, better escaped characters highlighting
 
 - Adds support for string literals

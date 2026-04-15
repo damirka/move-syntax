@@ -92,6 +92,12 @@
             ]
         },
 
+        "address_literal": {
+            "comment": "Hex address literal (0x1, 0xCAFE, etc.)",
+            "match": "\\b0x[A-Fa-f0-9]+\\b",
+            "name": "support.constant.address.base16.move"
+        },
+
         "address": {
             "name": "meta.address_block.move",
             "comment": "Address block",
@@ -223,8 +229,8 @@
                 },
                 {
                     "comment": "Function name",
-                    "name": "entity.name.function.use.move",
-                    "match": "\\b(_______[a-z][a-z_0-9]+)\\b"
+                    "name": "meta.entity.name.function.use.move",
+                    "match": "\\b([a-z][a-z_0-9]*)\\b"
                 },
                 { "include": "#types" },
                 { "include": "#escaped_identifier" },
@@ -262,12 +268,6 @@
             "comment": "native",
             "match": "\\b(native)\\b",
             "name": "storage.modifier.visibility.native.move"
-        },
-
-        "inline": {
-            "comment": "inline",
-            "match": "\\b(inline)\\b",
-            "name": "storage.modifier.visibility.inline.move"
         },
 
         "import": {
@@ -675,12 +675,6 @@
             "name": "variable.language.escaped.move"
         },
 
-        "resource_methods": {
-            "comment": "Methods to work with resource",
-            "match": "\\b(borrow_global|borrow_global_mut|exists|move_from|move_to_sender|move_to)\\b",
-            "name": "support.function.typed.move"
-        },
-
         "macro_call": {
             "name": "meta.macro.call",
             "comment": "Macro fun call",
@@ -744,7 +738,7 @@
 
         "primitives": {
             "comment": "Primitive types",
-            "match": "\\b(u8|u16|u32|u64|u128|u256|address|bool|signer)\\b",
+            "match": "\\b([ui](8|16|32|64|128|256)|address|bool|signer)\\b",
             "name": "support.type.primitives.move"
         },
 
@@ -793,7 +787,7 @@
                     "patterns": [
                         {
                             "comment": "arrow operator",
-                            "match": "\\b(=>)\\b",
+                            "match": "=>",
                             "name": "operator.match.move"
                         },
                         { "include": "#expr" }
@@ -829,18 +823,26 @@
                 },
                 {
                     "comment": "named address literal @[ident]",
-                    "match": "@[a-zA-Z][a-zA-Z_0-9]*",
+                    "match": "\\b@[a-zA-Z][a-zA-Z_0-9]*\\b",
                     "name": "support.constant.address.name.move"
                 },
                 {
                     "comment": "Hex literal",
-                    "name": "constant.numeric.hex.move",
-                    "match": "0x[_a-fA-F0-9]+(?:u(?:8|16|32|64|128|256))?"
+                    "name": "meta.constant.numeric.hex.move",
+                    "match": "\\b(0x[_a-fA-F0-9]+)([ui](8|16|32|64|128|256))?\\b",
+                    "captures": {
+                        "1": { "name": "constant.numeric.hex.move" },
+                        "2": { "name": "entity.name.type.integer.move" }
+                    }
                 },
                 {
                     "comment": "Numeric literal",
-                    "name": "constant.numeric.move",
-                    "match": "(?<!(?:\\w|(?:(?<!\\.)\\.)))[0-9][_0-9]*(?:\\.(?!\\.)(?:[0-9][_0-9]*)?)?(?:[eE][+\\-]?[_0-9]+)?(?:[u](?:8|16|32|64|128|256))?"
+                    "name": "meta.constant.numeric.move",
+                    "match": "\\b([0-9][_0-9]*)([ui](8|16|32|64|128|256))?\\b",
+                    "captures": {
+                        "1": { "name": "constant.numeric.decimal.move" },
+                        "2": { "name": "entity.name.type.integer.move" }
+                    }
                 },
                 {
                     "comment": "String literal",
@@ -938,7 +940,6 @@
                 { "include": "#literals" },
                 { "include": "#control" },
                 { "include": "#move_copy" },
-                { "include": "#resource_methods" },
                 { "include": "#self_access" },
                 { "include": "#module_access" },
                 { "include": "#label" },
@@ -979,6 +980,12 @@
 
         "=== DEPRECATED_BELOW ===": {},
 
+        "resource_methods": {
+            "comment": "Methods to work with resource",
+            "match": "\\b(borrow_global|borrow_global_mut|exists|move_from|move_to_sender|move_to)\\b",
+            "name": "support.function.typed.move"
+        },
+
         "fun_call": {
             "name": "meta.fun_call.move",
             "comment": "Function call",
@@ -989,7 +996,6 @@
             "end": "[)]",
             "patterns": [
                 { "include": "#comments" },
-                { "include": "#resource_methods" },
                 { "include": "#self_access" },
                 { "include": "#module_access" },
                 { "include": "#move_copy" },

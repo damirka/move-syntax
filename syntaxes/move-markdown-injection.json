@@ -58,7 +58,6 @@
                         { "include": "source.move#literals" },
                         { "include": "source.move#control" },
                         { "include": "source.move#move_copy" },
-                        { "include": "source.move#resource_methods" },
                         { "include": "source.move#self_access" },
                         { "include": "source.move#module_access" },
                         { "include": "source.move#fun_call" },
