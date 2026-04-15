@@ -2,6 +2,18 @@
 
 Version history from v0.1.0 to this day.
 
+## v0.8.1 - Fix: address literals
+
+- Improve address highlighting for named + decimal literals
+
+```move
+let _ : address = @0;
+let _ : address = @0x1;
+let _ : address = @alice;
+
+let _: u64 = 0x2; // different hl
+```
+
 ## v0.8.0 - Deprecate resource functions, add support for signed integer types
 
 - Deprecates resource functions
